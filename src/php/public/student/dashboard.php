@@ -152,7 +152,7 @@ $firstName = explode(' ', $student['name'])[0];
                     <!-- Date Card -->
                     <div class="date-card">
                         <div class="date-card-icon">
-                            <?= icon('calendar.circle.fill', 24, '#4F8CFF') ?>
+                            <?= icon('calendar.circle.fill', 24) ?>
                         </div>
                         <div class="date-card-info">
                             <div class="date-card-date"><?= h($formattedDate) ?></div>
@@ -166,7 +166,7 @@ $firstName = explode(' ', $student['name'])[0];
                 <div class="stats-row">
                     <div class="stat-card-gradient stat-card-total">
                         <div class="stat-card-icon">
-                            <?= icon('doc.text.fill', 24, '#FFFFFF') ?>
+                            <?= icon('doc.text.fill', 24) ?>
                         </div>
                         <div class="stat-card-value"><?= $totalTests ?></div>
                         <div class="stat-card-label">Total Tests</div>
@@ -175,7 +175,7 @@ $firstName = explode(' ', $student['name'])[0];
                     </div>
                     <div class="stat-card-gradient stat-card-completed">
                         <div class="stat-card-icon">
-                            <?= icon('checkmark.circle.fill', 24, '#FFFFFF') ?>
+                            <?= icon('checkmark.circle.fill', 24) ?>
                         </div>
                         <div class="stat-card-value"><?= $completedTests ?></div>
                         <div class="stat-card-label">Completed</div>
@@ -184,7 +184,7 @@ $firstName = explode(' ', $student['name'])[0];
                     </div>
                     <div class="stat-card-gradient stat-card-pending">
                         <div class="stat-card-icon">
-                            <?= icon('clock.badge.exclamationmark.fill', 24, '#FFFFFF') ?>
+                            <?= icon('clock.badge.exclamationmark.fill', 24) ?>
                         </div>
                         <div class="stat-card-value"><?= $pendingTests ?></div>
                         <div class="stat-card-label">Pending / Active</div>
@@ -400,7 +400,7 @@ $firstName = explode(' ', $student['name'])[0];
                                 <div class="test-card">
                                     <div class="test-card-top">
                                         <div class="test-card-icon">
-                                            <?= icon('doc.text.fill', 24, '#4F8CFF') ?>
+                                            <?= icon('doc.text.fill', 24) ?>
                                         </div>
                                         <span class="badge <?= $statusClass ?>"><?= ucfirst($t['status']) ?></span>
                                     </div>
@@ -421,7 +421,7 @@ $firstName = explode(' ', $student['name'])[0];
                 <!-- Bottom Information Card -->
                 <div class="info-card">
                     <div class="info-card-icon">
-                        <?= icon('info', 20, '#4F8CFF') ?>
+                        <?= icon('info', 20) ?>
                     </div>
                     <div class="info-card-text">
                         You can review completed assessments or wait for newly published assessments.

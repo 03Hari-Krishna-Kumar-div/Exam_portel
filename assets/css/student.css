@@ -2623,18 +2623,14 @@ tr {
 [data-theme="dark"] .stat-card-total .stat-card-icon { background: rgba(79, 140, 255, 0.15); }
 [data-theme="dark"] .stat-card-completed .stat-card-icon { background: rgba(34, 197, 94, 0.15); }
 [data-theme="dark"] .stat-card-pending .stat-card-icon { background: rgba(245, 158, 11, 0.15); }
-/* Stat card icons are white per spec (Apple SF Symbols filled style) */
-.stat-card-total .stat-card-icon .icn,
-.stat-card-completed .stat-card-icon .icn,
-.stat-card-pending .stat-card-icon .icn {
-  color: #FFFFFF;
-}
-/* Dark mode stat icon colors — slightly dimmed for contrast */
-[data-theme="dark"] .stat-card-total .stat-card-icon .icn,
-[data-theme="dark"] .stat-card-completed .stat-card-icon .icn,
-[data-theme="dark"] .stat-card-pending .stat-card-icon .icn {
-  color: rgba(255, 255, 255, 0.95);
-}
+/* Stat card icons — adaptive accent colors for light/dark mode */
+.stat-card-total .stat-card-icon .icn { color: var(--accent); }
+.stat-card-completed .stat-card-icon .icn { color: var(--green); }
+.stat-card-pending .stat-card-icon .icn { color: var(--yellow); }
+/* Dark mode — lighter accent colors for visibility on dark surfaces */
+[data-theme="dark"] .stat-card-total .stat-card-icon .icn { color: #6CA0FF; }
+[data-theme="dark"] .stat-card-completed .stat-card-icon .icn { color: #4ADE80; }
+[data-theme="dark"] .stat-card-pending .stat-card-icon .icn { color: #FBBF24; }
 .stat-card-value {
   font-size: var(--fs-28);
   font-weight: 700;
@@ -2902,6 +2898,9 @@ tr {
   justify-content: center;
   flex-shrink: 0;
 }
+.test-card-icon .icn {
+  color: var(--icon-color);
+}
 .test-card-icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
@@ -2956,6 +2955,9 @@ tr {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+.info-card-icon .icn {
+  color: var(--accent);
 }
 .info-card-icon svg {
   width: 20px;
