@@ -368,76 +368,303 @@ For adding many students at once:
 
 ---
 
-# 📂 LEFT SIDEBAR — Navigation Menu
+# 📂 LEFT SIDEBAR — Complete Guide to Every Menu Item
 
-The sidebar on the left is your main menu. Click any item to go to that section.
+The sidebar on the left is your control panel. Each item opens a different page. Here's exactly what you'll find on each page — every button, every table, every feature explained.
 
-## Overview
+---
 
-| Menu Item | What you'll find there |
-|-----------|------------------------|
-| **📊 Dashboard** | Your home screen (described above) |
+## 📊 Overview
 
-## Institution Management
+### Dashboard
+**What you see:** Your home screen with statistics cards (student count, assessment count, active tests, pending actions), performance charts (line graph and segmented rings), 6 quick-action shortcut cards, recent activity tables, live activity feed, and system status indicators.
 
-| Menu Item | What you'll find there |
-|-----------|------------------------|
-| **🏛️ Colleges** | Add and manage colleges/institutions. You can add new colleges, edit names, or remove them. |
-| **📖 Courses** | Create courses (e.g., "Mathematics 101", "Physics Lab"). Each course belongs to a college. |
-| **📚 Batches** | Group students into batches (e.g., "Batch 2025-A", "Morning Section"). This is how you assign tests to specific groups. |
+**What you can do here:**
+- See a bird's-eye view of everything happening in the system
+- Click any stat card arrow → to drill into details
+- Click Quick Action cards → to jump to common tasks
+- Hover over the performance chart → to see exact scores
+- Monitor live activity → auto-refreshes in real time
+- Check system status → green = healthy, yellow = needs attention
 
-> **Example workflow:** Create a College → Add Courses to it → Create Batches under those courses → Assign Students to batches → Create Tests for those batches.
+---
 
-## Student Management
+## 🏛️ Institution Management
 
-| Menu Item | What you'll find there |
-|-----------|------------------------|
-| **👥 Students** | View all registered students, add new ones, edit their info, or remove them. |
-| **⏳ Pending Verifications** | New students who registered but need your approval before they can log in. Click to verify them. |
-| **🔗 Guest Access** | Set up temporary guest access for students who don't have accounts (e.g., demo tests). |
+### Colleges
+**What you see:** A table listing all colleges with columns: ID, Name, Address, Courses count (shows how many courses under each college), Created date, and Action buttons.
 
-## Assessment Studio
+**What you can do here:**
+| Button / Feature | How to use it |
+|-----------------|---------------|
+| **+ Add College** | Opens a pop-up form. Enter **College Name** (required) and **Address** (optional). Click Save. |
+| **Edit** (in Actions column) | Opens the same form pre-filled. Change the name or address, click Save. |
+| **Delete** (in Actions column) | Click to remove the college. ⚠️ Warning: This also deletes all courses and batches under it. |
+| **Courses badge** (number) | Shows how many courses belong to this college. Click to see them (if linked). |
 
-| Menu Item | What you'll find there |
-|-----------|------------------------|
-| **➕ Create Assessment** | The test builder — add questions, set duration, choose batch, and publish. |
-| **📄 Draft Assessments** | Tests you've started but haven't published yet. Come back later to finish them. |
-| **❓ Question Library** | A bank of all your saved questions. Reuse questions across multiple tests instead of typing them again. |
+### Courses
+**What you see:** A table listing all courses with columns: ID, College (which college it belongs to), Name, Batches count (how many batches under this course), Created date, and Actions.
 
-## Assessment Management
+**What you can do here:**
+| Button / Feature | How to use it |
+|-----------------|---------------|
+| **+ Add Course** | Opens a form. First select a **College** from the dropdown, then enter the **Course Name**. Click Save. |
+| **Edit** | Change the course name or move it to a different college. |
+| **Delete** | Remove the course. ⚠️ This also deletes all batches and student assignments. |
+| **Batches badge** | Shows how many batches exist under this course. |
 
-| Menu Item | What you'll find there |
-|-----------|------------------------|
-| **📋 All Assessments** | A complete list of every test. From here you can Edit, Pause, Resume, or End tests. |
-| **🔴 Live Monitor** | Watch ongoing tests in real-time — see who's currently taking the test, who has submitted, and track suspicious activity. |
-| **✅ Grading** | For tests that need manual grading (like essay questions). Review and assign scores here. |
+### Batches
+**What you see:** A filterable table listing all batches with columns: ID, Name, Course, College, Students count, Created date, and Actions. At the top, there are **dropdown filters** to narrow by College or Course.
 
-## Reports & Analytics
+**What you can do here:**
+| Button / Feature | How to use it |
+|-----------------|---------------|
+| **+ Add Batch** | Opens a form. Select **College** → then **Course** (filters based on college) → enter **Batch Name** (e.g., "Batch 2025-A", "Morning Section"). Click Save. |
+| **College / Course filters** | Use the dropdowns at the top to show only batches from a specific college or course. |
+| **Edit** | Change the batch name or reassign it to a different course. |
+| **Delete** | Remove the batch. |
+| **Students badge** | Shows how many students are in this batch. Click to view them. |
 
-| Menu Item | What you'll find there |
-|-----------|------------------------|
-| **📊 Reports** | Detailed performance reports — average scores, pass rates, per-student breakdowns. |
-| **🔄 Tab Activity** | See which students switched tabs during online tests (potential cheating indicator). |
-| **⚠️ Failed Logins** | A log of unsuccessful login attempts — useful for spotting security issues. |
+---
 
-## System
+## 👥 Student Management
 
-| Menu Item | What you'll find there |
-|-----------|------------------------|
-| **⚙️ Settings** | System-wide settings like email configuration, test defaults, and security options. |
-| **📜 Activity Logs** | A detailed record of all actions taken in the system (who did what and when). |
+### Students
+**What you see:** A searchable table of all registered students with columns: Name, Email, Roll Number, Batch, Status (Active or Pending), Created date, and Actions. At the top, there's a **search bar** and **filter dropdowns**.
 
-## Support
+**What you can do here:**
+| Button / Feature | How to use it |
+|-----------------|---------------|
+| **Add Student** | Opens a form. Fill in: **Name**, **Email** (their login ID), **Roll Number** (optional), **Batch** (select from dropdown), **Password** (leave blank to auto-generate). Click Save. |
+| **Search bar** | Type any name, email, or roll number to find a specific student. |
+| **Batch filter** | Show only students from a specific batch. |
+| **Edit** | Update student details or change their batch. |
+| **Delete** | Remove the student from the system. |
+| **Generate Guest Link / QR Code** | Opens a form to create temporary guest access. Select a **Batch**, optionally pick a **specific test**, choose **Guest Link** (URL) or **QR Code** (scannable image). Click Generate. *(See the Guest Link section below for details.)* |
 
-| Menu Item | What you'll find there |
-|-----------|------------------------|
-| **❓ Help & Documentation** | Built-in help resources and links to this manual. |
+### Pending Verifications
+**What you see:** A list of students who registered themselves but haven't been approved yet. Columns: Name, Email, Roll Number, Batch, Registered date, and Verify button.
+
+**What you can do here:**
+| Button / Feature | How to use it |
+|-----------------|---------------|
+| **Verify** | Click to approve the student. They'll be able to log in immediately after verification. |
+| **Search / Filter** | Find specific pending students by name or batch. |
+
+### Guest Access
+**What you see:** *(This is the same as the "Generate Guest Link / QR Code" feature on the Students page, described in detail in its own section below.)*
+
+---
+
+## 🎨 Assessment Studio
+
+### Create Assessment
+**What you see:** A multi-step form to build a new test.
+
+**Step 1 — Test Settings:**
+| Field | What to enter |
+|-------|-------------|
+| **Assessment Title** | A clear name (e.g., "Midterm Physics Exam") |
+| **Batch** | Which student group should take this test |
+| **Duration (minutes)** | How long students have (e.g., 60 = 1 hour) |
+| **Start Time** | When the test opens (optional) |
+| **End Time** | When the test closes automatically |
+| **Passing Marks** | Minimum score to pass (optional, 0 = not set) |
+| **Negative Marking** | Points deducted for wrong answers (e.g., 0.25) |
+| **Shuffle Questions** | Check this to randomize question order per student |
+| **Instructions** | Text shown to students before they start |
+
+Click **"Save"** to create the test.
+
+**Step 2 — Question Editor (after saving):**
+Now you're on the question editing page. Here you can:
+
+| Section | What you can do |
+|---------|----------------|
+| **Add Question Manually** | Select question type (MCQ / Coding / Explanation), enter marks, type the question, add options (for MCQ), select correct answer, click "Add Question" |
+| **Bulk Import from CSV** | Upload a CSV file with MCQ questions (see the CSV section for format) |
+| **Question Library** | Browse and import questions you've used in previous tests |
+
+**Step 3 — Publish:**
+| Option | What happens |
+|--------|-------------|
+| **Publish Now** | Test goes live immediately — students can start |
+| **Schedule** | Set a future date/time for the test to go live |
+| **Save as Draft** | Save and come back later to finish |
+
+### Draft Assessments
+**What you see:** A list of tests you've started but haven't published yet. Each shows the title, batch, course, last edited date, and a link to continue editing.
+
+**What you can do here:**
+| Button | What it does |
+|--------|-------------|
+| **Continue Editing** | Takes you back to the question editor to add more questions or change settings |
+| **Delete Draft** | Discard the draft permanently |
+
+### Question Library
+**What you see:** A searchable, filterable bank of **every question** ever created across all tests. Shows: Question text, Type (MCQ/Coding/Explanation), which test it came from, batch, course, and college.
+
+**What you can do here:**
+| Button / Feature | How to use it |
+|-----------------|---------------|
+| **Search** | Type keywords to find specific questions |
+| **Type filter** | Filter by MCQ, Coding, or Explanation |
+| **Stats at top** | See total counts: "245 Total Questions · 180 MCQ · 40 Coding · 25 Explanation" |
+| **+ New Question** | Jump directly to the Assessment Studio to create a new question |
+
+---
+
+## 📋 Assessment Management
+
+### All Assessments
+**What you see:** A tabbed interface with 4 tabs — **Upcoming**, **Live**, **Paused**, **Completed**. Each tab shows a table of tests in that status. Each row shows: Title, Batch, Course, Questions count, Submissions, Students, and Action buttons.
+
+**What you can do in each tab:**
+
+**Upcoming Tab** (tests scheduled but not yet started):
+| Button | What it does |
+|--------|-------------|
+| **Edit** | Change test settings or add more questions |
+| **Publish** | Make the test live immediately |
+| **Delete** | Remove the test permanently |
+
+**Live Tab** (tests currently running):
+| Button | What it does |
+|--------|-------------|
+| **Live Monitor** | Open the live monitor for this test |
+| **Pause** | Temporarily stop the test (students can resume later) |
+| **End** | Permanently end the test (no more submissions) |
+| **Extend Time** | Add extra minutes to all students currently taking the test |
+
+**Paused Tab** (tests temporarily stopped):
+| Button | What it does |
+|--------|-------------|
+| **Resume** | Reactivate the test so students can continue |
+| **End** | Permanently end the test |
+| **Edit** | Change settings before resuming |
+
+**Completed Tab** (finished tests):
+| Button | What it does |
+|--------|-------------|
+| **View Results** | See all scores and performance data |
+| **Grading** | Grade any remaining coding/explanation questions |
+| **Reports** | Generate detailed PCI reports |
+
+### Live Monitor
+**What you see:** First, a list of active tests to choose from. After selecting a test, you see a **real-time dashboard** showing:
+
+| Section | What it shows |
+|---------|---------------|
+| **Summary cards** | Total students, Active now, Submitted, Time remaining |
+| **Student list** | Each student: name, status (In Progress / Submitted), time spent, questions answered, tab switches |
+| **Live indicators** | Green pulsing dot next to students currently taking the test |
+| **Refresh** | Auto-updates to show latest activity |
+
+**What you can do here:**
+| Button / Feature | How to use it |
+|-----------------|---------------|
+| **Select a test** | Pick from the list of currently active tests |
+| **Refresh** | Click to get the latest data |
+| **View student** | Click a student's name to see their detailed progress |
+| **Monitor tab switches** | The "Switches" column shows how many times a student switched tabs (potential cheating indicator) |
+
+### Grading
+**What you see:** A two-step page:
+
+**Step 1 — Select Test:**
+- Dropdown showing all tests with submissions needing grading
+- Each test shows: title, batch, and number of pending submissions
+
+**Step 2 — Grade Submissions:**
+- List of students who submitted, with columns: Name, Roll #, Submitted time, Status, Score, Ungraded count, and Grade button
+- Click **"Grade"** to open the detailed grading view
+
+**Grading View (detailed):**
+For each question, you see:
+| Question Type | What you see | What you do |
+|--------------|-------------|-------------|
+| **MCQ** | The question, all options (correct answer marked with ✅, student's selection), auto-calculated score | Override marks if needed (e.g., give full points for a flawed question) |
+| **Coding** | The question, student's code in a read-only box | Read the code, enter marks (0 to max) |
+| **Explanation** | The question, student's written answer | Read the answer, enter marks (0 to max) |
+
+At the bottom: **"Save All Grades"** button — click when done. This marks the submission as **Evaluated**.
+
+---
+
+## 📊 Reports & Analytics
+
+### Reports
+**What you see:** A detailed reporting page where you can:
+| Feature | What it does |
+|---------|-------------|
+| **Select Test** | Pick a test to analyse |
+| **Select Student** | Drill into a specific student's performance |
+| **Generate PCI Report** | Click to compute the Performance Competency Index — a weighted score combining MCQ (40%), Coding (30%), and Explanation (30%) performance |
+
+**PCI Report shows:**
+- Overall PCI score (0–100%)
+- Per-category breakdown (MCQ, Coding, Explanation)
+- Student ranking within the batch
+
+### Tab Activity
+**What you see:** A list of tests with tab-switching data. After selecting a test, you see a table of students and how many times they switched tabs during the test.
+
+**What you can do here:**
+| Button / Feature | How to use it |
+|-----------------|---------------|
+| **Select Test** | Pick a test from the dropdown |
+| **Sort by switches** | See which students switched tabs the most |
+| **Extend Timer** | If a student had technical issues, you can add extra minutes to their timer |
+| **View details** | See when each switch happened (first switch, last switch) |
+
+### Failed Logins
+**What you see:** A log of unsuccessful login attempts with columns: Email used, IP address, Attempt type, Timestamp, and User agent (browser info).
+
+**What you can do here:**
+| Button / Feature | How to use it |
+|-----------------|---------------|
+| **Search by email** | Find attempts from a specific email address |
+| **Filter by type** | Filter by attempt type (e.g., wrong password, account not found) |
+| **Pagination** | Browse through pages of logs (50 per page) |
+
+---
+
+## ⚙️ System
+
+### Settings
+**What you see:** *(Feature coming soon)* This page will eventually let you configure:
+- Email server settings (for sending verification emails)
+- Authentication options
+- Platform branding
+- Security preferences
+
+Currently shows a "Coming Soon" message.
+
+### Activity Logs
+**What you see:** *(Feature coming soon)* This page will eventually show a complete audit trail of:
+- All admin actions (who created/deleted what)
+- Student logins and activity
+- Assessment changes
+- System events
+
+Currently shows a "Coming Soon" message.
+
+---
+
+## ❓ Support
+
+### Help & Documentation
+**What you see:** Built-in help resources and links to documentation (including this manual).
+
+---
 
 ## Bottom of Sidebar
 
 | Button | What it does |
 |--------|-------------|
-| **🚪 Sign Out** | Logs you out of the system |
+| **🚪 Sign Out** | Logs you out of the system and returns you to the login page |
+
+---
 
 ---
 
