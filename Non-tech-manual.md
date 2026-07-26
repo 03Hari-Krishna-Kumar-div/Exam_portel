@@ -1,4 +1,4 @@
-# 📘 Exam Portal — Simple User Guide
+# Exam Portal — Simple User Guide
 
 > **For:** Teachers, Administrators, and Staff  
 > **Purpose:** Explains every button, screen, and feature in plain English  
@@ -6,7 +6,7 @@
 
 ---
 
-## 🎯 What Is This?
+## What Is This?
 
 This is an online exam platform. Think of it as a digital classroom where:
 
@@ -17,7 +17,7 @@ Everything lives inside your web browser — no software to install.
 
 ---
 
-## 🔑 Logging In
+## Logging In
 
 **URL:** Ask your technical team for the link.
 
@@ -38,7 +38,7 @@ Click **"Sign In"** and you're in.
 
 ---
 
-## 👤 How Student Registration & Login Works
+## How Student Registration & Login Works
 
 Students have two ways to access the system:
 
@@ -83,7 +83,7 @@ This is for **temporary or one-time access** — no email or password needed.
 
 ---
 
-# 🖥️ ADMIN DASHBOARD — What You See First
+# ADMIN DASHBOARD — What You See First
 
 After logging in as an admin, this is your home screen. It gives you a birds-eye view of everything happening.
 
@@ -117,7 +117,7 @@ Each card has a small arrow → that you can click to see more details.
 
 ## Charts Section
 
-### 📈 Average Performance (The Line Graph)
+### Average Performance (The Line Graph)
 
 This is a chart that shows how students are performing over time. 
 
@@ -127,7 +127,7 @@ This is a chart that shows how students are performing over time.
 
 > **What to look for:** If the line is trending upward, students are improving. If it's dropping, you may want to review the teaching material.
 
-### 🎯 Assessment Distribution (The Coloured Ring)
+### Assessment Distribution (The Coloured Ring)
 
 This circle shows the **status of all your tests**:
 
@@ -141,7 +141,7 @@ The **big number in the centre** shows the dominant category. For example, if mo
 
 The **legend on the right** breaks down the exact count for each status.
 
-### 🔄 Submission Overview (Another Coloured Ring)
+### Submission Overview (Another Coloured Ring)
 
 This circle shows the **progress of student submissions**:
 
@@ -166,7 +166,7 @@ These are one-click shortcuts to your most common tasks:
 
 ## Recent Activity
 
-### 📋 Recent Assessments
+### Recent Assessments
 
 A table showing the most recently created or modified tests:
 - **Name** — the test title
@@ -175,7 +175,7 @@ A table showing the most recently created or modified tests:
 - **Questions** — how many questions in the test
 - **Actions** — buttons to edit, view, or manage the assessment
 
-### 👤 Recent Students
+### Recent Students
 
 A list of students who recently joined or interacted with the platform:
 - **Name** and **Email**
@@ -183,7 +183,7 @@ A list of students who recently joined or interacted with the platform:
 - **Status** — Active or Pending
 - **Actions** — buttons to view their profile or edit details
 
-### 🔴 Live Activity Feed
+### Live Activity Feed
 
 A real-time stream showing what's happening right now:
 - *"John started Test 3"*
@@ -192,7 +192,7 @@ A real-time stream showing what's happening right now:
 
 This auto-refreshes, so you can monitor activity without refreshing the page.
 
-### ✅ System Status
+### System Status
 
 4 indicators showing if everything is working properly:
 
@@ -207,7 +207,7 @@ Each shows a green check ✅ (healthy) or warning ⚠️ (needs attention).
 
 ---
 
-# 🏛️ SETTING UP YOUR INSTITUTION — Step by Step
+# SETTING UP YOUR INSTITUTION — Step by Step
 
 When you first start using the system, you need to set things up in this order:
 
@@ -368,13 +368,13 @@ For adding many students at once:
 
 ---
 
-# 📂 LEFT SIDEBAR — Complete Guide to Every Menu Item
+# LEFT SIDEBAR — Complete Guide to Every Menu Item
 
 The sidebar on the left is your control panel. Each item opens a different page. Here's exactly what you'll find on each page — every button, every table, every feature explained.
 
 ---
 
-## 📊 Overview
+## Overview
 
 ### Dashboard
 **What you see:** Your home screen with statistics cards (student count, assessment count, active tests, pending actions), performance charts (line graph and segmented rings), 6 quick-action shortcut cards, recent activity tables, live activity feed, and system status indicators.
@@ -389,7 +389,7 @@ The sidebar on the left is your control panel. Each item opens a different page.
 
 ---
 
-## 🏛️ Institution Management
+## Institution Management
 
 ### Colleges
 **What you see:** A table listing all colleges with columns: ID, Name, Address, Courses count (shows how many courses under each college), Created date, and Action buttons.
@@ -427,7 +427,7 @@ The sidebar on the left is your control panel. Each item opens a different page.
 
 ---
 
-## 👥 Student Management
+## Student Management
 
 ### Students
 **What you see:** A searchable table of all registered students with columns: Name, Email, Roll Number, Batch, Status (Active or Pending), Created date, and Actions. At the top, there's a **search bar** and **filter dropdowns**.
@@ -456,7 +456,7 @@ The sidebar on the left is your control panel. Each item opens a different page.
 
 ---
 
-## 🎨 Assessment Studio
+## Assessment Studio
 
 ### Create Assessment
 **What you see:** A multi-step form to build a new test.
@@ -514,7 +514,7 @@ Now you're on the question editing page. Here you can:
 
 ---
 
-## 📋 Assessment Management
+## Assessment Management
 
 ### All Assessments
 **What you see:** A tabbed interface with 4 tabs — **Upcoming**, **Live**, **Paused**, **Completed**. Each tab shows a table of tests in that status. Each row shows: Title, Batch, Course, Questions count, Submissions, Students, and Action buttons.
@@ -591,7 +591,7 @@ At the bottom: **"Save All Grades"** button — click when done. This marks the 
 
 ---
 
-## 📊 Reports & Analytics
+## Reports & Analytics
 
 ### Reports
 **What you see:** A detailed reporting page where you can:
@@ -629,7 +629,7 @@ At the bottom: **"Save All Grades"** button — click when done. This marks the 
 
 ---
 
-## ⚙️ System
+## System
 
 ### Settings
 **What you see:** *(Feature coming soon)* This page will eventually let you configure:
@@ -651,7 +651,7 @@ Currently shows a "Coming Soon" message.
 
 ---
 
-## ❓ Support
+## Support
 
 ### Help & Documentation
 **What you see:** Built-in help resources and links to documentation (including this manual).
@@ -668,7 +668,7 @@ Currently shows a "Coming Soon" message.
 
 ---
 
-# 🧑‍🎓 STUDENT EXPERIENCE
+# STUDENT EXPERIENCE
 
 This is what students see when they log in.
 
@@ -702,7 +702,7 @@ This is what students see when they log in.
 
 ---
 
-# 🛠️ COMMON TASKS — Step by Step
+# COMMON TASKS — Step by Step
 
 ## Creating a New Test
 
@@ -743,7 +743,7 @@ This is what students see when they log in.
 
 ---
 
-# 🔗 GUEST LINK & QR CODE — Giving Test Access Without Login
+# GUEST LINK & QR CODE — Giving Test Access Without Login
 
 Guest access lets students take a test **without creating an account**. This is useful for:
 - **Demo tests** — let prospective students try the platform
@@ -836,7 +836,7 @@ Guest entries are stored in the system and you can see them in the database. Eac
 
 ---
 
-# 📝 WORKING WITH QUESTIONS — In Detail
+# WORKING WITH QUESTIONS — In Detail
 
 The system supports **three types of questions**:
 
@@ -848,7 +848,7 @@ The system supports **three types of questions**:
 
 ---
 
-## 🎯 Adding Questions One by One (Manual)
+## Adding Questions One by One (Manual)
 
 When creating or editing a test, scroll to the **"Add Question Manually"** section.
 
@@ -915,7 +915,7 @@ The question is added to your test. Repeat to add more questions.
 
 ---
 
-## 📂 Bulk Upload via CSV File (for MCQ Questions Only)
+## Bulk Upload via CSV File (for MCQ Questions Only)
 
 If you have many MCQ questions, use a **CSV file** to add them all at once.
 
@@ -940,7 +940,7 @@ Your CSV file must have these **7 columns** in this exact order:
 | **Correct Answer** | The correct letter: A, B, C, or D | `C` |
 | **Marks** | Points for this question (1, 2, 5, etc.) | `1` |
 
-### 📄 Sample CSV — Copy This Template
+### Sample CSV — Copy This Template
 
 Open Notepad or any text editor, copy-paste the following, and save it as `questions.csv`:
 
@@ -985,7 +985,7 @@ What is the speed of light approximately?,300000 km/s,150000 km/s,500000 km/s,10
 
 ---
 
-## ✅ How Grading Works (For Each Question Type)
+## How Grading Works (For Each Question Type)
 
 ### MCQ Grading (Automatic)
 
@@ -1041,7 +1041,7 @@ When you visit the Grading page, you'll see a table showing:
 
 ---
 
-## 💡 Tips for Writing Good Questions
+## Tips for Writing Good Questions
 
 ### MCQ Best Practices
 
@@ -1071,7 +1071,7 @@ When you visit the Grading page, you'll see a table showing:
 
 ---
 
-# 🌙 Theme Toggle (Dark / Light Mode)
+# Theme Toggle (Dark / Light Mode)
 
 Found in the **top bar** (admin) or **sidebar** (student).  
 
@@ -1084,7 +1084,7 @@ Your preference is remembered the next time you log in.
 
 ---
 
-# ❓ FREQUENTLY ASKED QUESTIONS
+# FREQUENTLY ASKED QUESTIONS
 
 **Q: A student says they can't log in. What do I check?**
 > First, go to **Pending Verifications** and approve their account. If they're already verified, check that their email and password are correct.
@@ -1139,7 +1139,7 @@ Your preference is remembered the next time you log in.
 
 ---
 
-# 📱 USING ON MOBILE
+# USING ON MOBILE
 
 The system works on phones and tablets too.
 
