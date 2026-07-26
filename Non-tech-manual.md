@@ -310,6 +310,241 @@ This is what students see when they log in.
 
 ---
 
+# 📝 WORKING WITH QUESTIONS — In Detail
+
+The system supports **three types of questions**:
+
+| Type | What it is | How it's scored |
+|------|-----------|-----------------|
+| **MCQ** (Multiple Choice) | Student picks one correct answer from A, B, C, or D | ✅ Auto-graded — the system marks it right or wrong instantly |
+| **Coding** | Student writes code (Python, JavaScript, etc.) | 👩‍🏫 Manually graded — you read the code and assign marks |
+| **Explanation** | Student writes a paragraph explaining a concept | 👩‍🏫 Manually graded — you read the answer and assign marks |
+
+---
+
+## 🎯 Adding Questions One by One (Manual)
+
+When creating or editing a test, scroll to the **"Add Question Manually"** section.
+
+### Step 1: Choose the Question Type
+
+Click the **Question Type** dropdown and select:
+- **MCQ (Multiple Choice)** — for objective questions with 4 options
+- **Coding** — for programming questions
+- **Explanation** — for descriptive/theory questions
+
+### Step 2: Set Marks
+
+Enter how many points this question is worth (e.g., `1`, `2`, `5`, `10`).
+
+### Step 3: Type Your Question
+
+In the **Question Text** box, write the question clearly.
+
+**Good examples:**
+```
+What is the capital of France?
+```
+```
+Write a Python function to check if a number is prime.
+```
+```
+Explain the process of photosynthesis.
+```
+
+### Step 4: Fill in the Answer Details
+
+#### For MCQ Questions:
+
+You'll see an **Options** box. Type each option on a new line:
+
+```
+Option A text here
+Option B text here
+Option C text here
+Option D text here
+```
+
+**Example:**
+```
+London
+Berlin
+Paris
+Madrid
+```
+
+Then select the **Correct Answer** from the dropdown (A, B, C, or D).
+
+#### For Coding Questions:
+
+The MCQ options box will disappear. Students will see a **code editor** where they can type their program. You'll grade it later manually.
+
+#### For Explanation Questions:
+
+Similar to Coding — students get a large text box to write their answer. You'll grade it manually.
+
+### Step 5: Click **"Add Question"**
+
+The question is added to your test. Repeat to add more questions.
+
+---
+
+## 📂 Bulk Upload via CSV File (for MCQ Questions Only)
+
+If you have many MCQ questions, use a **CSV file** to add them all at once.
+
+### What is a CSV file?
+
+A CSV file is a simple text file that stores data in a table format. You can create it in **Microsoft Excel**, **Google Sheets**, or even **Notepad**.
+
+Each row = one question.  
+Each column = one piece of information about that question.
+
+### The Exact CSV Format
+
+Your CSV file must have these **7 columns** in this exact order:
+
+| Column | What to put | Example |
+|--------|-------------|---------|
+| **Question Text** | The question you want to ask | `What is the capital of France?` |
+| **Option A** | First answer choice | `London` |
+| **Option B** | Second answer choice | `Berlin` |
+| **Option C** | Third answer choice | `Paris` |
+| **Option D** | Fourth answer choice | `Madrid` |
+| **Correct Answer** | The correct letter: A, B, C, or D | `C` |
+| **Marks** | Points for this question (1, 2, 5, etc.) | `1` |
+
+### 📄 Sample CSV — Copy This Template
+
+Open Notepad or any text editor, copy-paste the following, and save it as `questions.csv`:
+
+```
+question_text,option_a,option_b,option_c,option_d,correct_answer,marks
+What is the capital of France?,London,Berlin,Paris,Madrid,C,1
+Which planet is known as the Red Planet?,Venus,Mars,Jupiter,Saturn,B,1
+What is 2 + 2?,3,4,5,6,B,1
+Which gas do plants absorb from the atmosphere?,Oxygen,Nitrogen,Carbon Dioxide,Hydrogen,C,2
+What is the largest ocean on Earth?,Atlantic,Indian,Arctic,Pacific,D,1
+Which animal is known as the King of the Jungle?,Tiger,Lion,Elephant,Giraffe,B,1
+What is the chemical symbol for water?,H2O,CO2,NaCl,O2,A,2
+How many days are in a leap year?,365,366,364,367,B,1
+Which country has the largest population?,USA,India,China,Indonesia,B,1
+What is the speed of light approximately?,300000 km/s,150000 km/s,500000 km/s,100000 km/s,A,2
+```
+
+### How to Create in Excel / Google Sheets
+
+1. Open Excel or Google Sheets
+2. Create these **7 columns** in the first row:
+   - `question_text` | `option_a` | `option_b` | `option_c` | `option_d` | `correct_answer` | `marks`
+3. Fill in your questions row by row
+4. Save as **CSV (Comma delimited) (*.csv)**
+
+> ⚠️ **Important rules:**
+> - The first row must be the column headers (as shown above)
+> - Correct answer must be **A, B, C, or D** (capital letter)
+> - Every question needs at least Option A and Option B
+> - Marks must be a number (1, 2, 5, etc.)
+> - Do not use commas inside your question text or options (they'll confuse the file)
+
+### How to Upload the CSV File
+
+1. Go to **Assessment Studio → Create Assessment** (or edit an existing draft)
+2. Scroll to the **"Bulk Import from CSV"** section
+3. Click **"Choose File"** and select your CSV file
+4. Click **"Import CSV"**
+5. You'll see a success message: *"Imported X questions successfully."*
+
+> ⚠️ If there are errors (like missing options or wrong answer format), the system will show a warning message telling you which line to fix.
+
+---
+
+## ✅ How Grading Works (For Each Question Type)
+
+### MCQ Grading (Automatic)
+
+Good news — MCQ questions are **auto-graded**! The system knows the correct answer and marks it automatically:
+
+- **Correct answer selected** → Student gets full marks
+- **Wrong answer selected** → Student gets 0 marks
+- **No answer selected** → Student gets 0 marks
+
+You can still **override** the marks if needed (e.g., if a question had a typo and you want to give everyone full points).
+
+### Coding Grading (Manual)
+
+Since there's no single "right" answer for code, **you grade it yourself**:
+
+1. Go to **Assessment Management → Grading** in the sidebar
+2. Select the test you want to grade
+3. You'll see a list of students who have submitted
+4. Click **"Grade"** next to a student's name
+5. You'll see:
+   - The **question text** (what you asked)
+   - The **student's code** in a read-only box
+   - A **marks input field** (enter 0 to max points)
+6. Read the code and enter a fair score
+7. Click **"Save All Grades"**
+
+### Explanation Grading (Manual)
+
+Same process as Coding:
+
+1. Go to **Assessment Management → Grading**
+2. Select the test → click **"Grade"** next to a student
+3. You'll see:
+   - The **question text**
+   - The **student's written answer**
+   - A **marks input field**
+4. Read the answer, judge its quality, and assign marks
+5. Click **"Save All Grades"**
+
+### The Grading Dashboard
+
+When you visit the Grading page, you'll see a table showing:
+
+| Column | What it tells you |
+|--------|------------------|
+| **Student** | Name and email |
+| **Roll #** | Student's roll number |
+| **Submitted** | When they submitted (e.g., "2 hours ago") |
+| **Status** | Submitted (not yet graded) or Evaluated (graded) |
+| **Score** | Current score out of total |
+| **Ungraded** | Number of coding/explanation questions still needing marks |
+| **Grade** | Click to start grading |
+
+---
+
+## 💡 Tips for Writing Good Questions
+
+### MCQ Best Practices
+
+✅ **Do:**
+- Keep options roughly the same length
+- Make wrong answers plausible (not obviously wrong)
+- Use clear, simple language
+- Write one question at a time (don't combine multiple questions)
+
+❌ **Don't:**
+- Use "All of the above" or "None of the above" (they're confusing)
+- Make the correct answer consistently longer or shorter than wrong ones
+- Use negative phrasing like "Which is NOT..." (unless you're careful)
+
+### Coding Question Tips
+
+- Be specific about what the code should do
+- Mention the programming language (Python, JavaScript, etc.)
+- Provide example input → expected output if possible
+- Set marks based on complexity (5–10 marks for harder problems)
+
+### Explanation Question Tips
+
+- Ask open-ended questions that test understanding
+- Mention what key points the answer should cover
+- Set a reasonable word count expectation
+
+---
+
 # 🔤 ICON CHEAT SHEET
 
 Here's what the icons mean throughout the system:
@@ -372,6 +607,33 @@ Here's what the icons mean throughout the system:
 
 **Q: What does the search bar search for?**
 > It searches through all the navigation items — type "student" to find the Students page, "report" to find Reports, etc.
+
+**Q: How do I add a question with an image or diagram?**
+> Currently, questions support text only. You can describe the diagram in words. For example: *"Refer to the diagram showing the water cycle. What stage comes after evaporation?"*
+
+**Q: Can I change the order of questions after adding them?**
+> Questions appear in the order you add them. To reorder, you'd need to delete and re-add them in the desired order. Plan your question sequence before adding.
+
+**Q: What happens if a student doesn't answer an MCQ?**
+> It's marked as unanswered and they get 0 marks for that question. There's no negative marking unless you enable it in the test settings.
+
+**Q: How do I give partial credit for a coding question?**
+> On the Grading page, you can enter any marks from 0 to the maximum. For example, if a coding question is worth 10 marks and the student's code mostly works but has a small bug, you can give 7 marks.
+
+**Q: Can I re-grade a question after saving?**
+> Yes! Go back to **Grading**, select the test and student, change the marks, and click "Save All Grades" again. The system will update the total score.
+
+**Q: What if my CSV upload fails?**
+> Common reasons:
+> - **Wrong file format** — make sure it's saved as `.csv` (not `.xlsx` or `.txt`)
+> - **Missing columns** — your file must have all 7 columns in order
+> - **Wrong answer letter** — use only A, B, C, or D (capital letter)
+> - **Commas inside text** — avoid commas in your questions/options, or enclose them in quotes like `"My question, with a comma?"`
+> 
+> Fix the issue and try uploading again.
+
+**Q: Is there a limit on how many questions I can add?**
+> There's no hard limit, but for practical purposes, keep tests manageable — most students can handle 30–60 questions per session depending on duration.
 
 ---
 
