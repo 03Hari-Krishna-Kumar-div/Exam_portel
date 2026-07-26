@@ -2306,34 +2306,27 @@ tr {
   outline-offset: var(--ring-offset);
 }
 
-/* ── Theme Toggle Icon Visibility ─────────────────────── */
-.theme-icon-dark { display: none; }
-[data-theme="dark"] .theme-icon-light { display: none; }
-[data-theme="dark"] .theme-icon-dark { display: inline-flex; }
-
-/* ── Theme Toggle Material Icon Sizing ────────────────── */
-.theme-icon-light.material-symbols-outlined,
-.theme-icon-dark.material-symbols-outlined {
+/* ── Theme Toggle Single Icon ─────────────────────────── */
+/* Single icon approach: JS swaps textContent between 'dark_mode' and 'light_mode'.
+   No dual-icon flash because there's only ONE element. */
+.theme-icon.material-symbols-outlined {
   font-size: 20px;
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
   line-height: 1;
-}
-
-/* ── Theme Toggle Icon Colors ─────────────────────────── */
-.theme-icon-light {
-  color: var(--gray-50);
-  transition: color var(--ease-fast);
-}
-.topnav-icon-btn:hover .theme-icon-light,
-.sidebar-nav-item.theme-toggle:hover .theme-icon-light {
-  color: var(--accent);
-}
-.theme-icon-dark {
-  color: #F59E0B;
   transition: color var(--ease-fast), filter var(--ease-fast);
+  color: var(--gray-50);
 }
-.topnav-icon-btn:hover .theme-icon-dark,
-.sidebar-nav-item.theme-toggle:hover .theme-icon-dark {
+/* Light mode icon color (dark_mode icon) */
+.theme-icon { color: var(--gray-50); }
+/* Dark mode icon color (light_mode icon) */
+[data-theme="dark"] .theme-icon { color: #F59E0B; }
+.topnav-icon-btn:hover .theme-icon { color: var(--accent); }
+[data-theme="dark"] .topnav-icon-btn:hover .theme-icon {
+  color: #FBBF24;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.4));
+}
+.sidebar-nav-item.theme-toggle:hover .theme-icon { color: var(--accent); }
+[data-theme="dark"] .sidebar-nav-item.theme-toggle:hover .theme-icon {
   color: #FBBF24;
   filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.4));
 }

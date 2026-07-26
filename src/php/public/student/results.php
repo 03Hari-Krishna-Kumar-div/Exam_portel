@@ -97,8 +97,7 @@ $dayName = $today->format('l');
             <div class="sidebar-nav-group">
                 <div class="sidebar-nav-label">Appearance</div>
                 <button class="sidebar-nav-item theme-toggle" onclick="toggleTheme()" id="themeToggle">
-                    <span class="material-symbols-outlined theme-icon-light">dark_mode</span>
-                    <span class="material-symbols-outlined theme-icon-dark">light_mode</span>
+                    <span class="material-symbols-outlined theme-icon">dark_mode</span>
                     <span id="themeLabel">Dark Mode</span>
                 </button>
             </div>
@@ -131,8 +130,7 @@ $dayName = $today->format('l');
             </div>
             <div class="topnav-right">
                 <button class="topnav-icon-btn" onclick="toggleTheme()" data-tooltip="Toggle theme">
-                    <span class="material-symbols-outlined theme-icon-light">dark_mode</span>
-                    <span class="material-symbols-outlined theme-icon-dark">light_mode</span>
+                    <span class="material-symbols-outlined theme-icon">dark_mode</span>
                 </button>
                 <div class="topnav-profile">
                     <div class="topnav-avatar">
@@ -299,15 +297,20 @@ function toggleTheme() {
     const newTheme = isDark ? 'light' : 'dark';
     html.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
+    updateThemeUI(newTheme);
+}
+function updateThemeUI(theme) {
     const label = document.getElementById('themeLabel');
-    if (label) label.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    if (label) label.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    document.querySelectorAll('.theme-icon').forEach(el => {
+        el.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+    });
 }
 (function() {
     const saved = localStorage.getItem('theme');
     if (saved) {
         document.documentElement.setAttribute('data-theme', saved);
-        const label = document.getElementById('themeLabel');
-        if (label) label.textContent = saved === 'dark' ? 'Light Mode' : 'Dark Mode';
+        updateThemeUI(saved);
     }
 })();
 

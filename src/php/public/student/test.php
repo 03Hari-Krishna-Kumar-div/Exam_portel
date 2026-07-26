@@ -218,23 +218,29 @@ $remaining = max(0, $totalSeconds - $elapsed);
     <!-- Tab Switch Warning Banner -->
     <div class="tab-switch-warning" id="tabWarning"><?= icon('warning', 16, 'var(--red)') ?> Tab switch detected. This is being recorded.</div>
 
-    <!-- Timer Bar -->
+    <!-- Timer Bar with Icon -->
     <div class="timer-bar" id="timerBar">
-        <div><strong><?= h($test['title']) ?></strong></div>
+        <div class="flex-center"><strong><?= h($test['title']) ?></strong></div>
         <div class="flex-center">
+            <?= icon('timer', 16) ?>
             <span id="timerDisplay" class="timer-display <?= $remaining < 300 ? ($remaining < 60 ? 'danger' : 'warning') : '' ?>"
                   data-remaining="<?= $remaining ?>">
                 <?= gmdate('H:i:s', $remaining) ?>
             </span>
-            <span class="text-muted text-sm" style="margin-left:8px;">remaining</span>
+            <span class="text-muted text-sm" style="margin-left:4px;">remaining</span>
         </div>
-        <div style="font-size:0.8125rem;color:var(--gray-50);"><?= count($questions) ?> questions</div>
+        <div class="flex-center" style="gap:4px;">
+            <?= icon('file-text', 14) ?>
+            <span style="font-size:0.8125rem;color:var(--gray-50);"><?= count($questions) ?> questions</span>
+        </div>
     </div>
 
     <div class="test-container" style="margin-top:64px;">
         <!-- Question Navigator -->
         <div class="card mb-4">
-            <div style="font-size:0.8125rem;font-weight:500;color:var(--gray-60);margin-bottom:8px;">Question Navigator</div>
+            <div class="flex-center" style="gap:var(--space-2);font-size:0.8125rem;font-weight:500;color:var(--gray-60);margin-bottom:8px;">
+                <?= icon('grid-3x3', 14) ?> Question Navigator
+            </div>
             <div class="nav-dots" id="navDots">
                 <?php foreach ($questions as $i => $q):
                     $answered = isset($savedAnswers[$q['id']]);
@@ -261,9 +267,9 @@ $remaining = max(0, $totalSeconds - $elapsed);
                 <div class="question-number">
                     Question <?= $index + 1 ?> of <?= count($questions) ?>
                     <?php if ($qType === 'coding'): ?>
-                        <span class="badge badge-pending" style="margin-left:8px;">Coding</span>
+                        <span class="badge badge-pending" style="margin-left:8px;"><?= icon('code', 12) ?> Coding</span>
                     <?php elseif ($qType === 'explanation'): ?>
-                        <span class="badge badge-pending" style="margin-left:8px;">Explanation</span>
+                        <span class="badge badge-pending" style="margin-left:8px;"><?= icon('file-text', 12) ?> Explanation</span>
                     <?php endif; ?>
                     <span class="text-muted text-sm" style="margin-left:8px;">(<?= $q['marks'] ?> mark<?= $q['marks'] > 1 ? 's' : '' ?>)</span>
                 </div>
@@ -308,7 +314,7 @@ $remaining = max(0, $totalSeconds - $elapsed);
             <div style="text-align:center;padding:24px 0 48px;">
                 <button type="submit" class="btn btn-primary btn-lg" id="submitBtn"
                         onclick="return confirm('Are you sure you want to submit? This action cannot be undone.')">
-                    Submit Test
+                    <?= icon('check-circle', 18) ?> Submit Test
                 </button>
             </div>
         </form>
