@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Command *)",
+      "WebSearch",
+      "PowerShell(npm list *)"
+    ]
+  }
+}
