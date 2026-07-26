@@ -39,7 +39,7 @@ $firstName = explode(' ', $student['name'])[0];
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0">
-    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 <?= iconSprite() ?>
@@ -152,7 +152,7 @@ $firstName = explode(' ', $student['name'])[0];
                     <!-- Date Card -->
                     <div class="date-card">
                         <div class="date-card-icon">
-                            <?= icon('calendar', 24, 'var(--accent)') ?>
+                            <?= icon('calendar.circle.fill', 24, '#4F8CFF') ?>
                         </div>
                         <div class="date-card-info">
                             <div class="date-card-date"><?= h($formattedDate) ?></div>
@@ -162,33 +162,34 @@ $firstName = explode(' ', $student['name'])[0];
                 </div>
 
                 <!-- Stat Cards -->
+                <!-- KPI Cards — Apple SF Symbols naming, Lucide rendered, Material fallback -->
                 <div class="stats-row">
                     <div class="stat-card-gradient stat-card-total">
                         <div class="stat-card-icon">
-                            <?= icon('test', 24) ?>
+                            <?= icon('doc.text.fill', 24, '#FFFFFF') ?>
                         </div>
                         <div class="stat-card-value"><?= $totalTests ?></div>
                         <div class="stat-card-label">Total Tests</div>
                         <div class="stat-card-desc">All assigned assessments</div>
-                        <div class="stat-card-arrow"><?= icon('arrow-right', 14) ?></div>
+                        <div class="stat-card-arrow"><?= icon('arrow.right.circle.fill', 14) ?></div>
                     </div>
                     <div class="stat-card-gradient stat-card-completed">
                         <div class="stat-card-icon">
-                            <?= icon('check-circle', 24) ?>
+                            <?= icon('checkmark.circle.fill', 24, '#FFFFFF') ?>
                         </div>
                         <div class="stat-card-value"><?= $completedTests ?></div>
                         <div class="stat-card-label">Completed</div>
                         <div class="stat-card-desc">Evaluated submissions</div>
-                        <div class="stat-card-arrow"><?= icon('arrow-right', 14) ?></div>
+                        <div class="stat-card-arrow"><?= icon('arrow.right.circle.fill', 14) ?></div>
                     </div>
                     <div class="stat-card-gradient stat-card-pending">
                         <div class="stat-card-icon">
-                            <?= icon('clock', 24) ?>
+                            <?= icon('clock.badge.exclamationmark.fill', 24, '#FFFFFF') ?>
                         </div>
                         <div class="stat-card-value"><?= $pendingTests ?></div>
                         <div class="stat-card-label">Pending / Active</div>
                         <div class="stat-card-desc">In progress or not started</div>
-                        <div class="stat-card-arrow"><?= icon('arrow-right', 14) ?></div>
+                        <div class="stat-card-arrow"><?= icon('arrow.right.circle.fill', 14) ?></div>
                     </div>
                 </div>
 
@@ -215,10 +216,10 @@ $firstName = explode(' ', $student['name'])[0];
                             <div class="card-body">
                                 <div class="empty-state">
                                     <div class="empty-icon">
-                                        <?= icon('test', 56) ?>
+                                        <?= icon('tray.fill', 56) ?>
                                     </div>
                                     <h3>No Tests Yet</h3>
-                                    <p>No tests assigned to your batch yet. Check back later.</p>
+                                    <p>No additional assessments available.</p>
                                 </div>
                             </div>
                         </div>
@@ -230,16 +231,25 @@ $firstName = explode(' ', $student['name'])[0];
                                     <thead>
                                         <tr>
                                             <th>
-                                                <div class="th-icon"><?= icon('test', 14) ?></div>
-                                                Test
+                                                <div class="th-icon"><?= icon('doc.text.fill', 14) ?></div>
+                                                Assessment
                                             </th>
                                             <th>
-                                                <div class="th-icon"><?= icon('clock', 14) ?></div>
+                                                <div class="th-icon"><?= icon('timer', 14) ?></div>
                                                 Duration
                                             </th>
-                                            <th>Status</th>
-                                            <th>Your Status</th>
-                                            <th class="actions">Action</th>
+                                            <th>
+                                                <div class="th-icon"><?= icon('circle.fill', 14) ?></div>
+                                                Status
+                                            </th>
+                                            <th>
+                                                <div class="th-icon"><?= icon('progress.indicator', 14) ?></div>
+                                                Your Status
+                                            </th>
+                                            <th class="actions">
+                                                <div class="th-icon"><?= icon('arrow.right.circle.fill', 14) ?></div>
+                                                Action
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -308,7 +318,7 @@ $firstName = explode(' ', $student['name'])[0];
                                         <tr>
                                             <td>
                                                 <div class="test-name-cell">
-                                                    <div class="test-icon"><?= icon('test', 16) ?></div>
+                                                    <div class="test-icon"><?= icon('doc.text.fill', 18) ?></div>
                                                     <div>
                                                         <div class="test-name"><?= h($t['title']) ?></div>
                                                     </div>
@@ -390,7 +400,7 @@ $firstName = explode(' ', $student['name'])[0];
                                 <div class="test-card">
                                     <div class="test-card-top">
                                         <div class="test-card-icon">
-                                            <?= icon('test', 24, 'var(--accent)') ?>
+                                            <?= icon('doc.text.fill', 24, '#4F8CFF') ?>
                                         </div>
                                         <span class="badge <?= $statusClass ?>"><?= ucfirst($t['status']) ?></span>
                                     </div>
@@ -411,7 +421,7 @@ $firstName = explode(' ', $student['name'])[0];
                 <!-- Bottom Information Card -->
                 <div class="info-card">
                     <div class="info-card-icon">
-                        <?= icon('info', 20, 'var(--accent)') ?>
+                        <?= icon('info', 20, '#4F8CFF') ?>
                     </div>
                     <div class="info-card-text">
                         You can review completed assessments or wait for newly published assessments.
@@ -504,8 +514,8 @@ function updateThemeUI(theme) {
     }
 })();
 
-// Initialize Lucide icons
-if (typeof lucide !== 'undefined') lucide.createIcons();
+// Initialize Lucide icons (script loaded synchronously in <head>)
+lucide.createIcons();
 </script>
 </body>
 </html>
