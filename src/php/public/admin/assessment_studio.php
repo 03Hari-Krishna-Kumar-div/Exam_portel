@@ -201,10 +201,10 @@ $drafts = $pdo->query("
 $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
 ?>
 
-<div style="max-width:960px;margin:0 auto;">
+<div class="studio-page">
 
     <?php if ($message): ?>
-        <div class="alert alert-success">
+        <div class="studio-alert studio-alert-success">
             <svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg>
             <span><?= h($message) ?></span>
         </div>
@@ -212,24 +212,24 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
 
     <?php if ($showDrafts): ?>
         <!-- ═══════════════ DRAFTS LIST ═══════════════ -->
-        <div style="margin-bottom:var(--space-4);">
-            <h1 style="font-size:var(--fs-24);font-weight:600;margin-bottom:var(--space-1);">Draft Assessments</h1>
-            <p class="text-muted" style="font-size:var(--fs-14);">Continue editing, preview, or publish your drafts.</p>
+        <div class="studio-page-header">
+            <h1>Draft Assessments</h1>
+            <p>Continue editing, preview, or publish your drafts.</p>
         </div>
 
         <?php if (empty($drafts)): ?>
-            <div class="panel">
-                <div class="panel-body">
-                    <div class="empty-state">
-                        <div class="empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3zm0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1H9a2 2 0 0 1-2-2V4zm2-1v5a1 1 0 0 0 1 1h5V4a1 1 0 0 0-1-1h-4z"/></svg></div>
+            <div class="studio-card">
+                <div class="studio-card-body">
+                    <div class="studio-empty">
+                        <div class="studio-empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3zm0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1H9a2 2 0 0 1-2-2V4zm2-1v5a1 1 0 0 0 1 1h5V4a1 1 0 0 0-1-1h-4z"/></svg></div>
                         <h3>No Draft Assessments</h3>
                         <p>Create a new assessment to get started.</p>
-                        <a href="assessment_studio.php" class="btn btn-primary">Create Assessment</a>
+                        <a href="assessment_studio.php" class="studio-btn studio-btn-primary">Create Assessment</a>
                     </div>
                 </div>
             </div>
         <?php else: ?>
-            <div class="panel">
+            <div class="studio-card">
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
@@ -251,18 +251,18 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
                                 <td class="text-sm"><?= $d['duration_minutes'] ?> min</td>
                                 <td class="text-sm text-muted"><?= date('d M Y', strtotime($d['created_at'])) ?></td>
                                 <td class="actions">
-                                    <a href="assessment_studio.php?edit_test=<?= $d['id'] ?>" class="btn btn-sm btn-ghost">
+                                    <a href="assessment_studio.php?edit_test=<?= $d['id'] ?>" class="studio-btn studio-btn-sm studio-btn-ghost">
                                         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13.5 2.5a1.5 1.5 0 0 1 2.12 0l1.88 1.88a1.5 1.5 0 0 1 0 2.12l-9.5 9.5a1.5 1.5 0 0 1-.7.4l-4.4 1.1a.5.5 0 0 1-.6-.6l1.1-4.4a1.5 1.5 0 0 1 .4-.7l9.5-9.5z"/></svg>
                                         Edit
                                     </a>
-                                    <button class="btn btn-sm btn-primary" onclick="openPublishModal(<?= $d['id'] ?>, '<?= h($d['title']) ?>')">
+                                    <button class="studio-btn studio-btn-sm studio-btn-primary" onclick="openPublishModal(<?= $d['id'] ?>, '<?= h($d['title']) ?>')">
                                         Publish
                                     </button>
                                     <form method="POST" style="display:inline" onsubmit="return confirm('Delete this draft?')">
                                         <?= csrfField() ?>
                                         <input type="hidden" name="action" value="delete_draft">
                                         <input type="hidden" name="id" value="<?= $d['id'] ?>">
-                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                        <button type="submit" class="studio-btn studio-btn-sm studio-btn-danger">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -276,188 +276,173 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
     <?php elseif ($editTestId > 0 && $editTest): ?>
         <!-- ═══════════════ EDITING DRAFT — STEP 2 & 3 ═══════════════ -->
 
-        <!-- Step indicator -->
-        <div style="margin-bottom:var(--space-4);">
-            <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-4);">
-                <a href="assessment_studio.php" class="btn btn-sm btn-ghost">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.65 3.15a.5.5 0 0 0-.7-.7l-6.5 6.5a.5.5 0 0 0 0 .7l6.5 6.5a.5.5 0 0 0 .7-.7L3.2 10H17.5a.5.5 0 0 0 0-1H3.2l5.45-5.85z"/></svg>
-                    Back to Studio
-                </a>
-                <span class="text-muted">/</span>
-                <span style="font-weight:500;color:var(--gray-90);"><?= h($editTest['title']) ?></span>
+        <a href="assessment_studio.php" class="studio-back">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.65 3.15a.5.5 0 0 0-.7-.7l-6.5 6.5a.5.5 0 0 0 0 .7l6.5 6.5a.5.5 0 0 0 .7-.7L3.2 10H17.5a.5.5 0 0 0 0-1H3.2l5.45-5.85z"/></svg>
+            Back to Studio
+        </a>
+
+        <div class="studio-card">
+            <div class="studio-stepper">
+                <div class="studio-step completed">
+                    <span class="studio-step-number"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg></span>
+                    <span class="studio-step-label">Basic Information</span>
+                </div>
+                <div class="studio-step active">
+                    <span class="studio-step-number">2</span>
+                    <span class="studio-step-label">Question Builder</span>
+                </div>
+                <div class="studio-step">
+                    <span class="studio-step-number">3</span>
+                    <span class="studio-step-label">Review & Publish</span>
+                </div>
             </div>
 
-            <div class="wizard">
-                <div class="wizard-steps">
-                    <div class="wizard-step completed">
-                        <span class="step-num"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg></span>
-                        <span>Basic Information</span>
-                    </div>
-                    <div class="wizard-step active">
-                        <span class="step-num">2</span>
-                        <span>Question Builder</span>
-                    </div>
-                    <div class="wizard-step">
-                        <span class="step-num">3</span>
-                        <span>Review & Publish</span>
-                    </div>
-                </div>
-
-                <div class="wizard-content">
-                    <!-- Step 2: Question Builder -->
-                    <div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5);">
-                            <div>
-                                <h2 style="font-size:var(--fs-18);">Question Builder</h2>
-                                <p class="text-muted text-sm">Add questions manually, import from CSV, or both.</p>
-                            </div>
-                            <div class="flex-center gap-2">
-                                <span class="badge badge-active"><?= count($questions) ?> questions</span>
-                            </div>
+            <div class="studio-card-body">
+                <!-- Step 2: Question Builder -->
+                <div>
+                    <div class="studio-section-header">
+                        <div>
+                            <div class="studio-section-title">Question Builder</div>
+                            <div class="studio-section-subtitle">Add questions manually, import from CSV, or both.</div>
                         </div>
+                        <span class="studio-section-badge"><?= count($questions) ?> questions</span>
+                    </div>
 
                         <!-- Manual Question Form -->
-                        <div class="panel panel-flat" style="margin-bottom:var(--space-4);">
-                            <div class="panel-header">
-                                <h2 style="font-size:var(--fs-15);">Add Question Manually</h2>
+                        <div class="studio-section">
+                            <div class="studio-section-header">
+                                <div class="studio-section-title">Add Question Manually</div>
                             </div>
-                            <div class="panel-body">
-                                <form method="POST">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="action" value="add_question">
-                                    <input type="hidden" name="test_id" value="<?= $editTestId ?>">
+                            <form method="POST">
+                                <?= csrfField() ?>
+                                <input type="hidden" name="action" value="add_question">
+                                <input type="hidden" name="test_id" value="<?= $editTestId ?>">
 
-                                    <div class="form-row" style="margin-bottom:var(--space-3);">
-                                        <div class="form-group">
-                                            <label>Question Type</label>
-                                            <select class="form-select" name="question_type" onchange="toggleQuestionType(this)">
-                                                <option value="mcq">MCQ (Multiple Choice)</option>
-                                                <option value="coding">Coding</option>
-                                                <option value="explanation">Explanation</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Marks</label>
-                                            <input class="form-input" type="number" name="marks" value="1" min="1" max="100">
-                                        </div>
+                                <div class="studio-field-row">
+                                    <div class="studio-field">
+                                        <label class="studio-label">Question Type <span class="required-badge">Required</span></label>
+                                        <select class="studio-select" name="question_type" onchange="toggleQuestionType(this)">
+                                            <option value="mcq">MCQ (Multiple Choice)</option>
+                                            <option value="coding">Coding</option>
+                                            <option value="explanation">Explanation</option>
+                                        </select>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label>Question Text</label>
-                                        <textarea class="form-textarea" name="question_text" required placeholder="Type your question here..." style="min-height:80px;"></textarea>
+                                    <div class="studio-field">
+                                        <label class="studio-label">Marks <span class="required-badge">Required</span></label>
+                                        <input class="studio-input" type="number" name="marks" value="1" min="1" max="100">
                                     </div>
+                                </div>
 
-                                    <div id="mcqFields">
-                                        <div class="form-group">
-                                            <label>Options (one per line)</label>
-                                            <textarea class="form-textarea" name="options_plain" id="optionsPlain" placeholder="Option A&#10;Option B&#10;Option C&#10;Option D" style="min-height:80px;"></textarea>
-                                            <input type="hidden" name="options" id="optionsHidden">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Correct Answer</label>
-                                            <select class="form-select" name="correct_answer" id="correctAnswer">
-                                                <option value="">Select correct answer</option>
-                                                <option value="A">A</option>
-                                                <option value="B">B</option>
-                                                <option value="C">C</option>
-                                                <option value="D">D</option>
-                                            </select>
-                                        </div>
+                                <div class="studio-field">
+                                    <label class="studio-label">Question Text <span class="required-badge">Required</span></label>
+                                    <textarea class="studio-textarea" name="question_text" required placeholder="Type your question here..." style="min-height:80px;"></textarea>
+                                </div>
+
+                                <div id="mcqFields">
+                                    <div class="studio-field">
+                                        <label class="studio-label">Options <span class="optional-badge">One per line</span></label>
+                                        <textarea class="studio-textarea" name="options_plain" id="optionsPlain" placeholder="Option A&#10;Option B&#10;Option C&#10;Option D" style="min-height:80px;"></textarea>
+                                        <input type="hidden" name="options" id="optionsHidden">
+                                        <div class="studio-helper">Enter each option on a new line. The first line = A, second = B, etc.</div>
                                     </div>
+                                    <div class="studio-field">
+                                        <label class="studio-label">Correct Answer <span class="required-badge">Required</span></label>
+                                        <select class="studio-select" name="correct_answer" id="correctAnswer">
+                                            <option value="">Select correct answer</option>
+                                            <option value="A">A</option>
+                                            <option value="B">B</option>
+                                            <option value="C">C</option>
+                                            <option value="D">D</option>
+                                        </select>
+                                    </div>
+                                </div>
 
-                                    <input type="hidden" name="sort_order" value="<?= count($questions) + 1 ?>">
+                                <input type="hidden" name="sort_order" value="<?= count($questions) + 1 ?>">
 
-                                    <button type="submit" class="btn btn-primary">
-                                        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a.5.5 0 0 1 .5.5v6h6a.5.5 0 0 1 0 1h-6v6a.5.5 0 0 1-1 0v-6h-6a.5.5 0 0 1 0-1h6v-6A.5.5 0 0 1 10 3z"/></svg>
-                                        Add Question
-                                    </button>
-                                </form>
-                            </div>
+                                <button type="submit" class="studio-btn studio-btn-primary">
+                                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a.5.5 0 0 1 .5.5v6h6a.5.5 0 0 1 0 1h-6v6a.5.5 0 0 1-1 0v-6h-6a.5.5 0 0 1 0-1h6v-6A.5.5 0 0 1 10 3z"/></svg>
+                                    Add Question
+                                </button>
+                            </form>
                         </div>
 
                         <!-- CSV Import -->
-                        <div class="panel panel-flat" style="margin-bottom:var(--space-4);">
-                            <div class="panel-header">
-                                <h2 style="font-size:var(--fs-15);">Bulk Import from CSV</h2>
+                        <div class="studio-section">
+                            <div class="studio-section-header">
+                                <div class="studio-section-title">Bulk Import from CSV</div>
                             </div>
-                            <div class="panel-body">
-                                <p class="text-sm text-muted" style="margin-bottom:var(--space-3);">
-                                    CSV columns: <code>question_text, option_a, option_b, option_c, option_d, correct_answer (A-D), marks</code>
-                                </p>
-                                <form method="POST" enctype="multipart/form-data">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="action" value="import_csv">
-                                    <input type="hidden" name="test_id" value="<?= $editTestId ?>">
-                                    <div class="form-inline">
-                                        <input type="file" name="csv_file" accept=".csv,.txt" required
-                                               style="padding:6px 10px;border:1px solid var(--gray-20);border-radius:var(--radius-md);font-size:var(--fs-13);">
-                                        <button type="submit" class="btn btn-secondary">Import CSV</button>
-                                    </div>
-                                </form>
+                            <div class="studio-helper" style="margin-bottom:var(--space-4);">
+                                CSV columns: <code>question_text, option_a, option_b, option_c, option_d, correct_answer (A-D), marks</code>
                             </div>
+                            <form method="POST" enctype="multipart/form-data">
+                                <?= csrfField() ?>
+                                <input type="hidden" name="action" value="import_csv">
+                                <input type="hidden" name="test_id" value="<?= $editTestId ?>">
+                                <div class="studio-csv-zone">
+                                    <input type="file" name="csv_file" accept=".csv,.txt" required>
+                                    <button type="submit" class="studio-btn studio-btn-secondary">Import CSV</button>
+                                </div>
+                            </form>
                         </div>
 
                         <!-- Settings -->
-                        <div class="panel panel-flat" style="margin-bottom:var(--space-4);">
-                            <div class="panel-header">
-                                <h2 style="font-size:var(--fs-15);">Question Settings</h2>
+                        <div class="studio-section">
+                            <div class="studio-section-header">
+                                <div class="studio-section-title">Question Settings</div>
                             </div>
-                            <div class="panel-body">
-                                <form method="POST">
-                                    <?= csrfField() ?>
-                                    <input type="hidden" name="action" value="update_draft">
-                                    <input type="hidden" name="id" value="<?= $editTestId ?>">
-                                    <input type="hidden" name="batch_id" value="<?= $editTest['batch_id'] ?>">
-                                    <input type="hidden" name="title" value="<?= h($editTest['title']) ?>">
-                                    <input type="hidden" name="description" value="<?= h($editTest['description'] ?? '') ?>">
-                                    <input type="hidden" name="duration_minutes" value="<?= $editTest['duration_minutes'] ?>">
-                                    <input type="hidden" name="passing_marks" value="<?= $editTest['passing_marks'] ?? 0 ?>">
-                                    <input type="hidden" name="negative_marking" value="<?= $editTest['negative_marking'] ?? 0 ?>">
-                                    <input type="hidden" name="instructions" value="<?= h($editTest['instructions'] ?? '') ?>">
-                                    <div class="form-checkbox">
-                                        <input type="checkbox" name="shuffle_questions" value="1" <?= !empty($editTest['shuffle_questions']) ? 'checked' : '' ?>>
-                                        <span>Shuffle questions for students</span>
-                                    </div>
-                                    <div class="form-hint" style="margin-top:var(--space-2);">When enabled, question order will be randomized for each student.</div>
-                                    <button type="submit" class="btn btn-secondary mt-3">Save Settings</button>
-                                </form>
-                            </div>
+                            <form method="POST">
+                                <?= csrfField() ?>
+                                <input type="hidden" name="action" value="update_draft">
+                                <input type="hidden" name="id" value="<?= $editTestId ?>">
+                                <input type="hidden" name="batch_id" value="<?= $editTest['batch_id'] ?>">
+                                <input type="hidden" name="title" value="<?= h($editTest['title']) ?>">
+                                <input type="hidden" name="description" value="<?= h($editTest['description'] ?? '') ?>">
+                                <input type="hidden" name="duration_minutes" value="<?= $editTest['duration_minutes'] ?>">
+                                <input type="hidden" name="passing_marks" value="<?= $editTest['passing_marks'] ?? 0 ?>">
+                                <input type="hidden" name="negative_marking" value="<?= $editTest['negative_marking'] ?? 0 ?>">
+                                <input type="hidden" name="instructions" value="<?= h($editTest['instructions'] ?? '') ?>">
+                                <label class="studio-checkbox">
+                                    <input class="studio-checkbox-input" type="checkbox" name="shuffle_questions" value="1" <?= !empty($editTest['shuffle_questions']) ? 'checked' : '' ?>>
+                                    <span class="studio-checkbox-mark">
+                                        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg>
+                                    </span>
+                                    <span class="studio-checkbox-label">Shuffle questions for students</span>
+                                </label>
+                                <div class="studio-helper">When enabled, question order will be randomized for each student.</div>
+                                <button type="submit" class="studio-btn studio-btn-secondary" style="margin-top:var(--space-5);">Save Settings</button>
+                            </form>
                         </div>
 
                         <!-- Questions List -->
-                        <div class="panel panel-flat">
-                            <div class="panel-header">
-                                <h2 style="font-size:var(--fs-15);">Questions (<?= count($questions) ?>)</h2>
+                        <div class="studio-section">
+                            <div class="studio-section-header">
+                                <div class="studio-section-title">Questions (<?= count($questions) ?>)</div>
                             </div>
                             <?php if (empty($questions)): ?>
-                                <div class="panel-body">
-                                    <div class="empty-state" style="padding:var(--space-8);">
-                                        <div class="empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3zm0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1H9a2 2 0 0 1-2-2V4zm2-1v5a1 1 0 0 0 1 1h5V4a1 1 0 0 0-1-1h-4z"/></svg></div>
-                                        <h3>No Questions Yet</h3>
-                                        <p>Add questions manually or import from CSV.</p>
-                                    </div>
+                                <div class="studio-empty">
+                                    <div class="studio-empty-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3zm0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1H9a2 2 0 0 1-2-2V4zm2-1v5a1 1 0 0 0 1 1h5V4a1 1 0 0 0-1-1h-4z"/></svg></div>
+                                    <h3>No Questions Yet</h3>
+                                    <p>Add questions manually or import from CSV.</p>
                                 </div>
                             <?php else: ?>
-                                <div style="padding:var(--space-3);">
+                                <div>
                                     <?php foreach ($questions as $i => $q): ?>
-                                    <div class="question-item">
-                                        <div class="q-header">
-                                            <div class="q-number"><?= $i + 1 ?></div>
-                                            <div class="q-text"><?= h(mb_substr($q['question_text'], 0, 120)) ?><?= mb_strlen($q['question_text']) > 120 ? '...' : '' ?></div>
-                                            <div class="q-meta">
-                                                <span class="badge <?= $q['type'] === 'mcq' ? 'badge-active' : ($q['type'] === 'coding' ? 'badge-pending' : 'badge-success') ?>">
-                                                    <?= ucfirst($q['type']) ?>
-                                                </span>
-                                                <span class="badge badge-neutral"><?= $q['marks'] ?> pts</span>
-                                                <form method="POST" style="display:inline" onsubmit="return confirm('Delete this question?')">
-                                                    <?= csrfField() ?>
-                                                    <input type="hidden" name="action" value="delete_question">
-                                                    <input type="hidden" name="id" value="<?= $q['id'] ?>">
-                                                    <button type="submit" class="btn btn-sm btn-ghost" style="color:var(--red);" data-tooltip="Delete">
-                                                        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.5 2.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1V3h3.5a.5.5 0 0 1 0 1h-.55l-.77 11.57A2 2 0 0 1 11.7 17H8.3a2 2 0 0 1-2-1.93L5.55 4H5a.5.5 0 0 1 0-1h3.5V2.5z"/></svg>
-                                                    </button>
-                                                </form>
-                                            </div>
+                                    <div class="studio-question-item">
+                                        <div class="studio-question-number"><?= $i + 1 ?></div>
+                                        <div class="studio-question-text"><?= h(mb_substr($q['question_text'], 0, 120)) ?><?= mb_strlen($q['question_text']) > 120 ? '...' : '' ?></div>
+                                        <div class="studio-question-meta">
+                                            <span class="badge <?= $q['type'] === 'mcq' ? 'badge-active' : ($q['type'] === 'coding' ? 'badge-pending' : 'badge-success') ?>">
+                                                <?= ucfirst($q['type']) ?>
+                                            </span>
+                                            <span class="badge badge-neutral"><?= $q['marks'] ?> pts</span>
+                                            <form method="POST" style="display:inline" onsubmit="return confirm('Delete this question?')">
+                                                <?= csrfField() ?>
+                                                <input type="hidden" name="action" value="delete_question">
+                                                <input type="hidden" name="id" value="<?= $q['id'] ?>">
+                                                <button type="submit" class="studio-question-delete" data-tooltip="Delete">
+                                                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.5 2.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1V3h3.5a.5.5 0 0 1 0 1h-.55l-.77 11.57A2 2 0 0 1 11.7 17H8.3a2 2 0 0 1-2-1.93L5.55 4H5a.5.5 0 0 1 0-1h3.5V2.5z"/></svg>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                     <?php endforeach; ?>
@@ -465,12 +450,12 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
                             <?php endif; ?>
                         </div>
 
-                        <div style="display:flex;justify-content:space-between;margin-top:var(--space-5);">
-                            <a href="assessment_studio.php?edit_test=<?= $editTestId ?>&step=1" class="btn btn-secondary">
+                        <div class="studio-card-footer" style="border-top: 1px solid var(--glass-border); margin-top: var(--space-6); padding: var(--space-5) 0 0;">
+                            <a href="assessment_studio.php?edit_test=<?= $editTestId ?>&step=1" class="studio-btn studio-btn-secondary">
                                 <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.65 3.15a.5.5 0 0 0-.7-.7l-6.5 6.5a.5.5 0 0 0 0 .7l6.5 6.5a.5.5 0 0 0 .7-.7L3.2 10H17.5a.5.5 0 0 0 0-1H3.2l5.45-5.85z"/></svg>
                                 Back
                             </a>
-                            <a href="assessment_studio.php?edit_test=<?= $editTestId ?>&step=3" class="btn btn-primary">
+                            <a href="assessment_studio.php?edit_test=<?= $editTestId ?>&step=3" class="studio-btn studio-btn-primary">
                                 Review Assessment
                                 <svg viewBox="0 0 20 20" fill="currentColor"><path d="M11.35 3.15a.5.5 0 0 1 .7-.7l6.5 6.5a.5.5 0 0 1 0 .7l-6.5 6.5a.5.5 0 0 1-.7-.7L16.8 10H2.5a.5.5 0 0 1 0-1h14.3l-5.45-5.85z"/></svg>
                             </a>
@@ -478,92 +463,87 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
                     </div>
                 </div>
             </div>
-        </div>
 
     <?php elseif ($editTestId > 0 && isset($_GET['step']) && $_GET['step'] == 3 && $editTest): ?>
         <!-- ═══════════════ STEP 3: REVIEW ═══════════════ -->
-        <div style="margin-bottom:var(--space-4);">
-            <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-4);">
-                <a href="assessment_studio.php?edit_test=<?= $editTestId ?>" class="btn btn-sm btn-ghost">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.65 3.15a.5.5 0 0 0-.7-.7l-6.5 6.5a.5.5 0 0 0 0 .7l6.5 6.5a.5.5 0 0 0 .7-.7L3.2 10H17.5a.5.5 0 0 0 0-1H3.2l5.45-5.85z"/></svg>
-                    Back to Questions
-                </a>
+        <a href="assessment_studio.php?edit_test=<?= $editTestId ?>" class="studio-back">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.65 3.15a.5.5 0 0 0-.7-.7l-6.5 6.5a.5.5 0 0 0 0 .7l6.5 6.5a.5.5 0 0 0 .7-.7L3.2 10H17.5a.5.5 0 0 0 0-1H3.2l5.45-5.85z"/></svg>
+            Back to Questions
+        </a>
+
+        <div class="studio-card">
+            <div class="studio-stepper">
+                <div class="studio-step completed">
+                    <span class="studio-step-number"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg></span>
+                    <span class="studio-step-label">Basic Information</span>
+                </div>
+                <div class="studio-step completed">
+                    <span class="studio-step-number"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg></span>
+                    <span class="studio-step-label">Question Builder</span>
+                </div>
+                <div class="studio-step active">
+                    <span class="studio-step-number">3</span>
+                    <span class="studio-step-label">Review & Publish</span>
+                </div>
             </div>
 
-            <div class="wizard">
-                <div class="wizard-steps">
-                    <div class="wizard-step completed">
-                        <span class="step-num"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg></span>
-                        <span>Basic Information</span>
-                    </div>
-                    <div class="wizard-step completed">
-                        <span class="step-num"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg></span>
-                        <span>Question Builder</span>
-                    </div>
-                    <div class="wizard-step active">
-                        <span class="step-num">3</span>
-                        <span>Review & Publish</span>
-                    </div>
+            <div class="studio-card-body">
+                <div class="studio-section-header">
+                    <div class="studio-section-title">Review Assessment</div>
                 </div>
 
-                <div class="wizard-content">
-                    <h2 style="font-size:var(--fs-18);margin-bottom:var(--space-4);">Review Assessment</h2>
-
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-5);">
-                        <div class="panel panel-flat">
-                            <div class="panel-body">
-                                <div class="flex-between" style="margin-bottom:var(--space-3);">
-                                    <span class="text-muted text-sm">Title</span>
-                                    <span style="font-weight:500;"><?= h($editTest['title']) ?></span>
-                                </div>
-                                <div class="flex-between" style="margin-bottom:var(--space-3);">
-                                    <span class="text-muted text-sm">Duration</span>
-                                    <span style="font-weight:500;"><?= $editTest['duration_minutes'] ?> minutes</span>
-                                </div>
-                                <div class="flex-between" style="margin-bottom:var(--space-3);">
-                                    <span class="text-muted text-sm">Question Count</span>
-                                    <span style="font-weight:500;"><?= count($questions) ?></span>
-                                </div>
-                                <div class="flex-between" style="margin-bottom:var(--space-3);">
-                                    <span class="text-muted text-sm">MCQ Questions</span>
-                                    <span><?= count(array_filter($questions, fn($q) => $q['type'] === 'mcq')) ?></span>
-                                </div>
-                                <div class="flex-between" style="margin-bottom:var(--space-3);">
-                                    <span class="text-muted text-sm">Coding Questions</span>
-                                    <span><?= count(array_filter($questions, fn($q) => $q['type'] === 'coding')) ?></span>
-                                </div>
-                                <div class="flex-between" style="margin-bottom:var(--space-3);">
-                                    <span class="text-muted text-sm">Explanation Questions</span>
-                                    <span><?= count(array_filter($questions, fn($q) => $q['type'] === 'explanation')) ?></span>
-                                </div>
-                                <div class="flex-between" style="margin-bottom:var(--space-3);">
-                                    <span class="text-muted text-sm">Shuffle Enabled</span>
-                                    <span><?= !empty($editTest['shuffle_questions']) ? 'Yes' : 'No' ?></span>
-                                </div>
-                                <div class="flex-between">
-                                    <span class="text-muted text-sm">Passing Marks</span>
-                                    <span><?= (int)($editTest['passing_marks'] ?? 0) > 0 ? (int)$editTest['passing_marks'] : 'Not set' ?></span>
-                                </div>
+                <div class="studio-review-grid">
+                    <div class="studio-review-card">
+                        <div class="studio-review-card-header">
+                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;"><path d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 1a7 7 0 1 1 0 14 7 7 0 0 1 0-14zm.5 3a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1H11V6.5a.5.5 0 0 0-.5-.5z"/></svg>
+                            Assessment Details
+                        </div>
+                        <div class="studio-review-card-body">
+                            <div class="studio-review-item">
+                                <span class="studio-review-label">Title</span>
+                                <span class="studio-review-value"><?= h($editTest['title']) ?></span>
+                            </div>
+                            <div class="studio-review-item">
+                                <span class="studio-review-label">Duration</span>
+                                <span class="studio-review-value"><?= $editTest['duration_minutes'] ?> minutes</span>
+                            </div>
+                            <div class="studio-review-item">
+                                <span class="studio-review-label">Question Count</span>
+                                <span class="studio-review-value"><?= count($questions) ?></span>
+                            </div>
+                            <div class="studio-review-item">
+                                <span class="studio-review-label">MCQ Questions</span>
+                                <span class="studio-review-value"><?= count(array_filter($questions, fn($q) => $q['type'] === 'mcq')) ?></span>
+                            </div>
+                            <div class="studio-review-item">
+                                <span class="studio-review-label">Coding Questions</span>
+                                <span class="studio-review-value"><?= count(array_filter($questions, fn($q) => $q['type'] === 'coding')) ?></span>
+                            </div>
+                            <div class="studio-review-item">
+                                <span class="studio-review-label">Explanation Questions</span>
+                                <span class="studio-review-value"><?= count(array_filter($questions, fn($q) => $q['type'] === 'explanation')) ?></span>
+                            </div>
+                            <div class="studio-review-item">
+                                <span class="studio-review-label">Shuffle Enabled</span>
+                                <span class="studio-review-value"><?= !empty($editTest['shuffle_questions']) ? 'Yes' : 'No' ?></span>
+                            </div>
+                            <div class="studio-review-item">
+                                <span class="studio-review-label">Passing Marks</span>
+                                <span class="studio-review-value"><?= (int)($editTest['passing_marks'] ?? 0) > 0 ? (int)$editTest['passing_marks'] : 'Not set' ?></span>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="panel panel-flat">
-                            <div class="panel-header">
-                                <h2 style="font-size:var(--fs-15);">Actions</h2>
-                            </div>
-                            <div class="panel-body">
-                                <p class="text-sm text-muted" style="margin-bottom:var(--space-4);">
-                                    This assessment is currently a draft. Students cannot see it until published.
-                                </p>
-                                <button class="btn btn-primary btn-lg w-full" onclick="openPublishModal(<?= $editTestId ?>, '<?= h($editTest['title']) ?>')">
-                                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3.5a.5.5 0 0 1 .75-.43l12.5 7a.5.5 0 0 1 0 .86l-12.5 7A.5.5 0 0 1 4 17.5v-14z"/></svg>
-                                    Publish Assessment
-                                </button>
-                                <div style="margin-top:var(--space-3);">
-                                    <a href="assessment_studio.php?edit_test=<?= $editTestId ?>" class="btn btn-secondary w-full">Continue Editing</a>
-                                </div>
-                            </div>
+                    <div class="studio-action-panel">
+                        <div>
+                            <div style="font-size:var(--fs-14);font-weight:600;color:var(--gray-90);margin-bottom:var(--space-2);">Actions</div>
+                            <p>This assessment is currently a draft. Students cannot see it until published.</p>
                         </div>
+                        <button class="studio-btn studio-btn-primary studio-btn-lg studio-btn-block" onclick="openPublishModal(<?= $editTestId ?>, '<?= h($editTest['title']) ?>')">
+                            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3.5a.5.5 0 0 1 .75-.43l12.5 7a.5.5 0 0 1 0 .86l-12.5 7A.5.5 0 0 1 4 17.5v-14z"/></svg>
+                            Publish Assessment
+                        </button>
+                        <a href="assessment_studio.php?edit_test=<?= $editTestId ?>" class="studio-btn studio-btn-secondary studio-btn-block">Continue Editing</a>
                     </div>
                 </div>
             </div>
@@ -571,88 +551,115 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
 
     <?php else: ?>
         <!-- ═══════════════ STEP 1: BASIC INFORMATION ═══════════════ -->
-        <div style="margin-bottom:var(--space-4);">
-            <h1 style="font-size:var(--fs-24);font-weight:600;margin-bottom:var(--space-1);">Create Assessment</h1>
-            <p class="text-muted" style="font-size:var(--fs-14);">Set up your assessment details. You can add questions in the next step.</p>
+        <div class="studio-page-header">
+            <h1>Create Assessment</h1>
+            <p>Set up your assessment details. You can add questions in the next step.</p>
         </div>
 
-        <div class="wizard">
-            <div class="wizard-steps">
-                <div class="wizard-step active">
-                    <span class="step-num">1</span>
-                    <span>Basic Information</span>
+        <div class="studio-card">
+            <div class="studio-stepper">
+                <div class="studio-step active">
+                    <span class="studio-step-number">1</span>
+                    <span class="studio-step-label">Basic Information</span>
                 </div>
-                <div class="wizard-step">
-                    <span class="step-num">2</span>
-                    <span>Question Builder</span>
+                <div class="studio-step">
+                    <span class="studio-step-number">2</span>
+                    <span class="studio-step-label">Question Builder</span>
                 </div>
-                <div class="wizard-step">
-                    <span class="step-num">3</span>
-                    <span>Review & Publish</span>
+                <div class="studio-step">
+                    <span class="studio-step-number">3</span>
+                    <span class="studio-step-label">Review & Publish</span>
                 </div>
             </div>
 
-            <div class="wizard-content">
+            <div class="studio-card-body">
                 <form method="POST" id="createAssessmentForm">
                     <?= csrfField() ?>
                     <input type="hidden" name="action" value="create_draft">
 
-                    <div class="form-group">
-                        <label>Assessment Title *</label>
-                        <input class="form-input" type="text" name="title" required placeholder="e.g. Midterm Examination 2024" style="font-size:var(--fs-16);padding:10px 14px;">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Target Batch *</label>
-                        <select class="form-select" name="batch_id" required>
-                            <option value="">Select Batch</option>
-                            <?php foreach ($batches as $b): ?>
-                                <option value="<?= $b['id'] ?>">
-                                    <?= h($b['college_name']) ?> → <?= h($b['course_name']) ?> → <?= h($b['batch_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Duration (minutes) *</label>
-                            <input class="form-input" type="number" name="duration_minutes" required min="1" max="480" value="30">
+                    <!-- Assessment Information Section -->
+                    <div class="studio-section">
+                        <div class="studio-section-header">
+                            <div class="studio-section-title">Assessment Information</div>
                         </div>
-                        <div class="form-group">
-                            <label>Passing Marks (optional)</label>
-                            <input class="form-input" type="number" name="passing_marks" min="0" value="0" placeholder="0 = not set">
+
+                        <div class="studio-field">
+                            <label class="studio-label">Assessment Title <span class="required-badge">Required</span></label>
+                            <input class="studio-input" type="text" name="title" required placeholder="e.g. Midterm Examination 2024">
+                        </div>
+
+                        <div class="studio-field">
+                            <label class="studio-label">Target Batch <span class="required-badge">Required</span></label>
+                            <select class="studio-select" name="batch_id" required>
+                                <option value="">Select Batch</option>
+                                <?php foreach ($batches as $b): ?>
+                                    <option value="<?= $b['id'] ?>">
+                                        <?= h($b['college_name']) ?> → <?= h($b['course_name']) ?> → <?= h($b['batch_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Negative Marking (optional)</label>
-                            <input class="form-input" type="number" name="negative_marking" min="0" max="10" step="0.5" value="0" placeholder="0 = none">
-                            <div class="form-hint">Marks deducted for incorrect answers per question.</div>
+                    <!-- Assessment Rules Section -->
+                    <div class="studio-section">
+                        <div class="studio-section-header">
+                            <div class="studio-section-title">Assessment Rules</div>
                         </div>
-                        <div class="form-group">
-                            <label>Shuffle Questions</label>
-                            <div class="form-checkbox" style="margin-top:6px;">
-                                <input type="checkbox" name="shuffle_questions" value="1">
-                                <span>Randomize question order for students</span>
+
+                        <div class="studio-field-row">
+                            <div class="studio-field">
+                                <label class="studio-label">Duration <span class="required-badge">Required</span></label>
+                                <input class="studio-input" type="number" name="duration_minutes" required min="1" max="480" value="30">
+                                <div class="studio-helper">Time limit in minutes (1–480)</div>
+                            </div>
+                            <div class="studio-field">
+                                <label class="studio-label">Passing Marks <span class="optional-badge">Optional</span></label>
+                                <input class="studio-input" type="number" name="passing_marks" min="0" value="0" placeholder="0 = not set">
+                                <div class="studio-helper">Minimum marks required to pass</div>
+                            </div>
+                        </div>
+
+                        <div class="studio-field-row">
+                            <div class="studio-field">
+                                <label class="studio-label">Negative Marking <span class="optional-badge">Optional</span></label>
+                                <input class="studio-input" type="number" name="negative_marking" min="0" max="10" step="0.5" value="0" placeholder="0 = none">
+                                <div class="studio-helper">Marks deducted for incorrect answers per question.</div>
+                            </div>
+                            <div class="studio-field" style="justify-content:flex-end;">
+                                <label class="studio-label">Shuffle Questions</label>
+                                <label class="studio-checkbox">
+                                    <input class="studio-checkbox-input" type="checkbox" name="shuffle_questions" value="1">
+                                    <span class="studio-checkbox-mark">
+                                        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg>
+                                    </span>
+                                    <span class="studio-checkbox-label">Randomize question order for students</span>
+                                </label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Description / Instructions</label>
-                        <textarea class="form-textarea" name="description" placeholder="Optional description for the assessment" style="min-height:60px;"></textarea>
+                    <!-- Description & Instructions Section -->
+                    <div class="studio-section">
+                        <div class="studio-section-header">
+                            <div class="studio-section-title">Description & Instructions</div>
+                        </div>
+
+                        <div class="studio-field">
+                            <label class="studio-label">Description <span class="optional-badge">Optional</span></label>
+                            <textarea class="studio-textarea" name="description" placeholder="Brief description of the assessment" style="min-height:60px;"></textarea>
+                        </div>
+
+                        <div class="studio-field">
+                            <label class="studio-label">Detailed Instructions <span class="optional-badge">Optional</span></label>
+                            <textarea class="studio-textarea" name="instructions" placeholder="Detailed instructions shown to students before starting the assessment" style="min-height:80px;"></textarea>
+                            <div class="studio-helper">These instructions will be displayed on the assessment start screen.</div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Detailed Instructions</label>
-                        <textarea class="form-textarea" name="instructions" placeholder="Detailed instructions shown to students before starting the assessment" style="min-height:80px;"></textarea>
-                    </div>
-
-                    <div class="wizard-footer" style="padding:var(--space-5) 0 0 0;border-top:1px solid var(--gray-10);margin-top:var(--space-4);">
+                    <div class="studio-card-footer" style="border-top:1px solid var(--glass-border);margin-top:var(--space-6);padding:var(--space-5) 0 0;">
                         <div></div>
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="studio-btn studio-btn-primary studio-btn-lg">
                             Next — Question Builder
                             <svg viewBox="0 0 20 20" fill="currentColor"><path d="M11.35 3.15a.5.5 0 0 1 .7-.7l6.5 6.5a.5.5 0 0 1 0 .7l-6.5 6.5a.5.5 0 0 1-.7-.7L16.8 10H2.5a.5.5 0 0 1 0-1h14.3l-5.45-5.85z"/></svg>
                         </button>
@@ -662,8 +669,8 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
         </div>
 
         <!-- Quick link to drafts -->
-        <div style="text-align:center;margin-top:var(--space-4);">
-            <a href="assessment_studio.php?tab=drafts" class="btn btn-ghost">
+        <div style="text-align:center;margin-top:var(--space-5);">
+            <a href="assessment_studio.php?tab=drafts" class="studio-btn studio-btn-ghost">
                 <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3z"/></svg>
                 View Draft Assessments
             </a>
@@ -688,16 +695,16 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
                     <?= csrfField() ?>
                     <input type="hidden" name="action" value="publish_now">
                     <input type="hidden" name="id" id="publishTestId" value="">
-                    <button type="submit" class="btn btn-primary w-full btn-lg">
+                    <button type="submit" class="studio-btn studio-btn-primary studio-btn-lg studio-btn-block">
                         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3.5a.5.5 0 0 1 .75-.43l12.5 7a.5.5 0 0 1 0 .86l-12.5 7A.5.5 0 0 1 4 17.5v-14z"/></svg>
                         Publish Now — Make Live
                     </button>
                 </form>
                 <div style="position:relative;text-align:center;">
-                    <span style="background:var(--white);padding:0 var(--space-3);color:var(--gray-40);font-size:var(--fs-11);position:relative;z-index:1;">or</span>
+                    <span style="background:var(--surface);padding:0 var(--space-3);color:var(--gray-40);font-size:var(--fs-11);position:relative;z-index:1;">or</span>
                     <hr style="border:none;border-top:1px solid var(--gray-15);margin:-9px auto 0;width:100%;">
                 </div>
-                <button class="btn btn-secondary w-full" onclick="showScheduleForm()">
+                <button class="studio-btn studio-btn-secondary studio-btn-block" onclick="showScheduleForm()">
                     <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 2a.5.5 0 0 1 .5.5V3h8v-.5a.5.5 0 0 1 1 0V3h1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h1v-.5a.5.5 0 0 1 .5-.5zM4 4a1 1 0 0 0-1 1v1h14V5a1 1 0 0 0-1-1H4z"/></svg>
                     Schedule for Later
                 </button>
@@ -707,15 +714,15 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
                 <?= csrfField() ?>
                 <input type="hidden" name="action" value="schedule_publish">
                 <input type="hidden" name="id" id="scheduleTestId" value="">
-                <div class="form-group">
-                    <label>Start Date & Time</label>
-                    <input class="form-input" type="datetime-local" name="start_time" required>
+                <div class="studio-field">
+                    <label class="studio-label">Start Date & Time</label>
+                    <input class="studio-input" type="datetime-local" name="start_time" required>
                 </div>
-                <div class="form-group">
-                    <label>End Date & Time</label>
-                    <input class="form-input" type="datetime-local" name="end_time" required>
+                <div class="studio-field">
+                    <label class="studio-label">End Date & Time</label>
+                    <input class="studio-input" type="datetime-local" name="end_time" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-full">Schedule Publication</button>
+                <button type="submit" class="studio-btn studio-btn-primary studio-btn-block">Schedule Publication</button>
             </form>
         </div>
     </div>

@@ -139,15 +139,16 @@ $sidebarCollapsed = $_COOKIE['sidebar_collapsed'] ?? '' === '1';
                 ?>
                     <a href="<?= BASE_URL ?>/admin/<?= $item['url'] ?>"
                        class="nav-item<?= $active ? ' active' : '' ?>"
-                       <?= $active ? 'aria-current="page"' : '' ?>>
-                        <span class="nav-icon"><?= icon($item['icon'], 18) ?></span>
+                       <?= $active ? 'aria-current="page"' : '' ?>
+                       data-tooltip="<?= h($item['label']) ?>">
+                        <span class="nav-icon"><?= icon($item['icon'], 24) ?></span>
                         <span class="nav-label"><?= h($item['label']) ?></span>
                     </a>
                 <?php endforeach; ?>
             <?php endforeach; ?>
             <div class="sidebar-divider"></div>
-            <a href="<?= BASE_URL ?>/logout.php" class="nav-item" style="margin-top:auto;">
-                <span class="nav-icon"><?= icon('logout', 18) ?></span>
+            <a href="<?= BASE_URL ?>/logout.php" class="nav-item" style="margin-top:auto;" data-tooltip="Sign Out">
+                <span class="nav-icon"><?= icon('logout', 24) ?></span>
                 <span class="nav-label">Sign Out</span>
             </a>
         </nav>

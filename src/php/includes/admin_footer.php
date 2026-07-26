@@ -127,6 +127,50 @@ function updateThemeUI(theme) {
     }
 })();
 
+// ─── Mobile: Auto-generate data-label for tables ──────
+(function() {
+    function addTableLabels() {
+        document.querySelectorAll('.data-table').forEach(function(table) {
+            const headers = [];
+            const thead = table.querySelector('thead');
+            if (!thead) return;
+            thead.querySelectorAll('th').forEach(function(th) {
+                headers.push(th.textContent.trim());
+            });
+            if (headers.length === 0) return;
+
+            table.querySelectorAll('tbody tr').forEach(function(tr) {
+                tr.querySelectorAll('td').forEach(function(td, idx) {
+                    if (idx < headers.length && !td.hasAttribute('data-label')) {
+                        td.setAttribute('data-label', headers[idx]);
+                    }
+                });
+            });
+        });
+    }
+    addTableLabels();
+    // Re-run on dynamic content changes
+    const observer = new MutationObserver(addTableLabels);
+    observer.observe(document.body, { childList: true, subtree: true });
+})();
+
+// ─── Mobile: enhance stepper scroll affordance ─────────
+(function() {
+    function addScrollHint() {
+        const steppers = document.querySelectorAll('.studio-stepper');
+        if (window.innerWidth <= 767) {
+            steppers.forEach(function(s) {
+                if (s.scrollWidth > s.clientWidth && !s.dataset.scrollHint) {
+                    s.dataset.scrollHint = 'true';
+                    s.style.setProperty('--scroll-hint', '1');
+                }
+            });
+        }
+    }
+    addScrollHint();
+    window.addEventListener('resize', addScrollHint);
+})();
+
 // ─── Close dropdowns on outside click ───────────────────
 document.addEventListener('click', function(e) {
     // Profile dropdown
