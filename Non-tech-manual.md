@@ -1071,40 +1071,16 @@ When you visit the Grading page, you'll see a table showing:
 
 ---
 
-# 🔤 ICON CHEAT SHEET
+# 🌙 Theme Toggle (Dark / Light Mode)
 
-Here's what the icons mean throughout the system:
+Found in the **top bar** (admin) or **sidebar** (student).  
 
-| Icon | Meaning |
-|------|---------|
-| 🏛️ | Colleges |
-| 📖 | Courses |
-| 📚 | Batches |
-| 👥 | Students |
-| ⏳ | Pending / Waiting |
-| 🔗 | Guest / External |
-| ➕ | Create / Add |
-| 📄 | Document / Draft |
-| ❓ | Questions |
-| 📋 | List / All Items |
-| 🔴 | Live / Active Now |
-| ✅ | Grading / Check |
-| 📊 | Reports / Charts |
-| 🔄 | Tab Activity |
-| ⚠️ | Warnings / Issues |
-| ⚙️ | Settings |
-| 📜 | History / Logs |
-| 🚪 | Sign Out |
-| 🌙 | Dark Mode |
-| ☀️ | Light Mode |
-| 🔔 | Notifications |
-| 🔍 | Search |
-| ✏️ | Edit |
-| 🗑️ | Delete / Trash |
-| ▶️ | Play / Start |
-| ⏸️ | Pause |
-| ⏹️ | Stop / End |
-| 🔄 | Refresh |
+| Icon | Mode |
+|------|------|
+| **Moon icon** 🌙 | Click to switch to **Dark Mode** — easier on the eyes in low light |
+| **Sun icon** ☀️ | Click to switch to **Light Mode** — bright daytime view |
+
+Your preference is remembered the next time you log in.
 
 ---
 
