@@ -38,6 +38,51 @@ Click **"Sign In"** and you're in.
 
 ---
 
+## 👤 How Student Registration & Login Works
+
+Students have two ways to access the system:
+
+### Option 1: Registered Students (Email + Password)
+
+**Step 1 — Admin Creates the Account**
+> You (the admin) can add students manually go to **Student Management → Students** and click **"Add Student"**. Fill in their name, email, roll number, and batch, then save. The student can now log in.
+
+**Step 2 — Student Signs Up (Self-Registration)**
+> Students can also register themselves by visiting the **Sign Up** page. They fill in:
+> - **Full Name**
+> - **Email address**
+> - **Password** (choose one)
+> - **Roll Number**
+> - **Batch** (select from a dropdown)
+>
+> After submitting, their account is **pending verification** — you need to approve it.
+
+**Step 3 — Admin Verifies the Student**
+> 1. Go to **Student Management → Pending Verifications** in the sidebar
+> 2. You'll see a list of new students waiting for approval
+> 3. Click **"Verify"** next to their name
+> 4. The student gets an email confirmation and can now log in
+
+**Step 4 — Student Logs In**
+> 1. Go to the login page
+> 2. Select **"Student"** as the role
+> 3. Enter their email and password
+> 4. Click **"Sign In"**
+> 5. They land on their **Student Dashboard** where they see assigned tests
+
+### Option 2: Guest Access (No Account Required)
+
+This is for **temporary or one-time access** — no email or password needed.
+
+> 1. The admin generates a **Guest Link** or **QR Code** (see instructions below)
+> 2. The student opens the link (or scans the QR code with their phone)
+> 3. They're taken directly to the test — no login required
+> 4. The guest access expires automatically after the test ends or 30 days
+
+👉 *Jump to the **Guest Link & QR Code** section below for step-by-step instructions.*
+
+---
+
 # 🖥️ ADMIN DASHBOARD — What You See First
 
 After logging in as an admin, this is your home screen. It gives you a birds-eye view of everything happening.
@@ -159,6 +204,167 @@ This auto-refreshes, so you can monitor activity without refreshing the page.
 | **Storage** | Can files and data be saved? |
 
 Each shows a green check ✅ (healthy) or warning ⚠️ (needs attention).
+
+---
+
+# 🏛️ SETTING UP YOUR INSTITUTION — Step by Step
+
+When you first start using the system, you need to set things up in this order:
+
+```
+Step 1: Add Colleges  →  Step 2: Add Courses  →  Step 3: Add Batches
+                                                       ↓
+                                              Step 4: Add Students
+                                                       ↓
+                                              Step 5: Create Tests
+```
+
+Think of it like a real school:
+- **College** = The main institution (e.g., "City Engineering College")
+- **Course** = A program of study (e.g., "B.Tech Computer Science")
+- **Batch** = A specific group of students (e.g., "Batch 2025-A")
+- **Students** = Individual learners
+- **Tests** = Assessments created for a batch
+
+---
+
+## Step 1: Adding a College
+
+1. In the left sidebar, go to **Institution Management → Colleges**
+2. Click the **"+ Add College"** button
+3. A pop-up form appears. Fill in:
+   - **College Name** (required) — e.g., *"City Engineering College"*
+   - **Address** (optional) — e.g., *"123 Main Street, New York"*
+4. Click **"Save"**
+5. The college appears in the list. You can **Edit** or **Delete** it anytime using the buttons on the right.
+
+> 💡 **Tip:** Add all your colleges first before moving to courses.
+
+**The Colleges Table shows:**
+| Column | What it is |
+|--------|-----------|
+| **ID** | Auto-generated number |
+| **Name** | The college name |
+| **Address** | Physical address |
+| **Courses** | How many courses belong to this college (clickable badge) |
+| **Created** | Date added |
+| **Actions** | Edit / Delete buttons |
+
+---
+
+## Step 2: Adding a Course
+
+A course belongs to a college. For example, "B.Tech Computer Science" belongs to "City Engineering College".
+
+1. In the left sidebar, go to **Institution Management → Courses**
+2. Click **"+ Add Course"**
+3. Fill in:
+   - **College** (required) — select from the dropdown (shows all colleges you added)
+   - **Course Name** (required) — e.g., *"B.Tech Computer Science"*
+4. Click **"Save"**
+5. The course appears in the list
+
+**The Courses Table shows:**
+| Column | What it is |
+|--------|-----------|
+| **ID** | Auto-generated number |
+| **College** | Which college this course belongs to |
+| **Name** | The course name |
+| **Batches** | How many batches under this course |
+| **Created** | Date added |
+| **Actions** | Edit / Delete buttons |
+
+---
+
+## Step 3: Adding a Batch
+
+A batch is a group of students within a course. Think of it as a classroom or section.
+
+1. In the left sidebar, go to **Institution Management → Batches**
+2. Click **"+ Add Batch"**
+3. Fill in:
+   - **College** (required) — select from dropdown
+   - **Course** (required) — select from dropdown (shows courses under selected college)
+   - **Batch Name** (required) — e.g., *"Batch 2025-A"*, *"Morning Section"*, *"Group 1"*
+4. Click **"Save"**
+5. The batch appears in the list
+
+**You can filter batches** by college or course using the dropdown filters at the top of the page.
+
+**The Batches Table shows:**
+| Column | What it is |
+|--------|-----------|
+| **ID** | Auto-generated number |
+| **Name** | The batch name |
+| **Course** | Which course this batch belongs to |
+| **College** | Which college (through the course) |
+| **Students** | How many students in this batch (clickable number) |
+| **Created** | Date added |
+| **Actions** | Edit / Delete buttons |
+
+---
+
+## Step 4: Adding Students
+
+You can add students **one by one** or **in bulk**.
+
+### Adding a Single Student
+
+1. Go to **Student Management → Students**
+2. Click **"Add Student"**
+3. Fill in:
+   - **Name** (required)
+   - **Email** (required) — this will be their login ID
+   - **Roll Number** — optional, for your records
+   - **Batch** (required) — select from dropdown
+   - **Password** — if left blank, a random password is generated
+4. Click **"Save"**
+5. The student can now log in using their email and password
+
+### Bulk Import Students from CSV
+
+For adding many students at once:
+
+1. On the **Students** page, scroll to the **"Import Students from CSV"** section
+2. Your CSV file should have columns: `name, email, roll_number, batch_id` (ask your technical team for the exact batch IDs)
+3. Click **"Choose File"**, select your CSV, and click **"Import"**
+
+### What Students See After You Add Them
+
+- Students receive a **verification email** (if self-registered)
+- They log in at the login page by selecting **"Student"** role
+- They see their **Student Dashboard** with assigned tests
+
+---
+
+## Step 5: Creating a Test (Assessment)
+
+1. Click **"Create Assessment"** in the top bar, OR go to **Assessment Studio → Create Assessment**
+2. Fill in the test details:
+
+   | Field | What to enter |
+   |-------|-------------|
+   | **Assessment Title** | A clear name (e.g., "Midterm Physics Exam") |
+   | **Batch** | Which student group should take this test |
+   | **Duration (minutes)** | How long students have (e.g., 60 for 1 hour) |
+   | **Start Time** | When the test becomes available (optional — leave blank to publish immediately) |
+   | **End Time** | When the test closes automatically |
+   | **Passing Marks** | Minimum score to pass (optional) |
+   | **Negative Marking** | Deduct points for wrong answers (optional — e.g., 0.25 means -0.25 per wrong answer) |
+   | **Shuffle Questions** | Randomize question order for each student |
+   | **Instructions** | Text shown to students before they begin |
+
+3. Click **"Save"** to create the test
+4. You'll be taken to the **Question Editor** where you can:
+   - **Add questions manually** (MCQ, Coding, or Explanation)
+   - **Import from CSV** (MCQ only — see the CSV section below)
+   - **Pick from Question Library** (reuse questions from previous tests)
+5. When ready, click **"Publish"** to make it available to students
+
+> 💡 **Publishing options:**
+> - **Publish Now** — test goes live immediately
+> - **Schedule** — set a future start time
+> - **Save as Draft** — come back later to finish
 
 ---
 
@@ -307,6 +513,99 @@ This is what students see when they log in.
 3. Click:
    - **"Pause"** to temporarily stop the test (students can resume later)
    - **"End"** to permanently stop it (no more submissions allowed)
+
+---
+
+# 🔗 GUEST LINK & QR CODE — Giving Test Access Without Login
+
+Guest access lets students take a test **without creating an account**. This is useful for:
+- **Demo tests** — let prospective students try the platform
+- **One-time exams** — no need to create permanent accounts
+- **Walk-in candidates** — quick access via QR code scan
+
+> ⚠️ Guest access is **temporary** — it expires after the test ends or 30 days, whichever comes first.
+
+---
+
+## How Guest Access Works (Simplified)
+
+```
+You generate a link/QR → Share it with students → They open it → They take the test
+```
+
+No email. No password. No verification. Just click and go.
+
+---
+
+## Generating a Guest Link or QR Code
+
+1. Go to **Student Management → Students** in the sidebar
+2. Look for the **"Generate Guest Link / QR Code"** section (usually near the top or as a button)
+3. A pop-up form appears with these fields:
+
+   | Field | What to select |
+   |-------|---------------|
+   | **Batch** | Which student group this guest access is for |
+   | **Specific Test** (optional) | If you want to limit access to one test only. Leave blank to allow access to all tests assigned to that batch |
+   | **Link Type** | Choose **Guest Link** (a web URL) or **QR Code** (scannable image) |
+
+4. Click **"Generate"**
+
+### What You Get
+
+**If you chose Guest Link:**
+> You'll see a long URL that looks like:
+> ```
+> https://yourdomain.com/guest.php?token=abc123xyz...
+> ```
+> Copy this link and send it to your students via email, WhatsApp, or any messaging app.
+
+**If you chose QR Code:**
+> You'll see a **square QR code image** with the same link encoded in it.
+> - Students can scan it with their phone camera (iPhone, Android)
+> - Most modern phones scan QR codes automatically from the camera app
+> - No special app needed
+
+---
+
+## How Students Use Guest Access
+
+### Via Link
+1. Student clicks the link you sent them
+2. They land on a **Guest Access** page
+3. The token is already filled in — they just click **"Access Tests"**
+4. They're taken directly to their assigned test
+
+### Via QR Code
+1. Student opens their phone's **Camera app**
+2. Points it at the QR code
+3. A notification pops up — "Open this link in browser?"
+4. They tap **"Open"**
+5. Same as above — they're in the test instantly
+
+### Manual Token Entry (Backup)
+If the link or QR doesn't work:
+1. Go to the login page
+2. Click **"Have a guest link? Click here"**
+3. Type or paste the token (the long code after `?token=`)
+4. Click **"Access Tests"**
+
+---
+
+## Managing Guest Entries
+
+Guest entries are stored in the system and you can see them in the database. Each entry tracks:
+- **Batch** it was created for
+- **Test** (if limited to one test)
+- **Token** — the unique code
+- **Expiry date** — when it expires
+- **Type** — Guest Link or QR Code
+
+> 💡 **Tips:**
+> - Generate a **new QR code for each batch** — don't reuse the same one across different groups
+> - Guest links work on **any device** — phone, tablet, laptop
+> - You can generate **multiple guest links** for different batches or tests
+> - If a link expires, just generate a new one
 
 ---
 
