@@ -761,10 +761,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1600);
     }
 
-    // ── Init Lucide icons ──────────────────────────────
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
 });
 </script>
 

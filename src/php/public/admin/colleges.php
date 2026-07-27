@@ -4,6 +4,8 @@ require_once __DIR__ . '/../../includes/admin_header.php';
 
 $pdo = getDB();
 $message = '';
+$adminRole = $_SESSION['admin_role'] ?? 'admin';
+$canManage = in_array($adminRole, ['super_admin', 'platform_admin'], true);
 
 // Handle Add / Edit / Delete
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -11,17 +13,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'add' && !empty($_POST['name'])) {
-        $stmt = $pdo->prepare("INSERT INTO colleges (name, address) VALUES (?, ?)");
-        $stmt->execute([trim($_POST['name']), trim($_POST['address'] ?? '')]);
-        $message = 'College added successfully.';
+        if (!$canManage) { $message = 'Permission denied.'; }
+        else {
+            $stmt = $pdo->prepare("INSERT INTO colleges (name, address) VALUES (?, ?)");
+            $stmt->execute([trim($_POST['name']), trim($_POST['address'] ?? '')]);
+            $message = 'College added successfully.';
+        }
     } elseif ($action === 'edit' && !empty($_POST['id']) && !empty($_POST['name'])) {
-        $stmt = $pdo->prepare("UPDATE colleges SET name = ?, address = ? WHERE id = ?");
-        $stmt->execute([trim($_POST['name']), trim($_POST['address'] ?? ''), (int)$_POST['id']]);
-        $message = 'College updated successfully.';
+        if (!$canManage) { $message = 'Permission denied.'; }
+        else {
+            $stmt = $pdo->prepare("UPDATE colleges SET name = ?, address = ? WHERE id = ?");
+            $stmt->execute([trim($_POST['name']), trim($_POST['address'] ?? ''), (int)$_POST['id']]);
+            $message = 'College updated successfully.';
+        }
     } elseif ($action === 'delete' && !empty($_POST['id'])) {
-        $stmt = $pdo->prepare("DELETE FROM colleges WHERE id = ?");
-        $stmt->execute([(int)$_POST['id']]);
-        $message = 'College deleted successfully.';
+        if (!$canManage) { $message = 'Permission denied.'; }
+        else {
+            $stmt = $pdo->prepare("DELETE FROM colleges WHERE id = ?");
+            $stmt->execute([(int)$_POST['id']]);
+            $message = 'College deleted successfully.';
+        }
     }
 }
 
@@ -34,7 +45,12 @@ $colleges = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM courses WHERE college
         <p class="dashboard-subtitle">Manage all registered institutions</p>
     </div>
     <div class="dashboard-header-right">
-        <button class="btn btn-primary btn-sm" onclick="openModal('addModal')">+ Add College</button>
+        <?php if ($canManage): ?>
+        <a href="<?= BASE_URL ?>/admin/college_create.php" class="btn btn-primary btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Create College
+        </a>
+        <?php endif; ?>
     </div>
 </div>
 

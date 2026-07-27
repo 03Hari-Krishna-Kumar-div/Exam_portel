@@ -11,6 +11,19 @@ require_once __DIR__ . '/icons.php';
 startSession();
 requireAdmin();
 
+// Ensure admin_role is set for existing sessions (fallback for pre-migration sessions)
+if (!isset($_SESSION['admin_role'])) {
+    try {
+        $pdo = getDB();
+        $stmt = $pdo->prepare("SELECT role FROM admins WHERE id = ?");
+        $stmt->execute([$_SESSION['admin_id']]);
+        $row = $stmt->fetch();
+        $_SESSION['admin_role'] = $row['role'] ?? 'admin';
+    } catch (Exception $e) {
+        $_SESSION['admin_role'] = 'admin';
+    }
+}
+
 $currentPage = basename($_SERVER['PHP_SELF']);
 $currentTab  = $_GET['tab'] ?? '';
 $adminEmail  = $_SESSION['admin_email'] ?? 'Admin';

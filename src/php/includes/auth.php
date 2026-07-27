@@ -73,6 +73,7 @@ function adminLogin(string $email, string $password): array {
     $_SESSION['admin_id']    = (int)$admin['id'];
     $_SESSION['admin_email'] = $admin['email'];
     $_SESSION['role']        = 'admin';
+    $_SESSION['admin_role']  = $admin['role'] ?? 'admin';
     session_regenerate_id(true);
 
     return ['success' => true];
