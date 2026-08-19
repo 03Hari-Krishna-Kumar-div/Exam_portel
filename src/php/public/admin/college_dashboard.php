@@ -1,11 +1,25 @@
 <?php
 $pageTitle = 'College Dashboard';
-require_once __DIR__ . '/../../includes/admin_header.php';
+require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+startSession();
+requireAdmin();
 
 $collegeId = (int)($_GET['id'] ?? 0);
 if (!$collegeId) {
     redirect('/admin/colleges.php');
 }
+
+$pdo = getDB();
+$stmt = $pdo->prepare("SELECT id FROM colleges WHERE id = ?");
+$stmt->execute([$collegeId]);
+if (!$stmt->fetch()) {
+    flash('error', 'College not found.');
+    redirect('/admin/colleges.php');
+}
+
+require_once __DIR__ . '/../../includes/admin_header.php';
 
 $pdo = getDB();
 $stmt = $pdo->prepare("

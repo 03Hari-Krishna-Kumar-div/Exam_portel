@@ -9,7 +9,7 @@ require_once __DIR__ . '/../includes/helpers.php';
 startSession();
 
 // If already verified + logged in, redirect
-if (isStudent()) { redirect('/test-platform/src/php/public/student/dashboard.php'); }
+if (isStudent()) { redirect('/student/dashboard.php'); }
 
 $error = '';
 $success = '';
@@ -19,7 +19,7 @@ $otpDev = $_GET['otp_dev'] ?? ''; // Only shown in dev mode
 
 if ($studentId <= 0 || empty($email)) {
     // No student info — redirect to signup
-    redirect('/test-platform/src/php/public/signup.php');
+    redirect('/signup.php');
 }
 
 // Handle OTP verification POST

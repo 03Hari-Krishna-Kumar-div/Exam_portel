@@ -340,5 +340,231 @@ document.addEventListener('click', function(e) {
     });
 })();
 </script>
+
+<script>
+// ─── Notification Bell: live feed (poll + mark read) ───────────
+// Lives in the footer so it survives soft-nav (only main.content-area swaps).
+(function() {
+    'use strict';
+    var NOTIF_API = <?= json_encode(BASE_URL . '/admin/notifications.php') ?>;
+    var CSRF      = <?= json_encode(getCsrfToken()) ?>;
+
+    function setBadge(count) {
+        var badge = document.getElementById('notifBadge');
+        if (!badge) return;
+        badge.textContent = count > 99 ? '99+' : String(count);
+        badge.style.display = count > 0 ? '' : 'none';
+        var ma = document.getElementById('notifMarkAll');
+        if (ma) ma.style.display = count > 0 ? '' : 'none';
+        var h3 = document.querySelector('.notif-panel-header h3');
+        var unreadSpan = document.getElementById('notifUnreadText');
+        if (unreadSpan) {
+            if (count > 0) unreadSpan.textContent = '(' + count + ' unread)';
+            else unreadSpan.remove();
+        }
+    }
+
+    function refreshNotifs() {
+        fetch(NOTIF_API + '?action=poll', { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } })
+            .then(function(r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+            .then(function(d) {
+                setBadge(d.count || 0);
+                var body = document.getElementById('notifPanelBody');
+                if (body && d.html) body.innerHTML = d.html;
+                if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (e) {} }
+            })
+            .catch(function() { /* server unreachable — keep current feed */ });
+    }
+
+    document.addEventListener('click', function(e) {
+        var ma = e.target.closest('#notifMarkAll');
+        if (ma) {
+            e.preventDefault();
+            var fd = new FormData();
+            fd.append('csrf_token', CSRF);
+            fetch(NOTIF_API + '?action=mark_all', { method: 'POST', credentials: 'same-origin', body: fd })
+                .then(function(r) { return r.json(); })
+                .then(function() { refreshNotifs(); })
+                .catch(function() {});
+            return;
+        }
+        var item = e.target.closest('.notif-item[data-id]');
+        if (item && !item.classList.contains('is-read')) {
+            var fd2 = new FormData();
+            fd2.append('csrf_token', CSRF);
+            fd2.append('id', item.getAttribute('data-id'));
+            fetch(NOTIF_API + '?action=mark_one', { method: 'POST', credentials: 'same-origin', body: fd2 })
+                .then(function(r) { return r.json(); })
+                .then(function() { item.classList.add('is-read'); refreshNotifs(); })
+                .catch(function() {});
+        }
+    });
+
+    // Initial sync shortly after load, then poll every 30s
+    setTimeout(refreshNotifs, 1200);
+    setInterval(refreshNotifs, 30000);
+})();
+</script>
+
+<script>
+// ─── Soft Navigation (left sidebar) ────────────────────────────
+// Intercepts clicks on left-nav items and swaps only the main
+// content area via fetch(). The sidebar DOM is never touched, so
+// its scroll position, active item and collapse state persist.
+(function() {
+    'use strict';
+    if (!window.history || !history.pushState) return; // fallback: default full navigation
+
+    var main = document.querySelector('main.content-area');
+    if (!main) return;
+
+    var pendingNav = false;
+    var trackedTimers = []; // intervals/timeouts created by page scripts (cleared on next nav)
+
+    function isSoftLink(a) {
+        var href = a.getAttribute('href');
+        if (!href || href.charAt(0) === '#') return false;
+        if (!a.closest('.sidebar-nav')) return false;      // left navigation links only
+        if (a.target && a.target !== '_self') return false; // keep new-tab links native
+        if (href.indexOf('logout') !== -1) return false;    // logout must stay a real request
+        return true;
+    }
+
+    // Mirror of PHP isNavActive(): match by page name + optional ?tab=
+    function isActive(a, url) {
+        var aUrl = new URL(a.getAttribute('href'), location.href);
+        var u = new URL(url, location.href);
+        if (aUrl.pathname.replace(/\/+$/, '') !== u.pathname.replace(/\/+$/, '')) return false;
+        var aTab = aUrl.searchParams.get('tab') || '';
+        var uTab = u.searchParams.get('tab') || '';
+        if (!aTab && !uTab) return true;
+        return !!aTab && aTab === uTab;
+    }
+
+    function setActive(url) {
+        document.querySelectorAll('.sidebar-nav a.nav-item').forEach(function(a) {
+            var on = isActive(a, url);
+            a.classList.toggle('active', on);
+            if (on) a.setAttribute('aria-current', 'page');
+            else a.removeAttribute('aria-current');
+        });
+    }
+
+    function clearTrackedTimers() {
+        trackedTimers.forEach(function(t) { clearInterval(t); });
+        trackedTimers = [];
+    }
+
+    // Execute one inline script. While it runs:
+    //  - DOMContentLoaded registrations are collected and invoked immediately
+    //  - setInterval/setTimeout are intercepted so they can be cleared on next nav
+    function execInline(text, container, done) {
+        var dclQueue = [];
+        var created = [];
+        var origAdd = document.addEventListener;
+        var origSI = window.setInterval;
+        var origST = window.setTimeout;
+
+        document.addEventListener = function(type, fn, opts) {
+            if (type === 'DOMContentLoaded') { dclQueue.push(fn); return; }
+            return origAdd.call(this, type, fn, opts);
+        };
+        window.setInterval = function(fn, ms) { var id = origSI(fn, ms); created.push(id); return id; };
+        window.setTimeout = function(fn, ms) { var id = origST(fn, ms); created.push(id); return id; };
+
+        var s = document.createElement('script');
+        s.textContent = text;
+        container.appendChild(s);
+
+        document.addEventListener = origAdd;
+        window.setInterval = origSI;
+        window.setTimeout = origST;
+
+        trackedTimers = trackedTimers.concat(created);
+        dclQueue.forEach(function(fn) { try { fn(); } catch (e) { /* page script error — keep going */ } });
+        done();
+    }
+
+    function execExternal(src, container, done) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.async = false;
+        s.onload = done;
+        s.onerror = done;
+        container.appendChild(s);
+    }
+
+    // Re-run page scripts in original order (external -> inline) so
+    // libs like Chart.js are available to the inline init code.
+    function injectScripts(specs, container, done) {
+        var i = 0;
+        function next() {
+            if (i >= specs.length) { done(); return; }
+            var spec = specs[i++];
+            if (spec.src) execExternal(spec.src, container, next);
+            else execInline(spec.text, container, next);
+        }
+        next();
+    }
+
+    function navigate(url) {
+        if (pendingNav) return;
+        pendingNav = true;
+
+        fetch(url, { headers: { 'X-Requested-With': 'fetch' }, credentials: 'same-origin' })
+            .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
+            .then(function(html) {
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var newMain = doc.querySelector('main.content-area');
+                if (!newMain) { window.location.href = url; return; } // session expired / error page → full nav
+
+                var t = doc.title;
+                if (t) document.title = t;
+
+                var specs = Array.from(newMain.querySelectorAll('script')).map(function(s) {
+                    return { src: s.getAttribute('src') || '', text: s.textContent || '' };
+                });
+
+                clearTrackedTimers();
+                main.innerHTML = newMain.innerHTML;
+                setActive(url);
+                if (url !== location.href) history.pushState({ url: url }, '', url);
+
+                injectScripts(specs, main, function() {
+                    if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch (e) {} }
+                    pendingNav = false;
+                    // Mobile: close the off-canvas drawer after navigating
+                    if (window.innerWidth <= 768 && window.closeSidebar) try { closeSidebar(); } catch (e) {}
+                });
+            })
+            .catch(function() {
+                pendingNav = false;
+                window.location.href = url; // network error → fallback to full navigation
+            });
+    }
+
+    // Intercept left-nav clicks (primary button, no modifier keys)
+    document.addEventListener('click', function(e) {
+        if (e.defaultPrevented || e.button !== 0) return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // preserve shortcuts / new tab
+        var a = e.target.closest('a.nav-item');
+        if (!a || !isSoftLink(a)) return;
+
+        var url = a.href;
+        if (url === location.href) { e.preventDefault(); return; } // same page → never reload
+        e.preventDefault();
+        navigate(url);
+    }, true);
+
+    // Back / forward through the in-app history
+    window.addEventListener('popstate', function() {
+        pendingNav = false;
+        navigate(location.href);
+    });
+
+    // No browser scroll-restoration jumps on popstate
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+})();
+</script>
 </body>
 </html>

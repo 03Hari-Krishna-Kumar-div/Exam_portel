@@ -30,7 +30,12 @@ function redirect(string $url): void {
     if (str_starts_with($url, '/')) {
         $url = BASE_URL . $url;
     }
-    header('Location: ' . $url);
+    if (!headers_sent()) {
+        header('Location: ' . $url);
+    } else {
+        // Headers already sent — use JS redirect as fallback
+        echo '<script>window.location.href=' . json_encode($url) . ';</script>';
+    }
     exit;
 }
 
@@ -157,4 +162,72 @@ function getRemainingSeconds(array $submission, int $testDuration): int {
     $elapsed = time() - $started;
     $total = ($testDuration * 60) + $extended;
     return max(0, $total - $elapsed);
+}
+
+// ─── ADMIN NOTIFICATIONS (bell icon feed) ────────────────────
+
+/**
+ * Create an admin notification. Never throws — failures are logged silently
+ * so the caller flow (signup, login, guest, test) is never interrupted.
+ *
+ * Types: student_account | guest_link | qr | test | system
+ */
+function notifyAdmin(string $type, string $title, string $message, ?string $link = null): void {
+    try {
+        static $pdo = null;
+        $pdo = $pdo ?? getDB();
+        $stmt = $pdo->prepare("INSERT INTO admin_notifications (type, title, message, link) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$type, $title, mb_substr($message, 0, 500), $link]);
+    } catch (Throwable $e) {
+        error_log('notifyAdmin failed: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Render notification items HTML for the bell panel (shared by the
+ * server-rendered header and the JSON poll endpoint).
+ */
+function renderNotificationItems(array $items): string {
+    $typeIcon = [
+        'student_account' => 'student',      // graduation cap
+        'guest_link'      => 'external-link',
+        'qr'              => 'external-link',
+        'test'            => 'test',
+        'system'          => 'warning',
+    ];
+    $typeColor = [
+        'student_account' => 'amber',
+        'guest_link'      => 'blue',
+        'qr'              => 'blue',
+        'test'            => 'red',
+        'system'          => 'red',
+    ];
+
+    if (empty($items)) {
+        $icon = function_exists('icon') ? icon('notifications', 32) : '';
+        return '<div class="notif-empty">' . $icon . '<p>No notifications</p></div>';
+    }
+
+    $html = '';
+    foreach ($items as $n) {
+        $cls   = $typeColor[$n['type']] ?? 'amber';
+        $ic    = $typeIcon[$n['type']] ?? 'warning';
+        $title = h($n['title'] ?? 'Notification');
+        $msg   = h($n['message'] ?? '');
+        $time  = timeAgo($n['created_at']);
+        $dot   = empty($n['is_read']) ? '<span class="notif-unread-dot"></span>' : '';
+        $readCls = empty($n['is_read']) ? '' : ' is-read';
+        $tag      = !empty($n['link']) ? 'a' : 'div';
+        $hrefAttr = !empty($n['link']) ? ' href="' . h($n['link']) . '"' : '';
+        $iconSvg  = function_exists('icon') ? icon($ic, 16) : '';
+
+        $html .= '<' . $tag . $hrefAttr . ' class="notif-item' . $readCls . '" data-id="' . (int)$n['id'] . '">'
+               . '<span class="notif-icon ' . $cls . '">' . $iconSvg . '</span>'
+               . '<span class="notif-content">'
+               . '<span class="notif-text"><strong>' . $title . '</strong>' . ($msg ? ' — ' . $msg : '') . '</span>'
+               . '<span class="notif-time">' . $time . $dot . '</span>'
+               . '</span>'
+               . '</' . $tag . '>';
+    }
+    return $html;
 }

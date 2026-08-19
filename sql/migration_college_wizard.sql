@@ -11,6 +11,13 @@ ALTER TABLE admins
 -- Set existing seed admin as super_admin
 UPDATE admins SET role = 'super_admin' WHERE email = 'admin@testplatform.com';
 
+-- 1b. Add name column to admins
+ALTER TABLE admins
+    ADD COLUMN name VARCHAR(255) NOT NULL DEFAULT 'Admin' AFTER email;
+
+-- Set name for seed admin
+UPDATE admins SET name = 'Administrator' WHERE email = 'admin@testplatform.com';
+
 -- 2. Extend colleges table with full registration fields
 ALTER TABLE colleges
     ADD COLUMN college_code VARCHAR(20) UNIQUE COMMENT 'Auto-generated unique college ID (COL######)' AFTER id,

@@ -5,8 +5,8 @@ require_once __DIR__ . '/../includes/helpers.php';
 startSession();
 
 // If already logged in, redirect
-if (isAdmin()) { redirect('/test-platform/src/php/public/admin/dashboard.php'); }
-if (isStudent()) { redirect('/test-platform/src/php/public/student/dashboard.php'); }
+if (isAdmin()) { redirect('/admin/dashboard.php'); }
+if (isStudent()) { redirect('/student/dashboard.php'); }
 
 $error = '';
 $verifySid = 0;
@@ -30,9 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($result['success']) {
                 if ($role === 'admin') {
-                    redirect('/test-platform/src/php/public/admin/dashboard.php');
+                    redirect('/admin/dashboard.php');
                 } else {
-                    redirect('/test-platform/src/php/public/student/dashboard.php');
+                    redirect('/student/dashboard.php');
                 }
             } else {
                 $error = $result['error'];
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In — Test Platform</title>
-    <link rel="stylesheet" href="/test-platform/assets/css/student.css">
+    <link rel="stylesheet" href="<?= ASSETS_URL ?>/css/student.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">

@@ -7,6 +7,7 @@
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/session.php';
+require_once __DIR__ . '/helpers.php';
 
 // ─── HELPERS ───────────────────────────────────────────────
 
@@ -72,6 +73,7 @@ function adminLogin(string $email, string $password): array {
 
     $_SESSION['admin_id']    = (int)$admin['id'];
     $_SESSION['admin_email'] = $admin['email'];
+    $_SESSION['admin_name']  = $admin['name'] ?? $admin['email'];
     $_SESSION['role']        = 'admin';
     $_SESSION['admin_role']  = $admin['role'] ?? 'admin';
     session_regenerate_id(true);
@@ -133,18 +135,25 @@ function verifyStudentOtp(int $studentId, string $otp): array {
 
     if (empty($student['otp_hash'])) {
         logFailedLogin($student['email'], 'signup_unverified', 'No OTP requested. Please register again.', $student['name']);
+        notifyAdmin('student_account', 'Account not completed — no OTP requested',
+            $student['name'] . ' (' . $student['email'] . ') registered but never received an OTP.');
         return ['success' => false, 'error' => 'No OTP requested. Please register again.'];
     }
 
     // Check expiry
     if (strtotime($student['otp_expires_at']) < time()) {
         logFailedLogin($student['email'], 'expired_otp', 'OTP expired.', $student['name']);
+        notifyAdmin('student_account', 'Account not completed — OTP expired',
+            $student['name'] . ' (' . $student['email'] . ') tried to verify with an expired OTP.',
+            BASE_URL . '/admin/pending_verifications.php');
         return ['success' => false, 'error' => 'OTP expired. Request a new one.', 'expired' => true];
     }
 
     // Verify OTP
     if (!password_verify($otp, $student['otp_hash'])) {
         logFailedLogin($student['email'], 'wrong_otp', 'Invalid OTP entered.', $student['name']);
+        notifyAdmin('student_account', 'Wrong OTP entered',
+            $student['name'] . ' (' . $student['email'] . ') entered an invalid OTP during verification.');
         return ['success' => false, 'error' => 'Invalid OTP. Please try again.'];
     }
 
@@ -180,6 +189,9 @@ function verifyStudentOtp(int $studentId, string $otp): array {
     } catch (Exception $e) {
         $pdo->rollBack();
         logFailedLogin($student['email'], 'signup_unverified', 'DB error during verification: ' . $e->getMessage(), $student['name']);
+        notifyAdmin('student_account', 'Verification failed — DB error',
+            $student['name'] . ' (' . $student['email'] . ') could not be verified: ' . $e->getMessage(),
+            BASE_URL . '/admin/pending_verifications.php');
         return ['success' => false, 'error' => 'Verification failed. Please try again.'];
     }
 
@@ -230,6 +242,9 @@ function studentLogin(string $email, string $password): array {
     if ($unverified) {
         if (password_verify($password, $unverified['password_hash'])) {
             // Password matches — just not verified yet
+            notifyAdmin('student_account', 'Account not completed — never verified',
+                $unverified['name'] . ' (' . $email . ') registered but never verified their email.',
+                BASE_URL . '/admin/pending_verifications.php');
             return [
                 'success'    => false,
                 'error'      => 'Please verify your email first. An OTP was sent during registration.',
@@ -259,6 +274,8 @@ function studentRegister(array $data): array {
     $stmt->execute([$data['email']]);
     if ($stmt->fetch()) {
         logFailedLogin($data['email'], 'duplicate_email', 'Email already registered (verified).');
+        notifyAdmin('student_account', 'Signup blocked — duplicate email',
+            $data['name'] . ' (' . $data['email'] . ') tried to register with an email that already exists.');
         return ['success' => false, 'error' => 'Email already registered.'];
     }
 
@@ -266,6 +283,9 @@ function studentRegister(array $data): array {
     $stmt->execute([$data['email']]);
     if ($stmt->fetch()) {
         logFailedLogin($data['email'], 'duplicate_email', 'Email already registered (unverified).');
+        notifyAdmin('student_account', 'Signup blocked — verification pending',
+            $data['name'] . ' (' . $data['email'] . ') already registered but never completed verification.',
+            BASE_URL . '/admin/pending_verifications.php');
         return ['success' => false, 'error' => 'Email already registered. Please check your email for the OTP or request a new one.'];
     }
 
@@ -277,6 +297,8 @@ function studentRegister(array $data): array {
     ");
     $stmt->execute([$data['batch_id'], $data['course_id'], $data['college_id']]);
     if (!$stmt->fetch()) {
+        notifyAdmin('student_account', 'Signup blocked — invalid batch',
+            $data['name'] . ' (' . $data['email'] . ') submitted an invalid college/course/batch combination.');
         return ['success' => false, 'error' => 'Invalid batch selection.'];
     }
 
@@ -312,6 +334,13 @@ function studentRegister(array $data): array {
 
     // Generate and send OTP
     $otpResult = generateStudentOtp($studentId, $data['email'], $data['name']);
+
+    // If the OTP email itself failed, the account is stuck "not completed"
+    if (!$otpResult['success']) {
+        notifyAdmin('student_account', 'OTP email failed — account not completed',
+            $data['name'] . ' (' . $data['email'] . ') registered but the OTP email could not be sent: ' . ($otpResult['error'] ?? 'unknown'),
+            BASE_URL . '/admin/pending_verifications.php');
+    }
 
     return [
         'success'   => true,
@@ -362,6 +391,8 @@ function guestLogin(string $token): array {
     $entry = $stmt->fetch();
 
     if (!$entry) {
+        notifyAdmin('guest_link', 'Invalid or expired link/QR',
+            'A guest tried to use token ' . substr($token, 0, 10) . '… but it was invalid or expired.');
         return ['success' => false, 'error' => 'Invalid or expired link.'];
     }
 

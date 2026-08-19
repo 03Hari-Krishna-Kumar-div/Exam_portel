@@ -58,3 +58,28 @@ function getDB(): PDO {
     }
     return $pdo;
 }
+
+/**
+ * Global error/exception handlers → notification bell.
+ * Registered once per request; they only run on uncaught failures and
+ * never suppress the default PHP handling (return false = continue).
+ * notifyAdmin() lives in helpers.php — the function_exists guard covers
+ * include order differences across entry points (APIs, pages).
+ */
+if (!function_exists('__registerNotificationHandlers')) {
+    function __registerNotificationHandlers(): bool { return true; }
+    set_error_handler(function (int $errno, string $errstr, string $errfile = '', int $errline = 0): bool {
+        if (!(error_reporting() & $errno)) return false; // @-suppressed or non-fatal noise
+        $interesting = [E_ERROR, E_WARNING, E_USER_ERROR, E_USER_WARNING, E_RECOVERABLE_ERROR];
+        if (!in_array($errno, $interesting, true)) return false;
+        if (function_exists('notifyAdmin')) {
+            notifyAdmin('system', 'PHP Error [' . $errno . ']', $errstr . ' — ' . basename($errfile) . ':' . $errline);
+        }
+        return false; // keep default handler behavior
+    });
+    set_exception_handler(function (Throwable $e): void {
+        if (function_exists('notifyAdmin')) {
+            notifyAdmin('system', 'Uncaught Exception', $e->getMessage() . ' — ' . basename($e->getFile()) . ':' . $e->getLine());
+        }
+    });
+}

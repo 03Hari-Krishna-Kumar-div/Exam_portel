@@ -73,11 +73,6 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$submissionId, $switchCount]);
 
-// Also update a running count on the submission (for quick reference)
-$stmt = $pdo->prepare("
-    UPDATE submissions SET tab_switch_count = COALESCE(tab_switch_count, 0) + ? WHERE id = ?
-");
-// Note: tab_switch_count column would need to be added to schema, but we'll use the logs table
-// For now we just log individual events
+// Note: running count is derived from the logs table (tab_switch_count column does not exist in schema)
 
 echo json_encode(['success' => true]);

@@ -16,14 +16,16 @@ USE test_platform;
 CREATE TABLE admins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL DEFAULT 'Admin',
     password_hash VARCHAR(255) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_admins_email (email)
 ) ENGINE=InnoDB;
 
 -- Seed default admin (password: admin123)
-INSERT INTO admins (email, password_hash) VALUES
-('admin@testplatform.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+-- Hash generated with: php -r "echo password_hash('admin123', PASSWORD_BCRYPT);"
+INSERT INTO admins (email, name, password_hash) VALUES
+('admin@testplatform.com', 'Administrator', '$2y$10$GplGcU3j94wcRek.tkhrLeAeSlf9YyEoqOZB81R9X/pnn.1Fk4R0a');
 
 -- ------------------------------------------------------------
 -- 2. COLLEGES

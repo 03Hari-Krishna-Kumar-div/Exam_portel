@@ -78,11 +78,11 @@
   --sidebar-border:     rgba(0,0,0,0.06);
   --sidebar-text:       #636B79;
   --sidebar-hover:      rgba(0,0,0,0.04);
-  --sidebar-active:     rgba(79, 140, 255, 0.08);
-  --sidebar-active-text: #4F8CFF;
-  --icon-inactive:     #6B7280;
-  --icon-hover:        #374151;
-  --icon-active:       #4F8CFF;
+  --sidebar-active:     rgba(47, 104, 224, 0.08);
+  --sidebar-active-text: #2F68E0;
+  --icon-inactive:     #64748B;   /* steel blue-gray — matches reference nav icons */
+  --icon-hover:        #4F5E78;
+  --icon-active:       #2F68E0;   /* vivid Fluent blue — reference active icon */
 
   /* ── Top Navigation ───────────────────────────────────── */
   --topnav-h:        72px;
@@ -223,10 +223,11 @@
   --sidebar-border:     rgba(255,255,255,0.04);
   --sidebar-text:       #99A2AD;
   --sidebar-hover:      rgba(255,255,255,0.04);
-  --sidebar-active:     rgba(79, 140, 255, 0.12);
-  --icon-inactive:     #6B7280;
-  --icon-hover:        #E5E7EB;
-  --icon-active:       #4F8CFF;
+  --sidebar-active:     rgba(47, 104, 224, 0.16);
+  --sidebar-active-text: #7FAEFF;
+  --icon-inactive:     #7E8DA6;   /* brighter steel for dark navy bg */
+  --icon-hover:        #A9B8CD;
+  --icon-active:       #2F68E0;   /* vivid Fluent blue — reference active icon */
 
   /* ── Dark Top Navigation ──────────────────────────────── */
   --topnav-bg:       #0E131D;
@@ -546,7 +547,7 @@ h6 { font-size: var(--fs-13); }
 
 .nav-item.active {
   background: transparent;
-  color: var(--sidebar-active-text);
+  color: color-mix(in srgb, var(--nav-icon, #2F68E0) 78%, #16233F);
   font-weight: 600;
   box-shadow: none;
 }
@@ -560,7 +561,7 @@ h6 { font-size: var(--fs-13); }
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--icon-inactive, #6B7280);
+  color: var(--nav-icon, var(--icon-inactive, #64748B));
   transition: background 200ms ease-out,
               color 200ms ease-out,
               transform 150ms ease-out;
@@ -577,16 +578,16 @@ h6 { font-size: var(--fs-13); }
   stroke-width: 2;
 }
 
-/* Hover state — soft surface on icon container only */
+/* Hover state — soft tinted surface on icon container only */
 .nav-item:hover .nav-icon {
-  background: rgba(79, 140, 255, 0.08);
-  color: var(--icon-hover, #374151);
+  background: color-mix(in srgb, var(--nav-icon, #64748B) 10%, transparent);
+  color: color-mix(in srgb, var(--nav-icon, #64748B) 82%, #1E293B);
 }
 
-/* Active state — tinted background + branded icon */
+/* Active state — tinted background + full-strength item color */
 .nav-item.active .nav-icon {
-  background: rgba(79, 140, 255, 0.12);
-  color: var(--icon-active, #4F8CFF);
+  background: color-mix(in srgb, var(--nav-icon, #2F68E0) 15%, transparent);
+  color: var(--nav-icon, #2F68E0);
 }
 
 /* ─── 4px Active Indicator Bar ─────────────────────────── */
@@ -598,10 +599,55 @@ h6 { font-size: var(--fs-13); }
   transform: translateY(-50%);
   width: 4px;
   height: 36px;
-  background: var(--accent, #4F8CFF);
+  background: var(--nav-icon, #2F68E0);
   border-radius: 8px;
   box-shadow: 0 0 12px var(--accent-glow);
   transition: height 200ms ease-out;
+}
+
+/* ─── Per-Item Soft Icon Colors ───────────────────────────
+   Each navigation item carries its own light, pastel accent
+   via a `--nav-icon` custom property. Hover / active states,
+   container tints and the active indicator all derive from
+   the item's own color, so the palette stays cohesive.
+   ────────────────────────────────────────────────────────── */
+.nav-item { --nav-icon: var(--icon-inactive, #64748B); }
+
+.nav-c-dashboard   { --nav-icon: #5B8DEF; }  /* soft sky      */
+.nav-c-college     { --nav-icon: #7C7BE8; }  /* soft indigo   */
+.nav-c-course      { --nav-icon: #43B6A8; }  /* soft teal     */
+.nav-c-batch       { --nav-icon: #E8A44A; }  /* soft amber    */
+.nav-c-student     { --nav-icon: #EA7BA5; }  /* soft rose     */
+.nav-c-pending     { --nav-icon: #9E8FF0; }  /* soft lavender */
+.nav-c-create      { --nav-icon: #5FC574; }  /* soft green    */
+.nav-c-drafts      { --nav-icon: #7F9DE8; }  /* periwinkle    */
+.nav-c-library     { --nav-icon: #A87FE8; }  /* soft violet   */
+.nav-c-assessments { --nav-icon: #5FB0E8; }  /* sky-cyan      */
+.nav-c-monitor     { --nav-icon: #F08A6E; }  /* soft coral    */
+.nav-c-grading     { --nav-icon: #A9C84F; }  /* soft lime     */
+.nav-c-reports     { --nav-icon: #D97BC6; }  /* soft magenta  */
+.nav-c-tabactivity { --nav-icon: #E9C857; }  /* soft gold     */
+.nav-c-failed      { --nav-icon: #E97B7B; }  /* soft red      */
+.nav-c-settings    { --nav-icon: #6E86C8; }  /* steel blue    */
+.nav-c-activity    { --nav-icon: #59C9AC; }  /* soft mint     */
+.nav-c-help        { --nav-icon: #94A7F2; }  /* periwinkle-violet */
+.nav-c-signout     { --nav-icon: #98A3B3; }  /* soft gray     */
+
+/* Dark theme — lift each pastel slightly for the navy rail */
+[data-theme="dark"] .nav-item .nav-icon {
+  color: color-mix(in srgb, var(--nav-icon, #7E8DA6) 80%, #FFFFFF);
+}
+[data-theme="dark"] .nav-item:hover .nav-icon {
+  color: color-mix(in srgb, var(--nav-icon, #7E8DA6) 88%, #FFFFFF);
+}
+[data-theme="dark"] .nav-item.active .nav-icon {
+  color: color-mix(in srgb, var(--nav-icon, #2F68E0) 74%, #FFFFFF);
+}
+[data-theme="dark"] .nav-item.active {
+  color: color-mix(in srgb, var(--nav-icon, #2F68E0) 82%, #FFFFFF);
+}
+[data-theme="dark"] .nav-item.active::before {
+  background: color-mix(in srgb, var(--nav-icon, #2F68E0) 80%, #FFFFFF);
 }
 
 /* ─── Labels (hidden in rail) ──────────────────────────── */
@@ -1092,6 +1138,31 @@ h6 { font-size: var(--fs-13); }
   border: 2px solid var(--topnav-bg);
   border-radius: 50%;
   box-shadow: 0 0 6px var(--red-glow);
+}
+
+/* Notification count pill on the bell */
+.topnav-btn .notif-count {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  border: 1.5px solid var(--topnav-bg);
+  box-shadow: 0 0 8px var(--red-glow);
+}
+
+.notif-count-static {
+  font-size: var(--fs-11);
+  font-weight: 500;
+  color: var(--gray-50);
 }
 
 /* Quick Action Button */
@@ -2281,6 +2352,7 @@ h6 { font-size: var(--fs-13); }
   max-height: 85vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   transform: scale(0.95) translateY(10px);
   transition: transform var(--duration-slow) var(--ease-out);
 }
@@ -2313,7 +2385,7 @@ h6 { font-size: var(--fs-13); }
 
 .modal-close:hover { background: var(--surface-hover); color: var(--gray-80); }
 
-.modal-body { padding: var(--space-5); overflow-y: auto; flex: 1; }
+.modal-body { padding: var(--space-5); overflow-y: auto; flex: 1; min-height: 0; max-height: calc(85vh - 140px); }
 .modal-footer { padding: var(--space-4) var(--space-5); border-top: 1px solid rgba(255,255,255,0.04); display: flex; justify-content: flex-end; gap: var(--space-2); }
 
 /* ─── Progress Bar ─────────────────────────────────────────── */
@@ -2616,12 +2688,65 @@ h6 { font-size: var(--fs-13); }
   gap: var(--space-3);
   flex-wrap: wrap;
   margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--gray-20);
 }
 
 .filter-bar .filter-group {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+/* Visible border lines on search/filter controls */
+.filter-bar .form-input,
+.filter-bar .form-select {
+  border: 1px solid var(--gray-30);
+  background: var(--surface-card);
+  box-shadow: none;
+}
+
+.filter-bar .form-input:hover,
+.filter-bar .form-select:hover {
+  border-color: var(--gray-40);
+  background: var(--surface-card);
+}
+
+.filter-bar .form-input:focus,
+.filter-bar .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: var(--surface-card);
+}
+
+/* Search box with leading icon */
+.search-box-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.search-box-wrapper .search-box-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-40);
+  display: flex;
+  pointer-events: none;
+}
+
+.search-box-wrapper .search-box-input {
+  border: 1px solid var(--gray-30);
+  background: var(--surface-card);
+  box-shadow: none;
+}
+
+.search-box-wrapper .search-box-input:hover { border-color: var(--gray-40); background: var(--surface-card); }
+.search-box-wrapper .search-box-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: var(--surface-card);
 }
 
 /* ─── Premium Animations ──────────────────────────────────── */
@@ -3241,6 +3366,27 @@ canvas { filter: brightness(0.9); }
 .notif-icon.green { background: var(--green-bg); color: var(--green); }
 .notif-icon.amber { background: var(--yellow-bg); color: var(--yellow); }
 .notif-icon.red { background: var(--red-bg); color: var(--red); }
+
+/* Notification items as links */
+a.notif-item { text-decoration: none; }
+.notif-item.is-read .notif-text { opacity: 0.6; }
+.notif-unread-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: middle;
+}
+
+/* Notification panel header actions */
+.notif-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.notif-panel-actions a { text-decoration: none; }
 
 /* ─── Stat Card Keyboard Focus ────────────────────────────── */
 .stat-card:focus-visible {

@@ -8,7 +8,7 @@ require_once __DIR__ . '/../includes/helpers.php';
 startSession();
 
 // If already logged in as student, redirect
-if (isStudent()) { redirect(BASE_URL . '/student/dashboard.php'); }
+if (isStudent()) { redirect('/student/dashboard.php'); }
 
 $error = '';
 $token = '';
@@ -28,9 +28,9 @@ function processGuestToken(string $token): ?string {
     if ($result['success']) {
         $testParam = $result['test_id'] ?? ($_SESSION['test_id'] ?? 0);
         if ($testParam > 0) {
-            redirect(BASE_URL . '/student/test.php?test_id=' . $testParam);
+            redirect('/student/test.php?test_id=' . $testParam);
         } else {
-            redirect(BASE_URL . '/student/dashboard.php');
+            redirect('/student/dashboard.php');
         }
     }
     return $result['error'] ?? 'Unknown error.';
@@ -45,7 +45,7 @@ if (!empty($token)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guest Access — Test Platform</title>
-    <link rel="stylesheet" href="/test-platform/assets/css/student.css">
+    <link rel="stylesheet" href="<?= ASSETS_URL ?>/css/student.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">

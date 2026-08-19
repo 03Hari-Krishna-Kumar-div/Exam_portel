@@ -30,65 +30,77 @@ $adminEmail  = $_SESSION['admin_email'] ?? 'Admin';
 $adminName   = $_SESSION['admin_name'] ?? $adminEmail;
 $adminInitial = strtoupper(substr($adminName, 0, 1));
 
+// Notifications for the bell icon (failures: student accounts, links/QRs, tests, errors)
+$notifCount = 0;
+$notifItems = [];
+try {
+    $pdo = getDB();
+    $notifCount = (int)$pdo->query("SELECT COUNT(*) FROM admin_notifications WHERE is_read = 0")->fetchColumn();
+    $notifItems = $pdo->query("SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT 8")->fetchAll();
+} catch (Throwable $e) {
+    $notifCount = 0;
+    $notifItems = [];
+}
+
 // Navigation Tree
+// Each item may carry a 'color' key mapping to a soft pastel CSS class (nav-c-*)
 $navSections = [
     'overview' => [
         'label' => 'Overview',
         'items' => [
-            ['url' => 'dashboard.php', 'label' => 'Dashboard', 'icon' => 'dashboard'],
+            ['url' => 'dashboard.php', 'label' => 'Dashboard', 'icon' => 'dashboard', 'color' => 'dashboard'],
         ],
     ],
     'institution' => [
         'label' => 'Institution Management',
         'items' => [
-            ['url' => 'colleges.php',  'label' => 'Colleges', 'icon' => 'college'],
-            ['url' => 'courses.php',   'label' => 'Courses',  'icon' => 'course'],
-            ['url' => 'batches.php',   'label' => 'Batches',  'icon' => 'batch'],
+            ['url' => 'colleges.php',  'label' => 'Colleges', 'icon' => 'college', 'color' => 'college'],
+            ['url' => 'courses.php',   'label' => 'Courses',  'icon' => 'course',  'color' => 'course'],
+            ['url' => 'batches.php',   'label' => 'Batches',  'icon' => 'batch',   'color' => 'batch'],
         ],
     ],
     'students' => [
         'label' => 'Student Management',
         'items' => [
-            ['url' => 'students.php',              'label' => 'Students',             'icon' => 'student'],
-            ['url' => 'pending_verifications.php', 'label' => 'Pending Verifications','icon' => 'clock'],
-            ['url' => 'students.php',                'label' => 'Guest Access',         'icon' => 'external-link'],
+            ['url' => 'students.php',              'label' => 'Students',             'icon' => 'student', 'color' => 'student'],
+            ['url' => 'pending_verifications.php', 'label' => 'Pending Verifications','icon' => 'clock',   'color' => 'pending'],
         ],
     ],
     'studio' => [
         'label' => 'Assessment Studio',
         'items' => [
-            ['url' => 'assessment_studio.php',              'label' => 'Create Assessment',  'icon' => 'plus'],
-            ['url' => 'assessment_studio.php?tab=drafts',   'label' => 'Draft Assessments',  'icon' => 'document'],
-            ['url' => 'question_library.php',                'label' => 'Question Library',   'icon' => 'database'],
+            ['url' => 'assessment_studio.php',              'label' => 'Create Assessment',  'icon' => 'plus',     'color' => 'create'],
+            ['url' => 'assessment_studio.php?tab=drafts',   'label' => 'Draft Assessments',  'icon' => 'document', 'color' => 'drafts'],
+            ['url' => 'question_library.php',                'label' => 'Question Library',   'icon' => 'database', 'color' => 'library'],
         ],
     ],
     'management' => [
         'label' => 'Assessment Management',
         'items' => [
-            ['url' => 'assessment_management.php',           'label' => 'All Assessments',    'icon' => 'status'],
-            ['url' => 'live_monitor.php',                    'label' => 'Live Monitor',       'icon' => 'pulse'],
-            ['url' => 'grading.php',                         'label' => 'Grading',            'icon' => 'grading'],
+            ['url' => 'assessment_management.php',           'label' => 'All Assessments',    'icon' => 'status', 'color' => 'assessments'],
+            ['url' => 'live_monitor.php',                    'label' => 'Live Monitor',       'icon' => 'pulse',  'color' => 'monitor'],
+            ['url' => 'grading.php',                         'label' => 'Grading',            'icon' => 'grading','color' => 'grading'],
         ],
     ],
     'reports' => [
         'label' => 'Reports & Analytics',
         'items' => [
-            ['url' => 'reports.php',       'label' => 'Reports',       'icon' => 'chart'],
-            ['url' => 'tab_switcher.php',  'label' => 'Tab Activity',  'icon' => 'activity'],
-            ['url' => 'failed_logins.php', 'label' => 'Failed Logins', 'icon' => 'warning'],
+            ['url' => 'reports.php',       'label' => 'Reports',       'icon' => 'chart',    'color' => 'reports'],
+            ['url' => 'tab_switcher.php',  'label' => 'Tab Activity',  'icon' => 'activity', 'color' => 'tabactivity'],
+            ['url' => 'failed_logins.php', 'label' => 'Failed Logins', 'icon' => 'warning',  'color' => 'failed'],
         ],
     ],
     'system' => [
         'label' => 'System',
         'items' => [
-            ['url' => 'settings.php',     'label' => 'Settings',     'icon' => 'settings'],
-            ['url' => 'activity_logs.php', 'label' => 'Activity Logs', 'icon' => 'clock'],
+            ['url' => 'settings.php',     'label' => 'Settings',     'icon' => 'settings', 'color' => 'settings'],
+            ['url' => 'activity_logs.php', 'label' => 'Activity Logs', 'icon' => 'clock',   'color' => 'activity'],
         ],
     ],
     'support' => [
         'label' => 'Support',
         'items' => [
-            ['url' => 'help.php', 'label' => 'Help & Documentation', 'icon' => 'help'],
+            ['url' => 'help.php', 'label' => 'Help & Documentation', 'icon' => 'help', 'color' => 'help'],
         ],
     ],
 ];
@@ -151,7 +163,7 @@ $sidebarCollapsed = $_COOKIE['sidebar_collapsed'] ?? '' === '1';
                     $active = isNavActive($item['url'], $currentPage, $currentTab);
                 ?>
                     <a href="<?= BASE_URL ?>/admin/<?= $item['url'] ?>"
-                       class="nav-item<?= $active ? ' active' : '' ?>"
+                       class="nav-item nav-c-<?= h($item['color'] ?? 'default') ?><?= $active ? ' active' : '' ?>"
                        <?= $active ? 'aria-current="page"' : '' ?>
                        data-tooltip="<?= h($item['label']) ?>">
                         <span class="nav-icon"><?= icon($item['icon'], 24) ?></span>
@@ -160,7 +172,7 @@ $sidebarCollapsed = $_COOKIE['sidebar_collapsed'] ?? '' === '1';
                 <?php endforeach; ?>
             <?php endforeach; ?>
             <div class="sidebar-divider"></div>
-            <a href="<?= BASE_URL ?>/logout.php" class="nav-item" style="margin-top:auto;" data-tooltip="Sign Out">
+            <a href="<?= BASE_URL ?>/logout.php" class="nav-item nav-c-signout" style="margin-top:auto;" data-tooltip="Sign Out">
                 <span class="nav-icon"><?= icon('logout', 24) ?></span>
                 <span class="nav-label">Sign Out</span>
             </a>
@@ -198,19 +210,22 @@ $sidebarCollapsed = $_COOKIE['sidebar_collapsed'] ?? '' === '1';
                 </button>
                 <button class="topnav-btn" id="notifBtn" onclick="toggleNotifications()" data-tooltip="Notifications" aria-label="Notifications">
                     <?= icon('notifications', 18) ?>
-                    <span class="badge-dot"></span>
+                    <span class="notif-count" id="notifBadge"<?= $notifCount > 0 ? '' : ' style="display:none"' ?>><?= min($notifCount, 99) ?></span>
                 </button>
                 <!-- Notification Panel -->
                 <div class="notif-panel" id="notifPanel">
                     <div class="notif-panel-header">
-                        <h3>Notifications</h3>
-                        <button class="btn btn-sm btn-ghost" onclick="toggleNotifications()"><?= icon('x', 14) ?></button>
+                        <h3>Notifications<?php if ($notifCount > 0): ?> <span class="notif-count-static" id="notifUnreadText">(<?= $notifCount ?> unread)</span><?php endif; ?></h3>
+                        <div class="notif-panel-actions">
+                            <?php if ($notifCount > 0): ?>
+                            <button class="btn btn-sm btn-ghost" id="notifMarkAll">Mark all read</button>
+                            <?php endif; ?>
+                            <a class="btn btn-sm btn-ghost" href="<?= BASE_URL ?>/admin/notifications.php">View all</a>
+                            <button class="btn btn-sm btn-ghost" onclick="toggleNotifications()"><?= icon('x', 14) ?></button>
+                        </div>
                     </div>
                     <div class="notif-panel-body" id="notifPanelBody">
-                        <div class="notif-empty">
-                            <?= icon('notifications', 32) ?>
-                            <p>No new notifications</p>
-                        </div>
+                        <?= renderNotificationItems($notifItems) ?>
                     </div>
                 </div>
                 <!-- Admin Profile Dropdown -->

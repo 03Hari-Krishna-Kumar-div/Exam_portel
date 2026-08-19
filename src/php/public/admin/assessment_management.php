@@ -362,17 +362,23 @@ if ($activeTab === 'live' && !empty($assessments)) {
 
 <script>
 function openModal(id) {
-    document.getElementById(id).style.display = 'flex';
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = 'flex';
+    el.classList.add('open');
 }
 
 function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('open');
+    el.style.display = 'none';
 }
 
 // Close modals on overlay click
 document.querySelectorAll('.modal-overlay').forEach(el => {
     el.addEventListener('click', function(e) {
-        if (e.target === this) this.style.display = 'none';
+        if (e.target === this) closeModal(this.id);
     });
 });
 

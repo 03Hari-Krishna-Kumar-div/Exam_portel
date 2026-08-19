@@ -13,7 +13,11 @@ if ($collegeId <= 0) {
 }
 
 $pdo = getDB();
-$stmt = $pdo->prepare("SELECT id, name FROM courses WHERE college_id = ? ORDER BY name");
+if (isset($_GET['active']) && (int)$_GET['active'] === 1) {
+    $stmt = $pdo->prepare("SELECT id, name FROM courses WHERE college_id = ? AND status = 'active' ORDER BY name");
+} else {
+    $stmt = $pdo->prepare("SELECT id, name FROM courses WHERE college_id = ? ORDER BY name");
+}
 $stmt->execute([$collegeId]);
 $courses = $stmt->fetchAll();
 

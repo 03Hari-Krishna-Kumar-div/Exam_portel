@@ -8,6 +8,19 @@
  */
 
 $pageTitle = 'Create College';
+require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+startSession();
+requireAdmin();
+
+// ─── Access Control ─────────────────────────────────────────
+$adminRole = $_SESSION['admin_role'] ?? 'admin';
+if (!in_array($adminRole, ['super_admin', 'platform_admin'], true)) {
+    flash('error', 'You do not have permission to create colleges.');
+    redirect('/admin/colleges.php');
+}
+
 require_once __DIR__ . '/../../includes/admin_header.php';
 
 $pdo = getDB();
@@ -27,9 +40,10 @@ $INDIAN_STREAMS = [
     'Education', 'Fine Arts', 'Hotel Management', 'Journalism', 'Design',
     'Aviation', 'Veterinary', 'Fisheries', 'Paramedical', 'Home Science',
     'Physical Education', 'Performing Arts',
+    'Bachelor of Commerce', 'Bachelor of Business Administration', 'Bachelor of Computer Applications',
 ];
 
-$NAAC_GRADES = ['A++', 'A+', 'A', 'B+', 'B', 'C'];
+$NAAC_GRADES = ['None', 'A++', 'A+', 'A', 'B+', 'B', 'C'];
 
 // ─── Draft Session Init ─────────────────────────────────────
 if (!isset($_SESSION['college_draft'])) {

@@ -73,8 +73,20 @@ if (strpos($requestUri, '/src/php/public/') === 0 || $requestUri === '/src/php/p
     $requestUri = substr($requestUri, strlen('/src/php/public')) ?: '/';
 }
 
-// ─── Map / to src/php/public/ ──────────────────────────────
+// ─── Clean URL: /admin/colleges/{id} → college_dashboard.php?id={id} ──
+// (SRS requirement: Dynamic College Dashboard at /admin/colleges/{college_id})
 $publicDir = __DIR__ . '/src/php/public';
+if (preg_match('#^/admin/colleges/(\d+)$#', $requestUri, $m)) {
+    $filePath = $publicDir . '/admin/college_dashboard.php';
+    if (file_exists($filePath)) {
+        $_GET['id'] = (int)$m[1];
+        $_REQUEST['id'] = $_GET['id'];
+        require $filePath;
+        return true;
+    }
+}
+
+// ─── Map / to src/php/public/ ──────────────────────────────
 $filePath = $publicDir . $requestUri;
 
 // If requesting a directory, try index.php

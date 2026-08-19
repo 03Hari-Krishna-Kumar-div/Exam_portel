@@ -19,21 +19,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $type = ($action === 'generate_qr') ? 'qr' : 'guest';
             $expires = date('Y-m-d H:i:s', strtotime('+30 days')); // Default expiry
 
-            // If a test is selected, use its end_time
+            // If a test is selected, use its end_time — but ONLY when that
+            // date is still in the future. Otherwise the link would be
+            // born already expired (silent bug: stale test dates killed
+            // every generated QR/guest link).
             if ($testId) {
                 $tStmt = $pdo->prepare("SELECT end_time FROM tests WHERE id = ?");
                 $tStmt->execute([$testId]);
                 $test = $tStmt->fetch();
-                if ($test && $test['end_time']) {
+                if ($test && $test['end_time'] && strtotime($test['end_time']) > time()) {
                     $expires = $test['end_time'];
                 }
             }
 
-            $stmt = $pdo->prepare("
-                INSERT INTO guest_entries (batch_id, test_id, token, type, expires_at)
-                VALUES (?, ?, ?, ?, ?)
-            ");
-            $stmt->execute([$batchId, $testId, $token, $type, $expires]);
+            try {
+                $stmt = $pdo->prepare("
+                    INSERT INTO guest_entries (batch_id, test_id, token, type, expires_at)
+                    VALUES (?, ?, ?, ?, ?)
+                ");
+                $stmt->execute([$batchId, $testId, $token, $type, $expires]);
+            } catch (Throwable $e) {
+                $message = 'Failed to generate ' . ($type === 'qr' ? 'QR code' : 'guest link') . ': ' . $e->getMessage();
+                notifyAdmin($type === 'qr' ? 'qr' : 'guest_link',
+                    ($type === 'qr' ? 'QR generation failed' : 'Guest link generation failed'),
+                    $e->getMessage() . ' (batch #' . $batchId . ')',
+                    BASE_URL . '/admin/students.php');
+                $generationFailed = true;
+                goto render_page; // skip further action handling
+            }
 
             $fullUrl = BASE_URL . '/guest.php?token=' . $token;
             $message = ($type === 'qr' ? 'QR code' : 'Guest link') . ' generated successfully!';
@@ -44,18 +57,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("DELETE FROM students WHERE id = ?");
         $stmt->execute([(int)$_POST['id']]);
         $message = 'Student removed.';
+    } elseif ($action === 'update' && !empty($_POST['id'])) {
+        $id = (int)$_POST['id'];
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $gender = $_POST['gender'] ?? 'other';
+        $branch = trim($_POST['branch'] ?? '');
+        $rollNumber = trim($_POST['roll_number'] ?? '');
+        $yearOfJoining = (int)($_POST['year_of_joining'] ?? 0);
+        $batchId = (int)($_POST['batch_id'] ?? 0);
+        $newPassword = (string)($_POST['password'] ?? '');
+
+        if ($name === '' || $email === '') {
+            $message = 'Name and email are required.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $message = 'Please enter a valid email address.';
+        } elseif ($newPassword !== '' && strlen($newPassword) < 6) {
+            $message = 'New password must be at least 6 characters.';
+        } else {
+            // Duplicate email check (excluding this student)
+            $dup = $pdo->prepare("SELECT id FROM students WHERE email = ? AND id <> ?");
+            $dup->execute([$email, $id]);
+            if ($dup->fetch()) {
+                $message = 'Another student already uses that email.';
+            } else {
+                // Validate the batch and derive its college/course names
+                $bStmt = $pdo->prepare("
+                    SELECT b.id, c.name AS course_name, cl.name AS college_name
+                    FROM batches b
+                    JOIN courses c ON c.id = b.course_id
+                    JOIN colleges cl ON cl.id = c.college_id
+                    WHERE b.id = ?
+                ");
+                $bStmt->execute([$batchId]);
+                $batchRow = $bStmt->fetch();
+                if (!$batchRow) {
+                    $message = 'Invalid batch selection.';
+                } else {
+                    $setFields = "batch_id = ?, name = ?, email = ?, phone = ?, gender = ?, branch = ?, roll_number = ?, year_of_joining = ?, college_name = ?, course_name = ?";
+                    $params = [$batchId, $name, $email, $phone, $gender, $branch, $rollNumber, $yearOfJoining, $batchRow['college_name'], $batchRow['course_name']];
+                    if ($newPassword !== '') {
+                        $setFields .= ", password_hash = ?";
+                        $params[] = password_hash($newPassword, PASSWORD_BCRYPT);
+                    }
+                    $params[] = $id;
+                    $stmt = $pdo->prepare("UPDATE students SET " . $setFields . " WHERE id = ?");
+                    $stmt->execute($params);
+                    $message = 'Student updated successfully.';
+                }
+            }
+        }
     }
 }
+
+render_page:
 
 // Filters
 $filterCollege = (int)($_GET['college_id'] ?? 0);
 $filterCourse = (int)($_GET['course_id'] ?? 0);
 $filterBatch = (int)($_GET['batch_id'] ?? 0);
 $search = trim($_GET['search'] ?? '');
+$sort = $_GET['sort'] ?? 'latest';
+
+// Sort whitelist: latest / date modified / old
+switch ($sort) {
+    case 'modified': $orderBy = "COALESCE(s.updated_at, s.created_at) DESC"; break;
+    case 'old':      $orderBy = "s.created_at ASC"; break;
+    default:         $sort = 'latest'; $orderBy = "s.created_at DESC"; break;
+}
 
 // Build query
 $sql = "
-    SELECT s.*, b.name AS batch_name, c.name AS course_name, cl.name AS college_name
+    SELECT s.*, b.name AS batch_name, b.course_id, c.name AS course_name, c.college_id, cl.name AS college_name
     FROM students s
     JOIN batches b ON b.id = s.batch_id
     JOIN courses c ON c.id = b.course_id
@@ -75,7 +149,7 @@ if ($search) {
     $params[] = "%$search%"; $params[] = "%$search%"; $params[] = "%$search%";
 }
 if (!empty($where)) $sql .= " WHERE " . implode(" AND ", $where);
-$sql .= " ORDER BY s.created_at DESC";
+$sql .= " ORDER BY " . $orderBy;
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -193,8 +267,14 @@ $tests = $pdo->query("SELECT id, title FROM tests ORDER BY created_at DESC LIMIT
             <?php endif; ?>
 
             <input class="form-input" type="text" name="search" placeholder="Search name, email, roll..." value="<?= h($search) ?>" style="max-width:200px;">
+            <label class="form-label" style="margin:0;">Sort:</label>
+            <select class="form-select" name="sort" onchange="this.form.submit()" style="width:auto;min-width:150px;">
+                <option value="latest" <?= $sort === 'latest' ? 'selected' : '' ?>>Latest</option>
+                <option value="modified" <?= $sort === 'modified' ? 'selected' : '' ?>>Date Modified</option>
+                <option value="old" <?= $sort === 'old' ? 'selected' : '' ?>>Old</option>
+            </select>
             <button class="btn btn-sm btn-secondary" type="submit">Search</button>
-            <?php if ($filterCollege || $filterCourse || $filterBatch || $search): ?>
+            <?php if ($filterCollege || $filterCourse || $filterBatch || $search || $sort !== 'latest'): ?>
                 <a href="students.php" class="btn btn-sm btn-ghost">Clear</a>
             <?php endif; ?>
         </form>
@@ -234,6 +314,17 @@ $tests = $pdo->query("SELECT id, title FROM tests ORDER BY created_at DESC LIMIT
                         <td class="text-sm"><?= h($s['year_of_joining']) ?></td>
                         <td class="text-sm text-muted"><?= timeAgo($s['created_at']) ?></td>
                         <td class="actions" style="white-space:nowrap;">
+                            <button class="btn btn-sm btn-ghost" onclick="editStudent(<?= $s['id'] ?>,
+                                '<?= h(addslashes($s['name'])) ?>',
+                                '<?= h(addslashes($s['email'])) ?>',
+                                '<?= h(addslashes($s['phone'])) ?>',
+                                '<?= h(addslashes($s['gender'])) ?>',
+                                '<?= h(addslashes($s['branch'])) ?>',
+                                '<?= h(addslashes($s['roll_number'])) ?>',
+                                <?= (int)$s['year_of_joining'] ?>,
+                                <?= (int)$s['college_id'] ?>,
+                                <?= (int)$s['course_id'] ?>,
+                                <?= (int)$s['batch_id'] ?>)"><?= icon('edit', 14) ?> Edit</button>
                             <a href="reports.php?student_id=<?= $s['id'] ?>" class="btn btn-sm btn-ghost"><?= icon('chart', 14) ?> Reports</a>
                             <form method="POST" style="display:inline" onsubmit="return confirm('Remove this student? Their submissions will be preserved.')">
                                 <?= csrfField() ?>
@@ -318,8 +409,8 @@ $tests = $pdo->query("SELECT id, title FROM tests ORDER BY created_at DESC LIMIT
 // API URL — works on both dev server and XAMPP
 const API_URL = <?= json_encode(php_sapi_name() === 'cli-server' ? '/api' : '/test-platform/src/php/api') ?>;
 
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function openModal(id) { var el = document.getElementById(id); if (!el) return; el.style.display = 'flex'; el.classList.add('open'); }
+function closeModal(id) { var el = document.getElementById(id); if (!el) return; el.classList.remove('open'); el.style.display = 'none'; }
 
 function setGuestType(type) {
     document.getElementById('guestAction').value = type === 'qr' ? 'generate_qr' : 'generate_guest';
@@ -364,6 +455,162 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
         if (e.target === this) closeModal(this.id);
     });
 });
+</script>
+
+<!-- Edit Student Modal -->
+<div class="modal-overlay" id="editStudentModal" style="display:none;">
+    <div class="modal">
+        <form method="POST" id="editStudentForm">
+            <?= csrfField() ?>
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="id" id="edit_id">
+            <div class="modal-header">
+                <h3>Edit Student</h3>
+                <button type="button" class="modal-close" onclick="closeModal('editStudentModal')">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4.09 4.09a.5.5 0 0 1 .7 0L10 9.29l5.2-5.2a.5.5 0 0 1 .7.7L10.7 10l5.2 5.2a.5.5 0 0 1-.7.7L10 10.7l-5.2 5.2a.5.5 0 0 1-.7-.7L9.29 10 4.09 4.8a.5.5 0 0 1 0-.7z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_college">College *</label>
+                        <select class="form-select" id="edit_college" onchange="loadEditCourses()" required>
+                            <option value="">Select College</option>
+                            <?php foreach ($colleges as $cl): ?>
+                                <option value="<?= $cl['id'] ?>"><?= h($cl['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_course">Course *</label>
+                        <select class="form-select" id="edit_course" onchange="loadEditBatches()" required disabled>
+                            <option value="">Select College first</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_batch">Batch *</label>
+                        <select class="form-select" id="edit_batch" name="batch_id" required disabled>
+                            <option value="">Select Course first</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_year">Year of Joining</label>
+                        <select class="form-select" id="edit_year" name="year_of_joining">
+                            <?php for ($y = date('Y'); $y >= 2018; $y--): ?>
+                                <option value="<?= $y ?>"><?= $y ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_name">Full Name *</label>
+                        <input class="form-input" type="text" id="edit_name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_gender">Gender</label>
+                        <select class="form-select" id="edit_gender" name="gender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_email">Email *</label>
+                        <input class="form-input" type="email" id="edit_email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_phone">Phone</label>
+                        <input class="form-input" type="tel" id="edit_phone" name="phone">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_branch">Branch</label>
+                        <input class="form-input" type="text" id="edit_branch" name="branch">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_roll">Roll Number</label>
+                        <input class="form-input" type="text" id="edit_roll" name="roll_number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit_password">Reset Password <span class="form-hint">(leave blank to keep current password)</span></label>
+                    <input class="form-input" type="password" id="edit_password" name="password" placeholder="New password (min 6 characters)" autocomplete="new-password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editStudentModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// ─── Complete Edit Student ──────────────────────────────────
+function editStudent(id, name, email, phone, gender, branch, roll, year, collegeId, courseId, batchId) {
+    document.getElementById('edit_id').value = id;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_phone').value = phone || '';
+    document.getElementById('edit_gender').value = ['male','female','other'].includes(gender) ? gender : 'other';
+    document.getElementById('edit_branch').value = branch || '';
+    document.getElementById('edit_roll').value = roll || '';
+    document.getElementById('edit_password').value = '';
+    var yearSel = document.getElementById('edit_year');
+    yearSel.value = String(year);
+    if (!yearSel.value) yearSel.options[0].selected = true;
+
+    // College / course / batch cascade with pre-selection
+    document.getElementById('edit_college').value = String(collegeId || '');
+    loadEditCourses(true, courseId, batchId);
+    openModal('editStudentModal');
+}
+
+function loadEditCourses(preselect, courseId, batchId) {
+    var collegeId = document.getElementById('edit_college').value;
+    var select = document.getElementById('edit_course');
+    var batch = document.getElementById('edit_batch');
+    select.innerHTML = '<option value="">Loading...</option>';
+    select.disabled = true;
+    batch.innerHTML = '<option value="">Select Course first</option>';
+    batch.disabled = true;
+    if (!collegeId) { select.innerHTML = '<option value="">Select College first</option>'; return; }
+    fetch(API_URL + '/get_courses.php?college_id=' + collegeId)
+        .then(r => r.json()).then(data => {
+            select.innerHTML = '<option value="">Select Course</option>';
+            data.forEach(c => {
+                var sel = preselect && c.id == courseId ? ' selected' : '';
+                select.innerHTML += '<option value="' + c.id + '"' + sel + '>' + c.name + '</option>';
+            });
+            select.disabled = false;
+            if (preselect && courseId) loadEditBatches(true, batchId);
+        })
+        .catch(() => { select.innerHTML = '<option value="">Error loading courses</option>'; });
+}
+
+function loadEditBatches(preselect, batchId) {
+    var courseId = document.getElementById('edit_course').value;
+    var select = document.getElementById('edit_batch');
+    select.innerHTML = '<option value="">Loading...</option>';
+    select.disabled = true;
+    if (!courseId) { select.innerHTML = '<option value="">Select Course first</option>'; return; }
+    fetch(API_URL + '/get_batches.php?course_id=' + courseId)
+        .then(r => r.json()).then(data => {
+            select.innerHTML = '<option value="">Select Batch</option>';
+            data.forEach(b => {
+                var sel = preselect && b.id == batchId ? ' selected' : '';
+                select.innerHTML += '<option value="' + b.id + '"' + sel + '>' + b.name + '</option>';
+            });
+            select.disabled = false;
+        })
+        .catch(() => { select.innerHTML = '<option value="">Error loading batches</option>'; });
+}
 </script>
 
 <?php require_once __DIR__ . '/../../includes/admin_footer.php'; ?>
