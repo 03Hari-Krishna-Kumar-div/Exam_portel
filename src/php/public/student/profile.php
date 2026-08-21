@@ -21,6 +21,12 @@ $stmt = $pdo->prepare("
 $stmt->execute([$studentId]);
 $student = $stmt->fetch();
 
+// Build section display
+$sectionDisplay = '';
+if (!empty($student['section'])) {
+    $sectionDisplay = ' — Section ' . $student['section'];
+}
+
 // Quick stats
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM submissions WHERE student_id = ?");
 $stmt->execute([$studentId]);
@@ -168,7 +174,7 @@ $dayName = $today->format('l');
                     <div class="welcome-text">
                         <h1 class="welcome-heading">My Profile</h1>
                         <p class="welcome-subtitle"><?= h($student['course_name']) ?></p>
-                        <p class="welcome-batch">Batch <?= h($student['batch_name']) ?></p>
+                        <p class="welcome-batch">Batch <?= h($student['batch_name']) ?><?= $sectionDisplay ? h($sectionDisplay) : '' ?></p>
                     </div>
                     <div class="date-card">
                         <div class="date-card-icon">
@@ -229,6 +235,11 @@ $dayName = $today->format('l');
                             <span class="profile-meta-item">
                                 <?= icon('layers', 14) ?> Batch <?= h($student['batch_name']) ?>
                             </span>
+                            <?php if (!empty($student['section'])): ?>
+                            <span class="profile-meta-item">
+                                <?= icon('grid', 14) ?> Section <?= h($student['section']) ?>
+                            </span>
+                            <?php endif; ?>
                         </div>
                         <div class="profile-stats-compact">
                             <div class="profile-stat-compact">
@@ -287,6 +298,12 @@ $dayName = $today->format('l');
                                     <span class="profile-detail-label"><?= icon('git-branch', 12) ?> Branch</span>
                                     <span class="profile-detail-value"><?= h($student['branch']) ?></span>
                                 </div>
+                                <?php if (!empty($student['section'])): ?>
+                                <div class="profile-detail">
+                                    <span class="profile-detail-label"><?= icon('grid', 12) ?> Section</span>
+                                    <span class="profile-detail-value"><?= h($student['section']) ?></span>
+                                </div>
+                                <?php endif; ?>
                                 <div class="profile-detail">
                                     <span class="profile-detail-label"><?= icon('calendar', 12) ?> Year of Joining</span>
                                     <span class="profile-detail-value"><?= h($student['year_of_joining']) ?></span>

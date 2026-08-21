@@ -280,10 +280,15 @@ function getStudentTests(int $studentId): array {
                s.total_marks,
                (SELECT COUNT(*) FROM questions q WHERE q.test_id = t.id) AS total_questions
         FROM tests t
-        JOIN batches b ON b.id = t.batch_id
-        JOIN students st ON st.batch_id = b.id
+        JOIN students st ON st.id = ?
         LEFT JOIN submissions s ON s.test_id = t.id AND s.student_id = st.id
-        WHERE st.id = ?
+        WHERE EXISTS (
+            SELECT 1 FROM test_sections ts WHERE ts.test_id = t.id AND ts.batch_id = st.batch_id
+        )
+        OR (
+            NOT EXISTS (SELECT 1 FROM test_sections ts WHERE ts.test_id = t.id)
+            AND t.batch_id = st.batch_id
+        )
         ORDER BY t.start_time DESC
     ");
     $stmt->execute([$studentId]);

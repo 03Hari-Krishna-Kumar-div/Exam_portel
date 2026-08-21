@@ -17,15 +17,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'add' && !empty($_POST['name']) && !empty($_POST['course_id'])) {
             if (!$canManage) { $error = 'Permission denied.'; }
             else {
-                $stmt = $pdo->prepare("INSERT INTO batches (course_id, name) VALUES (?, ?)");
-                $stmt->execute([(int)$_POST['course_id'], trim($_POST['name'])]);
+                $section = trim($_POST['section'] ?? '') ?: null;
+                $stmt = $pdo->prepare("INSERT INTO batches (course_id, name, section) VALUES (?, ?, ?)");
+                $stmt->execute([(int)$_POST['course_id'], trim($_POST['name']), $section]);
                 $message = 'Batch added successfully.';
             }
         } elseif ($action === 'edit' && !empty($_POST['id']) && !empty($_POST['name'])) {
             if (!$canManage) { $error = 'Permission denied.'; }
             else {
-                $stmt = $pdo->prepare("UPDATE batches SET name = ?, course_id = ? WHERE id = ?");
-                $stmt->execute([trim($_POST['name']), (int)$_POST['course_id'], (int)$_POST['id']]);
+                $section = trim($_POST['section'] ?? '') ?: null;
+                $stmt = $pdo->prepare("UPDATE batches SET name = ?, course_id = ?, section = ? WHERE id = ?");
+                $stmt->execute([trim($_POST['name']), (int)$_POST['course_id'], $section, (int)$_POST['id']]);
                 $message = 'Batch updated successfully.';
             }
         } elseif ($action === 'delete' && !empty($_POST['id'])) {
@@ -159,6 +161,7 @@ $batches = $stmt->fetchAll();
                 <tr>
                     <th>ID</th>
                     <th>Batch Name</th>
+                    <th>Section</th>
                     <th>Course</th>
                     <th>College</th>
                     <th>Students</th>
@@ -168,7 +171,7 @@ $batches = $stmt->fetchAll();
             </thead>
             <tbody>
                 <?php if (empty($batches)): ?>
-                    <tr><td colspan="7" class="text-center" style="padding:32px;color:var(--gray-50);">
+                    <tr><td colspan="8" class="text-center" style="padding:32px;color:var(--gray-50);">
                         <?= $showArchived ? 'No archived batches.' : 'No batches found.' ?>
                     </td></tr>
                 <?php else: ?>
@@ -179,13 +182,14 @@ $batches = $stmt->fetchAll();
                             <strong><?= h($b['name']) ?></strong>
                             <?php if ($b['status'] === 'archived'): ?><span class="badge badge-warning" style="margin-left:6px;">Archived</span><?php endif; ?>
                         </td>
+                        <td class="text-sm"><?= $b['section'] ? '<span class="badge badge-active">' . h($b['section']) . '</span>' : '<span class="text-muted">—</span>' ?></td>
                         <td><?= h($b['course_name']) ?></td>
                         <td class="text-sm text-muted"><?= h($b['college_name']) ?></td>
                         <td><span class="badge badge-active"><?= $b['student_count'] ?></span></td>
                         <td class="text-sm text-muted"><?= formatDateTime($b['created_at']) ?></td>
                         <td class="actions">
                             <button class="btn btn-sm btn-ghost"
-                                onclick="editBatch(<?= $b['id'] ?>, <?= $b['course_id'] ?>, '<?= h(addslashes($b['name'])) ?>')">Edit</button>
+                                onclick="editBatch(<?= $b['id'] ?>, <?= $b['course_id'] ?>, '<?= h(addslashes($b['name'])) ?>', '<?= h(addslashes($b['section'] ?? '')) ?>')">Edit</button>
                             <?php if ($b['status'] === 'archived'): ?>
                             <form method="POST" style="display:inline" onsubmit="return confirm('Restore this batch to active status?')">
                                 <?= csrfField() ?>
@@ -240,7 +244,12 @@ $batches = $stmt->fetchAll();
                 </div>
                 <div class="form-group">
                     <label for="add_name">Batch Name *</label>
-                    <input class="form-input" type="text" id="add_name" name="name" required placeholder="e.g. 2024 Batch A">
+                    <input class="form-input" type="text" id="add_name" name="name" required placeholder="e.g. 2024 Batch">
+                </div>
+                <div class="form-group">
+                    <label for="add_section">Section / Division</label>
+                    <input class="form-input" type="text" id="add_section" name="section" placeholder="e.g. A, B, Morning, Evening" maxlength="10">
+                    <div class="form-hint">Optional. Leave blank if the batch has no sections.</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -282,6 +291,11 @@ $batches = $stmt->fetchAll();
                 <div class="form-group">
                     <label for="edit_name">Batch Name *</label>
                     <input class="form-input" type="text" id="edit_name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_section">Section / Division</label>
+                    <input class="form-input" type="text" id="edit_section" name="section" placeholder="e.g. A, B, Morning, Evening" maxlength="10">
+                    <div class="form-hint">Optional. Leave blank if the batch has no sections.</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -328,9 +342,10 @@ function loadEditCourses() {
         .catch(() => { select.innerHTML = '<option value="">Error</option>'; });
 }
 
-function editBatch(id, courseId, name) {
+function editBatch(id, courseId, name, section) {
     document.getElementById('edit_id').value = id;
     document.getElementById('edit_name').value = name;
+    document.getElementById('edit_section').value = section || '';
     // Load the college and course for this batch
     fetch('/test-platform/src/php/api/get_course_college.php?course_id=' + courseId)
         .then(r => r.json())

@@ -6327,7 +6327,7 @@ a.notif-item { text-decoration: none; }
 }
 
 /* ---------------------------------------------------------------
-   College Wizard � UGC/PGC Degree Picker
+   College Wizard � UGC/PGC Degree Picker
    Categorized multi-select grid (Undergraduate / Postgraduate).
    Accessible custom checkboxes: flex wrapper + hidden input +
    fixed 18px box + centered SVG checkmark (no offset pseudo-elements).
@@ -6419,7 +6419,7 @@ a.notif-item { text-decoration: none; }
   height: 1.125rem;
   border: 1.5px solid var(--gray-40);
   border-radius: 4px;
-  background: var(--surface);           /* solid � never transparent/black */
+  background: var(--surface);           /* solid � never transparent/black */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -6486,7 +6486,7 @@ a.notif-item { text-decoration: none; }
 
 /* Dark theme refinements (denser neutrals, brighter labels) */
 [data-theme="dark"] .degree-check {
-  border-color: var(--gray-40);         /* #4E5970 � high-contrast neutral */
+  border-color: var(--gray-40);         /* #4E5970 � high-contrast neutral */
   background: var(--gray-10);           /* solid dark neutral, not black   */
 }
 
@@ -6524,4 +6524,624 @@ a.notif-item { text-decoration: none; }
 @media (max-width: 900px) {
   .degree-categories { grid-template-columns: 1fr; }
   .degree-pills { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Apple Design — Accessibility Media Queries
+   ================================================================
+   Apple HIG: reduced motion = gentler, non-vestibular equivalent.
+   Three independent signals baked into every component.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── 1. Reduced Motion ──────────────────────────────────────────
+   Kill springs, sliding, scaling, parallax. Replace with cross-fades.
+   Keep opacity/color changes that aid comprehension.
+   Apple: "smoothness is about what's in the frames" — for vestibular
+   users, we avoid moving frames entirely.
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* Global: all transitions become instant opacity cross-fades */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.15s !important;
+    transition-property: opacity !important;
+  }
+
+  /* Kill spring/transform transitions — only allow opacity */
+  .btn,
+  .btn:hover,
+  .btn:active,
+  .btn:focus-visible,
+  .btn-secondary,
+  .btn-secondary:hover,
+  .btn-secondary:active,
+  .btn-danger,
+  .btn-danger:hover,
+  .btn-danger:active,
+  .btn-outline,
+  .btn-outline:hover,
+  .btn-ghost,
+  .btn-ghost:hover,
+  .sidebar-item,
+  .sidebar-item:hover,
+  .sidebar-item.active,
+  .sidebar-submenu-item,
+  .sidebar-submenu-item:hover,
+  .card,
+  .card:hover,
+  .card-header,
+  .test-row,
+  .test-row:hover,
+  .student-row,
+  .student-row:hover,
+  .batch-row:hover,
+  .degree-pill,
+  .degree-pill:hover,
+  .degree-pill:has(.degree-check-input:checked),
+  .filter-select,
+  .filter-select:hover,
+  .modal,
+  .drawer,
+  .toast,
+  .alert,
+  .alert-slide-in,
+  .topnav,
+  .sidebar-toggle,
+  .sidebar-toggle:hover,
+  .topnav-avatar,
+  .topnav-user-name {
+    transform: none !important;
+    transition: opacity 0.15s ease !important;
+  }
+
+  /* Card hover: no lift, just opacity */
+  .card:hover {
+    transform: none !important;
+    box-shadow: var(--neu-raised) !important;
+  }
+
+  /* Test row / student row hover: no scale */
+  .test-row:hover,
+  .student-row:hover,
+  .batch-row:hover {
+    transform: none !important;
+  }
+
+  /* Sidebar: no rail animation */
+  .sidebar,
+  .sidebar.collapsed,
+  .sidebar.nav-collapsed,
+  .sidebar.rail-mode {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .sidebar-toggle {
+    transform: none !important;
+  }
+
+  .sidebar-toggle:hover {
+    transform: none !important;
+  }
+
+  .sidebar-toggle:hover .hamburger-line {
+    transform: none !important;
+  }
+
+  /* Sidebar hamburger lines: no rotation on hover */
+  .sidebar-toggle:hover .hamburger-line:nth-child(1),
+  .sidebar-toggle:hover .hamburger-line:nth-child(2),
+  .sidebar-toggle:hover .hamburger-line:nth-child(3) {
+    transform: none !important;
+  }
+
+  /* No rotation on sidebar chevrons */
+  .sidebar-item-chevron {
+    transition: opacity 0.15s ease !important;
+  }
+
+  .sidebar-item.expanded .sidebar-item-chevron,
+  .sidebar.collapsed .sidebar-item .sidebar-item-chevron,
+  .sidebar.nav-collapsed .sidebar-item .sidebar-item-chevron,
+  .sidebar.rail-mode .sidebar-item .sidebar-item-chevron {
+    transform: none !important;
+  }
+
+  /* Sidebar scroll fade gradient: just opacity, no animation */
+  .sidebar-scroll-fade-bottom {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Modal / overlay: cross-fade only */
+  .modal-overlay,
+  .modal-overlay.show,
+  .modal-overlay.active {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .modal,
+  .modal.show,
+  .modal.active {
+    transform: none !important;
+  }
+
+  /* Toast: cross-fade only */
+  .toast {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .toast.show,
+  .toast.active {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Alert: cross-fade only */
+  .alert {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Topnav shadow: instant on, instant off */
+  .topnav {
+    transition: box-shadow 0.15s ease !important;
+    transform: none !important;
+  }
+
+  /* Topnav avatar: no scale on hover */
+  .topnav-avatar:hover {
+    transform: none !important;
+  }
+
+  /* Auth card: no slide-in */
+  .auth-card,
+  .auth-card.main-auth-card,
+  .auth-card.setup-card {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Hero text: no animation */
+  .hero-text .hero-line,
+  .hero-text .hero-line-2 {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Stat counters: no count-up animation */
+  .stat-counter-number {
+    transition: color 0.15s ease !important;
+  }
+
+  /* Degree pills: no wiggle on duplicate */
+  .degree-pill--duplicate-wiggle {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* Sidebar collapse header animation: no slide-up */
+  .sidebar-collapse-header {
+    transition: opacity 0.15s ease !important;
+  }
+
+  /* Skeleton shimmer: no animation */
+  .skeleton-shimmer {
+    animation: none !important;
+    background: var(--gray-10) !important;
+  }
+
+  /* Page content: no fade-in */
+  .page-content {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Custom file upload drag hover */
+  .custom-file-upload.drag-hover {
+    transform: none !important;
+    border-color: var(--accent) !important;
+  }
+
+  /* Profile badge hover */
+  .admin-profile-badge:hover {
+    transform: none !important;
+  }
+
+  /* Print: don't show print button */
+  .admin-print-btn {
+    transform: none !important;
+  }
+
+  /* Auth progress bar: instant fill, no animation */
+  .auth-progress-fill {
+    transition: width 0.15s ease !important;
+  }
+
+  /* Wizard step connectors: no animation */
+  .wizard-connector-line-fill {
+    transition: width 0.15s ease !important;
+  }
+
+  /* Checkbox custom: no scale pulse */
+  .checkbox-custom {
+    transition: background 0.15s ease, border-color 0.15s ease !important;
+  }
+
+  /* Radio custom: no scale pulse */
+  .radio-custom {
+    transition: background 0.15s ease, border-color 0.15s ease !important;
+  }
+}
+
+/* ─── 2. Reduced Transparency ────────────────────────────────────
+   Apple: "translucent surfaces convey hierarchy" — but for users with
+   low vision or vestibular issues, transparency adds visual noise.
+   Make glass frostier or fully opaque.
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-transparency: reduce) {
+  /* Sidebar: fully opaque */
+  .sidebar {
+    background: var(--surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Topnav: fully opaque */
+  .topnav {
+    background: var(--surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Glass surfaces: fully opaque */
+  .glass,
+  .surface-glass,
+  .modal-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--surface) !important;
+  }
+
+  /* Auth card: fully opaque */
+  .auth-card,
+  .auth-card.main-auth-card,
+  .auth-card.setup-card {
+    background: var(--surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Sidebar collapse header */
+  .sidebar-collapse-header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--surface) !important;
+  }
+
+  /* Sidebar scroll fade bottom */
+  .sidebar-scroll-fade-bottom {
+    background: var(--surface) !important;
+  }
+
+  /* Dashboard layout glass */
+  .dashboard-layout .main-content {
+    background: var(--bg-primary) !important;
+  }
+
+  /* Inline glass components */
+  .sidebar {
+    background: var(--surface) !important;
+  }
+}
+
+/* ─── 3. High Contrast ───────────────────────────────────────────
+   Apple: "near-solid backgrounds with defined, contrasting borders."
+   Ensure all interactive elements have strong borders and text has
+   sufficient contrast against backgrounds.
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-contrast: more) {
+  /* Surfaces: near-solid backgrounds */
+  .sidebar,
+  .topnav,
+  .auth-card,
+  .card,
+  .dashboard-layout .main-content,
+  .modal,
+  .drawer,
+  .toast,
+  .alert {
+    background: var(--surface) !important;
+    border: 1px solid var(--gray-30) !important;
+  }
+
+  /* Sidebar: stronger border, bolder text */
+  .sidebar {
+    border-right: 2px solid var(--gray-40) !important;
+  }
+
+  .sidebar-item {
+    color: var(--gray-90) !important;
+    font-weight: 500 !important;
+  }
+
+  .sidebar-item.active,
+  .sidebar-item.active .sidebar-item-label {
+    color: var(--accent) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Topnav: stronger border */
+  .topnav {
+    border-bottom: 2px solid var(--gray-30) !important;
+  }
+
+  /* Buttons: stronger borders */
+  .btn,
+  .btn-secondary,
+  .btn-danger,
+  .btn-outline,
+  .btn-ghost {
+    border: 2px solid var(--gray-40) !important;
+    font-weight: 600 !important;
+  }
+
+  .btn {
+    background: var(--accent) !important;
+    color: var(--white) !important;
+    border-color: var(--accent) !important;
+  }
+
+  .btn-secondary {
+    background: var(--surface) !important;
+    color: var(--gray-90) !important;
+    border-color: var(--gray-40) !important;
+  }
+
+  .btn-danger {
+    background: var(--red) !important;
+    color: var(--white) !important;
+    border-color: var(--red) !important;
+  }
+
+  /* Inputs: stronger borders */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="url"],
+  select,
+  textarea {
+    border: 2px solid var(--gray-40) !important;
+    color: var(--gray-90) !important;
+    font-weight: 500 !important;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  input[type="date"]:focus,
+  input[type="url"]:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-glow) !important;
+  }
+
+  /* Cards: visible borders */
+  .card,
+  .test-row,
+  .student-row {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Links: underlined */
+  a:not(.sidebar-item):not(.btn):not(.nav-link) {
+    text-decoration: underline !important;
+    text-underline-offset: 2px !important;
+  }
+
+  /* Sidebar toggle: stronger border */
+  .sidebar-toggle {
+    border: 2px solid var(--gray-30) !important;
+    background: var(--surface) !important;
+  }
+
+  /* Degree pills: stronger borders */
+  .degree-pill {
+    border: 2px solid var(--gray-30) !important;
+    font-weight: 600 !important;
+  }
+
+  .degree-pill:has(.degree-check-input:checked) {
+    border-color: var(--accent) !important;
+    background: var(--accent-bg) !important;
+  }
+
+  /* Badge text on tinted backgrounds: use dark text for AA */
+  .badge-success,
+  .badge-danger,
+  .badge-warning,
+  .badge-info,
+  .badge-secondary {
+    color: var(--gray-90) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Form labels: bolder */
+  .form-label,
+  .form-label-optional {
+    color: var(--gray-80) !important;
+    font-weight: 600 !important;
+  }
+
+  /* Required asterisk: bolder */
+  .form-label .required-asterisk {
+    font-weight: 800 !important;
+    color: var(--red) !important;
+  }
+
+  /* Sidebar collapsed tooltip: ensure border */
+  .sidebar .sidebar-tooltip {
+    border: 1px solid var(--gray-30) !important;
+    background: var(--surface) !important;
+    color: var(--gray-90) !important;
+  }
+
+  /* Wizard progress: stronger borders */
+  .wizard-progress,
+  .wizard-progress-bar {
+    border: 1px solid var(--gray-30) !important;
+  }
+
+  /* Degree category header: stronger border */
+  .degree-category {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Modal: stronger border */
+  .modal {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Toast: stronger border */
+  .toast {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Alert: stronger border */
+  .alert {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Radio / Checkbox custom: stronger borders */
+  .radio-custom,
+  .checkbox-custom {
+    border: 2px solid var(--gray-40) !important;
+  }
+
+  /* Page header: bolder text */
+  .page-header h1,
+  .page-header h2 {
+    color: var(--gray-100) !important;
+    font-weight: 800 !important;
+  }
+}
+
+/* ─── 4. Typography Tracking Fixes ───────────────────────────────
+   Apple HIG: "tracking is size-specific — never one value for all."
+   Small text needs positive tracking for legibility.
+   Large headings need tighter line-height.
+   ──────────────────────────────────────────────────────────────── */
+
+/* Badge / label / caption text — positive tracking for small sizes */
+.badge,
+.badge-success,
+.badge-danger,
+.badge-warning,
+.badge-info,
+.badge-secondary,
+.sidebar-item-label,
+.sidebar-item-subtitle,
+.sidebar-group-label,
+.sidebar-badge,
+.stat-label,
+.stat-value,
+.form-label,
+.form-label-optional,
+.form-hint,
+.form-error,
+.table-header th,
+.table-header td,
+.table-header-actions-label,
+.wizard-step-label,
+.auth-setup-step-label,
+.modal-header .modal-label,
+.modal-footer .modal-footer-hint,
+.auth-forgot-label,
+.auth-footer-link,
+.auth-signin-link,
+.admin-print-btn,
+.hero-subtitle,
+.topnav-user-role,
+.topnav-avatar-initials,
+.sidebar-collapsed-badge,
+.topnav-notification-badge,
+.sidebar-section-divider,
+.degree-cat-count,
+.degree-category-header .degree-cat-count,
+.modal-footer .page-count {
+  letter-spacing: 0.02em;
+  font-optical-sizing: auto;
+}
+
+/* Small text sizes — slightly positive tracking */
+[class*="fs-10"],
+[class*="fs-11"],
+[class*="fs-12"],
+.sidebar-item-subtitle,
+.sidebar-group-label,
+.stat-label,
+.form-hint,
+.form-error,
+.auth-footer-hint,
+.auth-secure-badge,
+.auth-forgot-label,
+.modal-footer .modal-footer-hint,
+.topnav-user-role,
+.sidebar-collapsed-badge,
+.sidebar-section-divider {
+  letter-spacing: 0.03em;
+}
+
+/* Display / heading text — negative tracking, tight leading */
+.display,
+.page-header h1,
+.page-header h2,
+.auth-title,
+.modal-header h2,
+.modal-header h3,
+.auth-setup-title,
+.hero-text h2 {
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Large headings — tighten line-height */
+.page-header h1 {
+  line-height: 1.05;
+}
+
+.page-header h2 {
+  line-height: 1.1;
+}
+
+.auth-title {
+  line-height: 1.1;
+}
+
+.modal-header h2 {
+  line-height: 1.15;
+}
+
+/* Body text — default leading, near-zero tracking */
+body,
+p,
+.form-label,
+.form-hint,
+.form-error,
+.stat-value,
+.sidebar-item-label,
+.sidebar-item-subtitle {
+  letter-spacing: 0;
+  line-height: 1.5;
 }

@@ -17,11 +17,17 @@ $pdo = getDB();
 // flows). By default ALL batches are returned so retained/archived records stay
 // manageable in edit flows and student management screens.
 if (isset($_GET['active']) && (int)$_GET['active'] === 1) {
-    $stmt = $pdo->prepare("SELECT id, name FROM batches WHERE course_id = ? AND status = 'active' ORDER BY name");
+    $stmt = $pdo->prepare("SELECT id, name, section FROM batches WHERE course_id = ? AND status = 'active' ORDER BY name, section");
 } else {
-    $stmt = $pdo->prepare("SELECT id, name FROM batches WHERE course_id = ? ORDER BY name");
+    $stmt = $pdo->prepare("SELECT id, name, section FROM batches WHERE course_id = ? ORDER BY name, section");
 }
 $stmt->execute([$courseId]);
 $batches = $stmt->fetchAll();
+
+// Add display_name for each batch
+foreach ($batches as &$b) {
+    $b['display_name'] = $b['name'] . ($b['section'] ? ' - Section ' . $b['section'] : '');
+}
+unset($b);
 
 echo json_encode($batches);

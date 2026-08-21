@@ -3523,3 +3523,801 @@ tr {
   .date-card-date { font-size: var(--fs-14); }
   .card-grid { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Apple Design — Accessibility Media Queries (Student Interface)
+   ================================================================
+   Three independent signals baked into every component:
+   prefers-reduced-motion, prefers-reduced-transparency, prefers-contrast
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── 1. Reduced Motion ──────────────────────────────────────────
+   Kill springs, sliding, scaling, parallax. Replace with cross-fades.
+   Keep opacity/color changes that aid comprehension (timer warnings,
+   status indicators).
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* Global: all transitions become instant opacity cross-fades */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.15s !important;
+    transition-property: opacity !important;
+  }
+
+  /* Kill spring/transform transitions — only allow opacity */
+  .sidebar-nav-item,
+  .sidebar-nav-item:hover,
+  .sidebar-nav-item:active,
+  .sidebar-nav-item.active,
+  .topnav-hamburger,
+  .topnav-hamburger:hover,
+  .topnav-icon-btn,
+  .topnav-icon-btn:hover,
+  .topnav-profile,
+  .topnav-profile:hover,
+  .topnav-avatar,
+  .topnav-search,
+  .topnav-search:focus-within,
+  .date-card,
+  .date-card:hover,
+  .stat-card-gradient,
+  .stat-card-gradient:hover,
+  .stat-card-gradient:active,
+  .stat-card-arrow,
+  .stat-card-gradient:hover .stat-card-arrow,
+  .test-card,
+  .test-card:hover,
+  .info-card,
+  .profile-avatar-large,
+  .profile-avatar-card:hover .profile-avatar-large,
+  .profile-details-card,
+  .profile-details-card:hover,
+  .profile-activity-item,
+  .profile-activity-item:hover,
+  .modal,
+  .modal-overlay,
+  .modal-overlay.show,
+  .toast,
+  .alert,
+  .breadcrumb a,
+  .pagination a,
+  .tab,
+  .toggle-btn,
+  .overflow-item,
+  .sidebar-overlay,
+  .sidebar-overlay.show,
+  .dashboard-sidebar {
+    transform: none !important;
+    transition: opacity 0.15s ease !important;
+  }
+
+  /* Dashboard sidebar: no slide animation on mobile */
+  .dashboard-sidebar {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  /* Sidebar overlay: cross-fade only */
+  .sidebar-overlay {
+    transition: opacity 0.15s ease !important;
+  }
+
+  /* Hamburger icon: no rotation */
+  .topnav-hamburger svg {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .dashboard-sidebar.open ~ .dashboard-main .topnav-hamburger svg {
+    transform: none !important;
+  }
+
+  /* Card hover: no lift */
+  .date-card:hover,
+  .stat-card-gradient:hover,
+  .test-card:hover,
+  .profile-details-card:hover {
+    transform: none !important;
+  }
+
+  /* Stat card arrow: no translateX */
+  .stat-card-gradient:hover .stat-card-arrow {
+    transform: none !important;
+  }
+
+  /* Modal overlay: cross-fade only */
+  .modal-overlay {
+    animation: none !important;
+  }
+
+  .modal {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Toast: cross-fade only */
+  .toast {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Toast in/out: no slide */
+  .toast.toast-out {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  /* Overflow dropdown: no slide-in */
+  .overflow-dropdown {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Tooltip: no scale */
+  [data-tooltip]::after {
+    transform: translateX(-50%) !important;
+    transition: opacity 0.15s ease !important;
+  }
+
+  [data-tooltip]:hover::after {
+    transform: translateX(-50%) !important;
+  }
+
+  /* Progress bar fill: no animation */
+  .progress-fill,
+  .analytics-bar-fill {
+    transition: width 0.15s ease !important;
+  }
+
+  /* Timer pulse: no infinite animation */
+  .timer-bar .timer-display[style*="color: var(--red)"] {
+    animation: none !important;
+  }
+
+  /* Auth card: no slide-in */
+  .auth-card {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Page content: no fade-in */
+  .page-content,
+  .dashboard-content,
+  .dashboard-content-inner {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Welcome section: no animation */
+  .welcome-section {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Staggered children: no animation */
+  .stagger-children > * {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Skeleton shimmer: no animation */
+  .skeleton-shimmer {
+    animation: none !important;
+    background: var(--gray-10) !important;
+  }
+
+  /* Question navigation dots: no scale */
+  .nav-dot {
+    transition: background 0.15s ease, color 0.15s ease !important;
+  }
+
+  .nav-dot:hover {
+    transform: none !important;
+  }
+
+  .nav-dot:active {
+    transform: none !important;
+  }
+
+  /* Radio options: no scale on select */
+  .option-label {
+    transition: border-color 0.15s ease, background 0.15s ease !important;
+  }
+
+  .option-label:hover {
+    transform: none !important;
+  }
+
+  .option-label:active {
+    transform: none !important;
+  }
+
+  .option-label.selected {
+    transform: none !important;
+  }
+
+  /* Code editor: no focus transform */
+  .code-editor:focus {
+    transform: none !important;
+  }
+
+  /* Code editor run button: no scale */
+  .code-editor-run {
+    transform: none !important;
+    transition: opacity 0.15s ease !important;
+  }
+
+  /* Test navigation pills: no scale */
+  .question-nav-pill {
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
+  }
+
+  .question-nav-pill:hover {
+    transform: none !important;
+  }
+
+  /* Tab indicator: no animation */
+  .tab-indicator {
+    transition: left 0.15s ease, width 0.15s ease !important;
+  }
+
+  /* Question card: no hover lift */
+  .question-card {
+    transition: box-shadow 0.15s ease !important;
+  }
+
+  .question-card:hover {
+    transform: none !important;
+  }
+
+  /* Submit button: no pulse */
+  .submit-btn {
+    transform: none !important;
+  }
+
+  /* Profile avatar: no scale on hover */
+  .profile-avatar-large {
+    transition: box-shadow 0.15s ease !important;
+  }
+
+  .profile-avatar-card:hover .profile-avatar-large {
+    transform: none !important;
+  }
+
+  /* Badge wiggle on error: no animation */
+  .badge-wiggle {
+    animation: none !important;
+  }
+}
+
+/* ─── 2. Reduced Transparency ────────────────────────────────────
+   Apple: "translucent surfaces convey hierarchy" — but for users with
+   low vision or vestibular issues, transparency adds visual noise.
+   Make glass frostier or fully opaque.
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-transparency: reduce) {
+  /* Sidebar: fully opaque */
+  .dashboard-sidebar {
+    background: var(--surface-card) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Topnav: fully opaque */
+  .dashboard-topnav {
+    background: var(--surface-card) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Glass surfaces: fully opaque */
+  .glass,
+  .surface-glass,
+  .modal-overlay,
+  .sidebar-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--surface-card) !important;
+  }
+
+  /* Modal overlay: solid scrim */
+  .modal-overlay {
+    background: rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* Sidebar overlay: solid scrim */
+  .sidebar-overlay {
+    background: rgba(0, 0, 0, 0.6) !important;
+  }
+
+  /* Auth card: fully opaque */
+  .auth-card {
+    background: var(--surface-card) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Dashboard layout glass */
+  .dashboard-layout {
+    background: var(--bg-primary) !important;
+  }
+
+  /* Date card: fully opaque */
+  .date-card {
+    background: var(--surface-card) !important;
+  }
+
+  /* Stat cards: fully opaque */
+  .stat-card-gradient {
+    background: var(--surface-card) !important;
+  }
+
+  /* Test card: fully opaque */
+  .test-card {
+    background: var(--surface-card) !important;
+  }
+
+  /* Info card: fully opaque */
+  .info-card {
+    background: var(--surface-card) !important;
+  }
+
+  /* Profile card: fully opaque */
+  .profile-avatar-card,
+  .profile-details-card {
+    background: var(--surface-card) !important;
+  }
+
+  /* Toast: fully opaque */
+  .toast {
+    background: var(--surface-card) !important;
+  }
+
+  /* Overflow dropdown: fully opaque */
+  .overflow-dropdown {
+    background: var(--surface-card) !important;
+  }
+
+  /* Tab bar: fully opaque */
+  .tabs {
+    background: var(--surface-card) !important;
+  }
+
+  /* Search input: fully opaque */
+  .topnav-search {
+    background: var(--surface-card) !important;
+  }
+
+  /* Question card: fully opaque */
+  .question-card {
+    background: var(--surface-card) !important;
+  }
+
+  /* Code editor: fully opaque */
+  .code-editor {
+    background: var(--surface-card) !important;
+  }
+
+  /* Timer bar: fully opaque */
+  .timer-bar {
+    background: var(--surface-card) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Question navigation: fully opaque */
+  .question-nav {
+    background: var(--surface-card) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* ─── 3. High Contrast ───────────────────────────────────────────
+   Apple: "near-solid backgrounds with defined, contrasting borders."
+   Ensure all interactive elements have strong borders and text has
+   sufficient contrast against backgrounds.
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-contrast: more) {
+  /* Surfaces: near-solid backgrounds with visible borders */
+  .dashboard-sidebar,
+  .dashboard-topnav,
+  .modal,
+  .toast,
+  .alert,
+  .auth-card,
+  .date-card,
+  .stat-card-gradient,
+  .test-card,
+  .info-card,
+  .profile-avatar-card,
+  .profile-details-card,
+  .question-card,
+  .code-editor,
+  .timer-bar,
+  .question-nav {
+    background: var(--surface-card) !important;
+    border: 1px solid var(--gray-30) !important;
+  }
+
+  /* Sidebar: stronger border */
+  .dashboard-sidebar {
+    border-right: 2px solid var(--gray-40) !important;
+  }
+
+  .sidebar-nav-item {
+    color: var(--gray-90) !important;
+    font-weight: 500 !important;
+  }
+
+  .sidebar-nav-item.active,
+  .sidebar-nav-item.active .sidebar-nav-item-label {
+    color: var(--accent) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Topnav: stronger border */
+  .dashboard-topnav {
+    border-bottom: 2px solid var(--gray-30) !important;
+  }
+
+  /* Buttons: stronger borders */
+  .btn,
+  .btn-secondary,
+  .btn-danger,
+  .btn-outline,
+  .btn-ghost,
+  .submit-btn,
+  .code-editor-run {
+    border: 2px solid var(--gray-40) !important;
+    font-weight: 600 !important;
+  }
+
+  .btn {
+    background: var(--accent) !important;
+    color: var(--white) !important;
+    border-color: var(--accent) !important;
+  }
+
+  .btn-secondary {
+    background: var(--surface-card) !important;
+    color: var(--gray-90) !important;
+    border-color: var(--gray-40) !important;
+  }
+
+  .btn-danger {
+    background: var(--red) !important;
+    color: var(--white) !important;
+    border-color: var(--red) !important;
+  }
+
+  .submit-btn {
+    background: var(--accent) !important;
+    color: var(--white) !important;
+    border-color: var(--accent) !important;
+  }
+
+  /* Inputs: stronger borders */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="url"],
+  select,
+  textarea {
+    border: 2px solid var(--gray-40) !important;
+    color: var(--gray-90) !important;
+    font-weight: 500 !important;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  input[type="date"]:focus,
+  input[type="url"]:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(79, 140, 255, 0.12)) !important;
+  }
+
+  /* Cards: visible borders */
+  .test-card,
+  .date-card,
+  .stat-card-gradient,
+  .info-card,
+  .profile-avatar-card,
+  .profile-details-card {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Links: underlined */
+  a:not(.sidebar-nav-item):not(.btn):not(.nav-link):not(.tab) {
+    text-decoration: underline !important;
+    text-underline-offset: 2px !important;
+  }
+
+  /* Sidebar hamburger: stronger border */
+  .topnav-hamburger {
+    border: 2px solid var(--gray-30) !important;
+    background: var(--surface-card) !important;
+  }
+
+  /* Radio options: stronger borders */
+  .option-label {
+    border: 2px solid var(--gray-30) !important;
+    font-weight: 500 !important;
+  }
+
+  .option-label.selected {
+    border-color: var(--accent) !important;
+    background: var(--accent-bg) !important;
+  }
+
+  /* Question navigation dots: stronger borders */
+  .nav-dot {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  .nav-dot.active {
+    border-color: var(--accent) !important;
+    background: var(--accent) !important;
+    color: var(--white) !important;
+  }
+
+  /* Tabs: stronger borders */
+  .tab {
+    border-bottom: 3px solid var(--gray-30) !important;
+    font-weight: 600 !important;
+  }
+
+  .tab.active {
+    border-bottom-color: var(--accent) !important;
+    color: var(--accent) !important;
+  }
+
+  /* Toggle buttons: stronger borders */
+  .toggle-btn {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  .toggle-btn.active {
+    border-color: var(--accent) !important;
+    background: var(--accent-bg) !important;
+  }
+
+  /* Badge text on tinted backgrounds: use dark text for AA */
+  .badge-success,
+  .badge-danger,
+  .badge-warning,
+  .badge-info,
+  .badge-secondary {
+    color: var(--gray-90) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Form labels: bolder */
+  .form-label,
+  .form-label-optional {
+    color: var(--gray-80) !important;
+    font-weight: 600 !important;
+  }
+
+  /* Required asterisk: bolder */
+  .form-label .required-asterisk {
+    font-weight: 800 !important;
+    color: var(--red) !important;
+  }
+
+  /* Timer: stronger borders and bolder text */
+  .timer-bar {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  .timer-display {
+    font-weight: 700 !important;
+  }
+
+  /* Question card: stronger border */
+  .question-card {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Progress bar: stronger border */
+  .progress-bar {
+    border: 1px solid var(--gray-30) !important;
+  }
+
+  /* Code editor: stronger border */
+  .code-editor {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Question nav: stronger border */
+  .question-nav {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Modal: stronger border */
+  .modal {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Toast: stronger border */
+  .toast {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Alert: stronger border */
+  .alert {
+    border: 2px solid var(--gray-30) !important;
+  }
+
+  /* Profile details: stronger border */
+  .profile-section-title {
+    border-bottom: 2px solid var(--gray-30) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Sidebar profile: stronger border */
+  .sidebar-profile {
+    border-top: 2px solid var(--gray-30) !important;
+  }
+
+  /* Page header: bolder text */
+  .welcome-heading {
+    font-weight: 800 !important;
+    color: var(--gray-100) !important;
+  }
+
+  .tests-section-title {
+    font-weight: 700 !important;
+    color: var(--gray-100) !important;
+  }
+}
+
+/* ─── 4. Typography Tracking Fixes ───────────────────────────────
+   Apple HIG: "tracking is size-specific — never one value for all."
+   Small text needs positive tracking for legibility.
+   Large headings need tighter line-height.
+   ──────────────────────────────────────────────────────────────── */
+
+/* Badge / label / caption text — positive tracking for small sizes */
+.badge,
+.badge-success,
+.badge-danger,
+.badge-warning,
+.badge-info,
+.badge-secondary,
+.sidebar-nav-label,
+.sidebar-nav-item .sidebar-nav-item-label,
+.stat-card-label,
+.stat-card-desc,
+.stat-card-value,
+.form-label,
+.form-label-optional,
+.form-hint,
+.form-error,
+.table-header th,
+.table-header td,
+.profile-role-badge,
+.profile-id-badge,
+.profile-detail-label,
+.profile-meta-item,
+.profile-stat-c-label,
+.profile-activity-meta .badge,
+.profile-activity-time,
+.profile-activity-pct,
+.analytics-bar-label,
+.analytics-bar-value,
+.analytics-summary-label,
+.analytics-summary-value,
+.topnav-kbd,
+.topnav-badge,
+.topnav-profile-role,
+.sidebar-profile-role,
+.topnav-brand,
+.welcome-subtitle,
+.welcome-batch,
+.test-subject-mobile,
+.subject-pill,
+.duration-cell,
+.test-card-meta,
+.test-card-subject,
+.info-card-text,
+.test-name,
+.modal-header h3,
+.modal-footer .modal-footer-hint,
+.breadcrumb,
+.pagination a,
+.pagination span,
+.toggle-btn,
+.overflow-item,
+.tab,
+.code-editor-label,
+.code-editor-lang {
+  letter-spacing: 0.02em;
+  font-optical-sizing: auto;
+}
+
+/* Small text sizes — slightly positive tracking */
+[class*="fs-10"],
+[class*="fs-11"],
+[class*="fs-12"],
+.sidebar-nav-label,
+.sidebar-nav-item .sidebar-nav-item-label,
+.stat-card-desc,
+.form-hint,
+.form-error,
+.profile-detail-label,
+.profile-stat-c-label,
+.profile-activity-time,
+.profile-activity-pct,
+.analytics-summary-label,
+.topnav-kbd,
+.topnav-badge,
+.topnav-profile-role,
+.sidebar-profile-role,
+.topnav-brand,
+.test-subject-mobile,
+.test-card-meta,
+.info-card-text,
+.breadcrumb,
+.tab,
+.toggle-btn,
+.overflow-item {
+  letter-spacing: 0.03em;
+}
+
+/* Display / heading text — negative tracking, tight leading */
+.display,
+.page-header h1,
+.page-header h2,
+.welcome-heading,
+.auth-title,
+.modal-header h3,
+.stat-card-value,
+.profile-name,
+.analytics-summary-value {
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Large headings — tighten line-height */
+.welcome-heading {
+  line-height: 1.05;
+}
+
+.auth-title {
+  line-height: 1.1;
+}
+
+.modal-header h3 {
+  line-height: 1.15;
+}
+
+/* Body text — default leading, near-zero tracking */
+body,
+p,
+.form-label,
+.form-hint,
+.form-error,
+.stat-card-label,
+.stat-card-desc,
+.sidebar-nav-item .sidebar-nav-item-label,
+.test-name,
+.info-card-text,
+.profile-detail-value,
+.analytics-bar-label,
+.analytics-bar-value {
+  letter-spacing: 0;
+  line-height: 1.5;
+}

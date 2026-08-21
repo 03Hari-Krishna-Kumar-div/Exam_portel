@@ -3,16 +3,39 @@
  * Authentication logic for Admin, Student, and Guest.
  * Unverified students stored in unverified_students table.
  * Failed logins tracked in failed_login_log table.
+ *
+ * CONCURRENCY DESIGN (200+ simultaneous logins / 60 s window):
+ *  — Single-query lookups (no sequential SELECTs per role).
+ *  — Brute-force throttle via indexed failed_login_log check.
+ *  — session_write_close() called BEFORE any redirect() or HTML render,
+ *    releasing the session file lock so the next request can acquire it
+ *    immediately instead of blocking on a locked .sess file.
+ *  — PASSWORD_BCRYPT cost set explicitly to 10 (passwords) and 8 (OTP),
+ *    balancing security vs CPU under burst load.
  */
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/session.php';
 require_once __DIR__ . '/helpers.php';
 
+// ─── CONSTANTS ─────────────────────────────────────────────
+
+/** Bcrypt cost for user passwords — 10 ≈ 100 ms on modern CPU. */
+define('PASSWORD_BCRYPT_COST', 10);
+
+/** Bcrypt cost for OTP hashes — lower because OTPs are short-lived (10 min). */
+define('OTP_BCRYPT_COST', 8);
+
+/** Max failed login attempts per email within the throttle window. */
+define('BRUTE_FORCE_MAX_ATTEMPTS', 5);
+
+/** Brute-force throttle window in seconds (15 minutes). */
+define('BRUTE_FORCE_WINDOW', 900);
+
 // ─── HELPERS ───────────────────────────────────────────────
 
 /**
- * Get client IP address.
+ * Get client IP address (forwarded-first for reverse-proxy setups).
  */
 function getClientIp(): string {
     $keys = ['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'REMOTE_ADDR'];
@@ -31,7 +54,7 @@ function getClientIp(): string {
 }
 
 /**
- * Log a failed login attempt.
+ * Log a failed login attempt (fire-and-forget — errors are silenced).
  */
 function logFailedLogin(
     string $email,
@@ -53,8 +76,31 @@ function logFailedLogin(
             $reason,
         ]);
     } catch (Exception $e) {
-        // Log silently — don't break the auth flow
         error_log('Failed to write login log: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Check whether an email has exceeded the brute-force threshold.
+ * Uses the indexed (email, attempted_at) composite for a fast range scan.
+ *
+ * @return bool true if the account is locked (too many failures)
+ */
+function isBruteForceLocked(string $email): bool {
+    try {
+        $pdo = getDB();
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) AS attempts
+            FROM failed_login_log
+            WHERE email = ? AND attempted_at >= DATE_SUB(NOW(), INTERVAL ? SECOND)
+        ");
+        $stmt->execute([$email, BRUTE_FORCE_WINDOW]);
+        $row = $stmt->fetch();
+        return ($row && (int)$row['attempts'] >= BRUTE_FORCE_MAX_ATTEMPTS);
+    } catch (Exception $e) {
+        // On DB error, allow login (fail-open for availability).
+        error_log('Brute-force check failed: ' . $e->getMessage());
+        return false;
     }
 }
 
@@ -62,7 +108,13 @@ function logFailedLogin(
 
 function adminLogin(string $email, string $password): array {
     $pdo = getDB();
-    $stmt = $pdo->prepare("SELECT * FROM admins WHERE email = ?");
+
+    // Brute-force throttle
+    if (isBruteForceLocked($email)) {
+        return ['success' => false, 'error' => 'Too many failed attempts. Please try again later.'];
+    }
+
+    $stmt = $pdo->prepare("SELECT id, email, name, password_hash, role FROM admins WHERE email = ?");
     $stmt->execute([$email]);
     $admin = $stmt->fetch();
 
@@ -71,12 +123,20 @@ function adminLogin(string $email, string $password): array {
         return ['success' => false, 'error' => 'Invalid email or password.'];
     }
 
+    // ─── Write session data ───
+    session_regenerate_id(true);
     $_SESSION['admin_id']    = (int)$admin['id'];
     $_SESSION['admin_email'] = $admin['email'];
     $_SESSION['admin_name']  = $admin['name'] ?? $admin['email'];
     $_SESSION['role']        = 'admin';
     $_SESSION['admin_role']  = $admin['role'] ?? 'admin';
-    session_regenerate_id(true);
+    $_SESSION['_login_ts']   = time();
+
+    // ─── Release session lock BEFORE redirect ───
+    // The next request (redirect target) needs to acquire the session
+    // file lock immediately. Holding it here during the redirect response
+    // creates a serialisation bottleneck at 200+ concurrent logins.
+    session_write_close();
 
     return ['success' => true];
 }
@@ -92,7 +152,7 @@ function generateStudentOtp(int $studentId, string $email, string $name): array 
 
     // Generate 6-digit OTP
     $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-    $otpHash = password_hash($otp, PASSWORD_BCRYPT);
+    $otpHash = password_hash($otp, PASSWORD_BCRYPT, ['cost' => OTP_BCRYPT_COST]);
     $expiresAt = date('Y-m-d H:i:s', time() + 600); // 10 minutes
 
     // Store in unverified_students
@@ -162,11 +222,12 @@ function verifyStudentOtp(int $studentId, string $otp): array {
         $pdo->beginTransaction();
 
         $insert = $pdo->prepare("
-            INSERT INTO students (batch_id, name, phone, email, gender, college_name, branch, roll_number, year_of_joining, course_name, password_hash, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO students (batch_id, section, name, phone, email, gender, college_name, branch, roll_number, year_of_joining, course_name, password_hash, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $insert->execute([
             $student['batch_id'],
+            $student['section'] ?? null,
             $student['name'],
             $student['phone'],
             $student['email'],
@@ -216,50 +277,85 @@ function resendStudentOtp(int $studentId): array {
 
 // ─── STUDENT AUTH ─────────────────────────────────────────
 
+/**
+ * Authenticate a student with a SINGLE query across both tables.
+ *
+ * CONCURRENCY NOTES:
+ *  1. Brute-force check (indexed range scan) happens BEFORE password_verify()
+ *     — the expensive bcrypt operation is skipped for locked accounts.
+ *  2. A UNION query replaces two sequential SELECTs, halving DB round-trips
+ *     under burst load.
+ *  3. session_write_close() is called before returning, so the caller
+ *     (login.php) can redirect without holding the session file lock.
+ *
+ * @return array{success: bool, error?: string, not_verified?: bool, student_id?: int}
+ */
 function studentLogin(string $email, string $password): array {
     $pdo = getDB();
 
-    // 1. Check verified students table first
-    $stmt = $pdo->prepare("SELECT * FROM students WHERE email = ?");
-    $stmt->execute([$email]);
-    $student = $stmt->fetch();
-
-    if ($student && password_verify($password, $student['password_hash'])) {
-        $_SESSION['student_id']   = (int)$student['id'];
-        $_SESSION['student_name'] = $student['name'];
-        $_SESSION['student_email']= $student['email'];
-        $_SESSION['batch_id']     = (int)$student['batch_id'];
-        $_SESSION['role']         = 'student';
-        session_regenerate_id(true);
-        return ['success' => true];
+    // ─── 1. Brute-force throttle (indexed, sub-ms) ───
+    if (isBruteForceLocked($email)) {
+        return ['success' => false, 'error' => 'Too many failed attempts. Please try again later.'];
     }
 
-    // 2. Check unverified_students table (registered but not verified)
-    $stmt = $pdo->prepare("SELECT id, name, email, password_hash FROM unverified_students WHERE email = ?");
-    $stmt->execute([$email]);
-    $unverified = $stmt->fetch();
+    // ─── 2. Single-query lookup: verified students UNION unverified ───
+    //    This replaces the old two-sequential-SELECT pattern, cutting
+    //    DB round-trips in half during a login burst.
+    $stmt = $pdo->prepare("
+        SELECT id, email, name, password_hash, batch_id,
+               'verified' AS account_status
+        FROM students
+        WHERE email = ?
+        UNION ALL
+        SELECT id, email, name, password_hash, batch_id,
+               'unverified' AS account_status
+        FROM unverified_students
+        WHERE email = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$email, $email]);
+    $user = $stmt->fetch();
 
-    if ($unverified) {
-        if (password_verify($password, $unverified['password_hash'])) {
-            // Password matches — just not verified yet
-            notifyAdmin('student_account', 'Account not completed — never verified',
-                $unverified['name'] . ' (' . $email . ') registered but never verified their email.',
-                BASE_URL . '/admin/pending_verifications.php');
-            return [
-                'success'    => false,
-                'error'      => 'Please verify your email first. An OTP was sent during registration.',
-                'not_verified' => true,
-                'student_id'  => (int)$unverified['id'],
-            ];
-        }
-        // Password doesn't match for unverified student
-        logFailedLogin($email, 'wrong_password', 'Invalid password for unverified account.', $unverified['name']);
+    if (!$user) {
+        logFailedLogin($email, 'invalid_email', 'Email not registered.');
         return ['success' => false, 'error' => 'Invalid email or password.'];
     }
 
-    // 3. Not found in either table
-    logFailedLogin($email, 'invalid_email', 'Email not registered.');
-    return ['success' => false, 'error' => 'Invalid email or password.'];
+    // ─── 3. Password verification (CPU-intensive — only runs after DB hit) ───
+    if (!password_verify($password, $user['password_hash'])) {
+        logFailedLogin($email, 'wrong_password', 'Invalid password.', $user['name']);
+        return ['success' => false, 'error' => 'Invalid email or password.'];
+    }
+
+    // ─── 4. Branch by account status ───
+    if ($user['account_status'] === 'unverified') {
+        notifyAdmin(
+            'student_account',
+            'Account not completed — never verified',
+            $user['name'] . ' (' . $email . ') registered but never verified their email.',
+            BASE_URL . '/admin/pending_verifications.php'
+        );
+        return [
+            'success'      => false,
+            'error'        => 'Please verify your email first. An OTP was sent during registration.',
+            'not_verified' => true,
+            'student_id'   => (int)$user['id'],
+        ];
+    }
+
+    // ─── 5. Verified — create session ───
+    session_regenerate_id(true);
+    $_SESSION['student_id']   = (int)$user['id'];
+    $_SESSION['student_name'] = $user['name'];
+    $_SESSION['student_email']= $user['email'];
+    $_SESSION['batch_id']     = (int)$user['batch_id'];
+    $_SESSION['role']         = 'student';
+    $_SESSION['_login_ts']    = time();
+
+    // ─── 6. Release session lock BEFORE caller redirects ───
+    session_write_close();
+
+    return ['success' => true];
 }
 
 /**
@@ -313,11 +409,12 @@ function studentRegister(array $data): array {
 
     // Insert into unverified_students
     $stmt = $pdo->prepare("
-        INSERT INTO unverified_students (batch_id, name, phone, email, gender, college_name, branch, roll_number, year_of_joining, course_name, password_hash)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO unverified_students (batch_id, section, name, phone, email, gender, college_name, branch, roll_number, year_of_joining, course_name, password_hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt->execute([
         $data['batch_id'],
+        $data['section'] ?? null,
         $data['name'],
         $data['phone'],
         $data['email'],
@@ -327,7 +424,7 @@ function studentRegister(array $data): array {
         $data['roll_number'],
         (int)$data['year_of_joining'],
         $course['name'],
-        password_hash($data['password'], PASSWORD_BCRYPT),
+        password_hash($data['password'], PASSWORD_BCRYPT, ['cost' => PASSWORD_BCRYPT_COST]),
     ]);
 
     $studentId = (int)$pdo->lastInsertId();

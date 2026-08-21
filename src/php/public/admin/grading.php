@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // ─── Get all tests ───────────────────────────────────────────
 $tests = $pdo->query("
-    SELECT t.id, t.title, b.name AS batch_name,
+    SELECT t.id, t.title, b.name AS batch_name, b.section AS batch_section,
            (SELECT COUNT(*) FROM submissions s WHERE s.test_id = t.id AND s.status IN ('submitted','evaluated')) AS pending_count
     FROM tests t
     JOIN batches b ON b.id = t.batch_id
@@ -188,7 +188,7 @@ if ($currentStudentId > 0 && $currentTestId > 0) {
                         <option value="">— Select Test —</option>
                         <?php foreach ($tests as $t): ?>
                             <option value="<?= $t['id'] ?>" <?= $currentTestId === (int)$t['id'] ? 'selected' : '' ?>>
-                                <?= h($t['title']) ?> (<?= h($t['batch_name']) ?>) — <?= $t['pending_count'] ?> pending
+                                <?= h($t['title']) ?> (<?= h($t['batch_name']) ?><?= $t['batch_section'] ? ' — ' . h($t['batch_section']) : '' ?>) — <?= $t['pending_count'] ?> pending
                             </option>
                         <?php endforeach; ?>
                     </select>

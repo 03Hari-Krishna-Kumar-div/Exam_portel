@@ -29,8 +29,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             !empty($_POST['shuffle_questions']) ? 1 : 0,
             $_SESSION['admin_id'],
         ]);
+        $newTestId = (int)$pdo->lastInsertId();
+
+        // Save section assignments
+        $targetSections = trim($_POST['target_sections'] ?? '');
+        saveTestSections($pdo, $newTestId, (int)$_POST['batch_id'], $targetSections);
+
         $message = 'Test created successfully.';
     } elseif ($action === 'update_test' && !empty($_POST['id'])) {
+        $testId = (int)$_POST['id'];
         $stmt = $pdo->prepare("
             UPDATE tests SET batch_id=?, title=?, description=?, duration_minutes=?, start_time=?, end_time=?, status=?, shuffle_questions=?
             WHERE id=?
@@ -39,8 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             (int)$_POST['batch_id'], trim($_POST['title']), trim($_POST['description'] ?? ''),
             (int)$_POST['duration_minutes'], $_POST['start_time'] ?: null, $_POST['end_time'] ?: null,
             $_POST['status'] ?? 'upcoming', !empty($_POST['shuffle_questions']) ? 1 : 0,
-            (int)$_POST['id'],
+            $testId,
         ]);
+
+        // Re-save section assignments
+        $targetSections = trim($_POST['target_sections'] ?? '');
+        $pdo->prepare("DELETE FROM test_sections WHERE test_id = ?")->execute([$testId]);
+        saveTestSections($pdo, $testId, (int)$_POST['batch_id'], $targetSections);
+
         $message = 'Test updated successfully.';
     } elseif ($action === 'activate_test' && !empty($_POST['id'])) {
         $pdo->prepare("UPDATE tests SET status = 'active' WHERE id = ?")->execute([(int)$_POST['id']]);
@@ -216,6 +229,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Get edit test ID from URL
 $editTestId = (int)($_GET['edit_test'] ?? 0);
+
+// ─── Helper: Save test section assignments ───────────────
+function saveTestSections(PDO $pdo, int $testId, int $primaryBatchId, string $targetSections): void {
+    if ($targetSections === '' || $targetSections === 'all') {
+        // Assign to all active batches (sections) for the same course
+        $courseStmt = $pdo->prepare("SELECT course_id FROM batches WHERE id = ?");
+        $courseStmt->execute([$primaryBatchId]);
+        $courseId = (int)$courseStmt->fetchColumn();
+        if ($courseId <= 0) return;
+
+        $batchStmt = $pdo->prepare("SELECT id FROM batches WHERE course_id = ? AND status = 'active'");
+        $batchStmt->execute([$courseId]);
+        $insertStmt = $pdo->prepare("INSERT IGNORE INTO test_sections (test_id, batch_id) VALUES (?, ?)");
+        foreach ($batchStmt->fetchAll() as $row) {
+            $insertStmt->execute([$testId, (int)$row['id']]);
+        }
+    } else {
+        // Assign to specific selected batches (sections)
+        $batchIds = array_filter(array_map('intval', explode(',', $targetSections)));
+        $insertStmt = $pdo->prepare("INSERT IGNORE INTO test_sections (test_id, batch_id) VALUES (?, ?)");
+        foreach ($batchIds as $bid) {
+            if ($bid > 0) {
+                $insertStmt->execute([$testId, $bid]);
+            }
+        }
+    }
+}
 if ($editTestId > 0) {
     $stmt = $pdo->prepare("SELECT * FROM tests WHERE id = ?");
     $stmt->execute([$editTestId]);
@@ -229,12 +269,12 @@ if ($viewTestId > 0) $showQuestions = true;
 // Get colleges, batches for filters (archived batches stay visible but are labelled,
 // so editing a test whose batch was archived keeps working)
 $batches = $pdo->query("
-    SELECT b.id, b.name AS batch_name, c.name AS course_name, cl.name AS college_name,
+    SELECT b.id, b.name AS batch_name, b.section AS batch_section, c.name AS course_name, cl.name AS college_name,
            b.status AS batch_status
     FROM batches b
     JOIN courses c ON c.id = b.course_id
     JOIN colleges cl ON cl.id = c.college_id
-    ORDER BY cl.name, c.name, b.name
+    ORDER BY cl.name, c.name, b.name, b.section
 ")->fetchAll();
 
 // List tests
@@ -289,14 +329,20 @@ if ($viewTestId > 0) {
 
                 <div class="form-group">
                     <label>Batch *</label>
-                    <select class="form-select" name="batch_id" required>
+                    <select class="form-select" name="batch_id" id="test_batch_id" required onchange="loadTestSections()">
                         <option value="">Select Batch</option>
                         <?php foreach ($batches as $b): ?>
                             <option value="<?= $b['id'] ?>" <?= ($editTest['batch_id'] ?? '') == $b['id'] ? 'selected' : '' ?>>
-                                <?= h($b['college_name']) ?> → <?= h($b['course_name']) ?> → <?= h($b['batch_name']) ?><?= $b['batch_status'] === 'archived' ? ' (archived)' : '' ?>
+                                <?= h($b['college_name']) ?> → <?= h($b['course_name']) ?> → <?= h($b['batch_name']) ?><?= $b['batch_section'] ? ' — Section ' . h($b['batch_section']) : '' ?><?= $b['batch_status'] === 'archived' ? ' (archived)' : '' ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+
+                <div class="form-group" id="sectionGroup" style="display:none;">
+                    <label>Target Sections</label>
+                    <div id="sectionCheckboxes" style="display:flex;flex-direction:column;gap:6px;"></div>
+                    <div class="form-hint">Leave unchecked to target the entire batch. Check specific sections to assign the test only to those.</div>
                 </div>
 
                 <div class="form-group">
@@ -348,6 +394,7 @@ if ($viewTestId > 0) {
                     </label>
                 </div>
 
+                <input type="hidden" name="target_sections" id="targetSectionsInput" value="">
                 <button type="submit" class="btn btn-primary">
                     <?= $editTest ? 'Update Test' : 'Create Test' ?>
                 </button>
@@ -674,6 +721,94 @@ document.querySelector('form[action*="add_question"]')?.addEventListener('submit
         });
     }
 });
+
+// ─── Section targeting for test assignment ───────────────
+function loadTestSections() {
+    const batchId = document.getElementById('test_batch_id')?.value;
+    const group = document.getElementById('sectionGroup');
+    const container = document.getElementById('sectionCheckboxes');
+    if (!group || !container) return;
+
+    if (!batchId) { group.style.display = 'none'; return; }
+
+    // Fetch all active batches for the same course to find sections
+    fetch('/test-platform/src/php/api/get_batches.php?course_id=0&active=1')
+        .then(r => r.json())
+        .then(allBatches => {
+            // Find the selected batch to get its course_id
+            return fetch('/test-platform/src/php/api/get_course_college.php?course_id=' + batchId)
+                .then(r => r.json())
+                .then(info => ({ courseId: info.course_id, batchId: batchId }));
+        })
+        .then(({ courseId }) => {
+            // Get all batches for this course
+            return fetch('/test-platform/src/php/api/get_batches.php?course_id=' + courseId + '&active=1')
+                .then(r => r.json());
+        })
+        .then(batches => {
+            // Find unique sections across all batches for this course
+            const sections = [];
+            const seen = new Set();
+            batches.forEach(b => {
+                if (b.section && !seen.has(b.section)) {
+                    seen.add(b.section);
+                    sections.push(b);
+                }
+            });
+
+            if (sections.length === 0) {
+                group.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = '';
+            // "All sections" option
+            const allLabel = document.createElement('label');
+            allLabel.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:500;';
+            allLabel.innerHTML = '<input type="checkbox" name="section_all" value="1" checked onchange="toggleAllSections(this)"> All Sections';
+            container.appendChild(allLabel);
+
+            // Individual section checkboxes
+            const div = document.createElement('div');
+            div.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;margin-left:20px;';
+            sections.forEach(b => {
+                const label = document.createElement('label');
+                label.style.cssText = 'display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;';
+                label.innerHTML = '<input type="checkbox" name="target_section[]" value="' + b.id + '" class="section-cb" onchange="updateSectionInput()"> Section ' + b.section + ' (' + b.name + ')';
+                div.appendChild(label);
+            });
+            container.appendChild(div);
+
+            group.style.display = 'block';
+            updateSectionInput();
+        })
+        .catch(() => { group.style.display = 'none'; });
+}
+
+function toggleAllSections(allCheckbox) {
+    document.querySelectorAll('.section-cb').forEach(cb => {
+        cb.checked = allCheckbox.checked;
+        cb.disabled = allCheckbox.checked;
+    });
+    updateSectionInput();
+}
+
+function updateSectionInput() {
+    const input = document.getElementById('targetSectionsInput');
+    if (!input) return;
+    const allChecked = document.querySelector('input[name="section_all"]')?.checked;
+    if (allChecked) {
+        input.value = 'all';
+    } else {
+        const selected = Array.from(document.querySelectorAll('.section-cb:checked')).map(cb => cb.value);
+        input.value = selected.join(',');
+    }
+}
+
+// Load sections on page load if a batch is already selected
+if (document.getElementById('test_batch_id')?.value) {
+    loadTestSections();
+}
 </script>
 
 <?php require_once __DIR__ . '/../../includes/admin_footer.php'; ?>

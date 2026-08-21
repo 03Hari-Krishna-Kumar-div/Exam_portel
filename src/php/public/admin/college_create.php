@@ -509,6 +509,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             if (!$dbStreamId) {
                                 throw new Exception('Stream mapping failed for batch.');
                             }
+                            // Regenerate nick against live DB so intra-draft
+                            // duplicates get suffixed (_01, _02 …) instead of
+                            // colliding on the UNIQUE constraint.
+                            $streamNameForNick = $step2['streams'][($batch['stream_id'] - 1)] ?? 'Stream';
+                            $liveNick = generateBatchNickName(
+                                $step1['nick_name'], $streamNameForNick,
+                                (int)$batch['joining_year'], (int)$batch['joining_month'], $pdo
+                            );
                             $batchInsert->execute([
                                 $collegeId,
                                 $dbStreamId,
@@ -517,7 +525,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $batch['joining_month'],
                                 $batch['course_duration'],
                                 $batch['ending_year'],
-                                $batch['batch_nick_name'],
+                                $liveNick,
                                 $batch['status'],
                             ]);
                         }

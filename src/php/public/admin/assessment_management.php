@@ -52,11 +52,15 @@ $statusMap = [
 $whereClause = $statusMap[$activeTab];
 
 $assessments = $pdo->prepare("
-    SELECT t.*, b.name AS batch_name, c.name AS course_name, cl.name AS college_name,
+    SELECT t.*, b.name AS batch_name, b.section AS batch_section, c.name AS course_name, cl.name AS college_name,
            (SELECT COUNT(*) FROM questions WHERE test_id = t.id) AS question_count,
            (SELECT COUNT(*) FROM submissions WHERE test_id = t.id) AS submission_count,
            (SELECT COUNT(*) FROM submissions WHERE test_id = t.id AND status = 'in_progress') AS active_submissions,
-           (SELECT COUNT(*) FROM students s WHERE s.batch_id = t.batch_id) AS total_students
+           (SELECT COUNT(DISTINCT s.id) FROM students s
+             JOIN test_sections ts ON ts.batch_id = s.batch_id
+             WHERE ts.test_id = t.id) AS total_students,
+           (SELECT GROUP_CONCAT(DISTINCT b2.section ORDER BY b2.section SEPARATOR ', ')
+             FROM test_sections ts2 JOIN batches b2 ON b2.id = ts2.batch_id WHERE ts2.test_id = t.id) AS assigned_sections
     FROM tests t
     JOIN batches b ON b.id = t.batch_id
     JOIN courses c ON c.id = b.course_id
@@ -173,7 +177,12 @@ if ($activeTab === 'live' && !empty($assessments)) {
                                     <strong><?= h($a['title']) ?></strong>
                                     <div class="text-muted text-sm"><?= h($a['college_name']) ?> — <?= h($a['course_name']) ?></div>
                                 </td>
-                                <td class="text-sm"><?= h($a['batch_name']) ?></td>
+                                <td class="text-sm">
+                                    <?= h($a['batch_name']) ?>
+                                    <?php if (!empty($a['assigned_sections'])): ?>
+                                        <div class="text-muted text-xs" style="margin-top:2px;">Sections: <?= h($a['assigned_sections']) ?></div>
+                                    <?php endif; ?>
+                                </td>
                                 <td><span class="badge badge-active"><?= (int)$a['question_count'] ?></span></td>
                                 <td class="text-sm"><?= $a['duration_minutes'] ?> min</td>
 

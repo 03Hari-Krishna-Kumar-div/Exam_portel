@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'college_id'     => (int)$_POST['college_id'],
                 'course_id'      => (int)$_POST['course_id'],
                 'batch_id'       => (int)$_POST['batch_id'],
+                'section'        => trim($_POST['section'] ?? '') ?: null,
                 'name'           => trim($_POST['name']),
                 'phone'          => trim($_POST['phone']),
                 'email'          => trim($_POST['email']),
@@ -171,6 +172,15 @@ try {
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="section">Section / Division</label>
+                    <select class="form-select" id="section" name="section" disabled>
+                        <option value="">Select Batch first</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
                     <label for="year_of_joining">Year of Joining *</label>
                     <select class="form-select" id="year_of_joining" name="year_of_joining" required>
                         <option value="">Select Year</option>
@@ -258,9 +268,11 @@ try {
         const collegeSelect = document.getElementById('college_id');
         const courseSelect = document.getElementById('course_id');
         const batchSelect = document.getElementById('batch_id');
+        const sectionSelect = document.getElementById('section');
         // Preserve selections if form was submitted
         const selectedCourse = '<?= h($formData['course_id'] ?? '') ?>';
         const selectedBatch = '<?= h($formData['batch_id'] ?? '') ?>';
+        const selectedSection = '<?= h($formData['section'] ?? '') ?>';
 
         // Load courses when college changes
         collegeSelect.addEventListener('change', function() {
@@ -269,6 +281,8 @@ try {
             courseSelect.disabled = true;
             batchSelect.innerHTML = '<option value="">Select Course first</option>';
             batchSelect.disabled = true;
+            sectionSelect.innerHTML = '<option value="">Select Batch first</option>';
+            sectionSelect.disabled = true;
 
             if (!collegeId) {
                 courseSelect.innerHTML = '<option value="">Select College first</option>';
@@ -300,6 +314,8 @@ try {
             const courseId = this.value;
             batchSelect.innerHTML = '<option value="">Loading...</option>';
             batchSelect.disabled = true;
+            sectionSelect.innerHTML = '<option value="">Select Batch first</option>';
+            sectionSelect.disabled = true;
 
             if (!courseId) {
                 batchSelect.innerHTML = '<option value="">Select Course first</option>';
@@ -316,12 +332,58 @@ try {
                     batchSelect.innerHTML = '<option value="">Select Batch</option>';
                     data.forEach(b => {
                         const sel = b.id == selectedBatch ? 'selected' : '';
-                        batchSelect.innerHTML += '<option value="' + b.id + '" ' + sel + '>' + b.name + '</option>';
+                        batchSelect.innerHTML += '<option value="' + b.id + '" ' + sel + '>' + (b.display_name || b.name) + '</option>';
                     });
                     batchSelect.disabled = false;
+                    // Trigger section load if batch was pre-selected
+                    if (selectedBatch) batchSelect.dispatchEvent(new Event('change'));
                 })
                 .catch(() => {
                     batchSelect.innerHTML = '<option value="">Error loading batches</option>';
+                });
+        });
+
+        // Load sections when batch changes
+        batchSelect.addEventListener('change', function() {
+            const batchId = this.value;
+            sectionSelect.innerHTML = '<option value="">Loading...</option>';
+            sectionSelect.disabled = true;
+
+            if (!batchId) {
+                sectionSelect.innerHTML = '<option value="">Select Batch first</option>';
+                return;
+            }
+
+            // Find the selected batch to get its section
+            fetch(API_BASE + '/get_batches.php?course_id=' + courseSelect.value + '&active=1')
+                .then(r => r.json())
+                .then(batches => {
+                    const batch = batches.find(b => b.id == batchId);
+                    if (batch && batch.section) {
+                        // This batch has a section — show it
+                        sectionSelect.innerHTML = '<option value="">Select Section</option>';
+                        sectionSelect.innerHTML += '<option value="' + batch.section + '" selected>' + batch.section + '</option>';
+                        sectionSelect.disabled = true; // Auto-selected, single section per batch
+                    } else if (batch) {
+                        // No section — check if other batches for this course have sections
+                        const courseBatches = batches.filter(b => b.section);
+                        if (courseBatches.length > 0) {
+                            const sections = [...new Set(courseBatches.map(b => b.section))].sort();
+                            sectionSelect.innerHTML = '<option value="">Select Section</option>';
+                            sections.forEach(s => {
+                                const sel = s == selectedSection ? 'selected' : '';
+                                sectionSelect.innerHTML += '<option value="' + s + '" ' + sel + '>' + s + '</option>';
+                            });
+                            sectionSelect.disabled = false;
+                        } else {
+                            sectionSelect.innerHTML = '<option value="">No sections</option>';
+                            sectionSelect.disabled = true;
+                        }
+                    }
+                })
+                .catch(() => {
+                    sectionSelect.innerHTML = '<option value="">No sections</option>';
+                    sectionSelect.disabled = true;
                 });
         });
 

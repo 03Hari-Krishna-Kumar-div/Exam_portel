@@ -78,6 +78,7 @@ $rows = $students->fetchAll();
                         <th>Email</th>
                         <th>College</th>
                         <th>Course</th>
+                        <th>Section</th>
                         <th>OTP Status</th>
                         <th>Registered</th>
                         <th class="actions">Action</th>
@@ -100,6 +101,7 @@ $rows = $students->fetchAll();
                             <td class="text-sm"><?= h($s['email']) ?></td>
                             <td class="text-sm"><?= h($s['college_name']) ?></td>
                             <td class="text-sm"><?= h($s['course_name']) ?></td>
+                            <td class="text-sm"><?= !empty($s['section']) ? h($s['section']) : '<span class="text-muted">—</span>' ?></td>
                             <td><?= $otpStatus ?></td>
                             <td class="text-sm text-muted"><?= formatDateTime($s['created_at']) ?></td>
                             <td class="actions">

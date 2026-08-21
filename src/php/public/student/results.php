@@ -151,7 +151,7 @@ $dayName = $today->format('l');
                     <div class="welcome-text">
                         <h1 class="welcome-heading">My Results</h1>
                         <p class="welcome-subtitle"><?= h($student['course_name']) ?></p>
-                        <p class="welcome-batch">Batch <?= h($student['batch_name']) ?></p>
+                        <p class="welcome-batch">Batch <?= h($student['batch_name']) ?><?= !empty($student['section']) ? ' — Section ' . h($student['section']) : '' ?></p>
                     </div>
                     <div class="date-card">
                         <div class="date-card-icon">

@@ -129,7 +129,7 @@ switch ($sort) {
 
 // Build query
 $sql = "
-    SELECT s.*, b.name AS batch_name, b.course_id, c.name AS course_name, c.college_id, cl.name AS college_name
+    SELECT s.*, b.name AS batch_name, b.section AS batch_section, b.course_id, c.name AS course_name, c.college_id, cl.name AS college_name
     FROM students s
     JOIN batches b ON b.id = s.batch_id
     JOIN courses c ON c.id = b.course_id
@@ -160,7 +160,7 @@ $colleges = $pdo->query("SELECT id, name FROM colleges ORDER BY name")->fetchAll
 
 // Guest entries for linking
 $guestStmt = $pdo->query("
-    SELECT g.*, b.name AS batch_name, t.title AS test_title
+    SELECT g.*, b.name AS batch_name, b.section AS batch_section, t.title AS test_title
     FROM guest_entries g
     LEFT JOIN batches b ON b.id = g.batch_id
     LEFT JOIN tests t ON t.id = g.test_id
@@ -257,11 +257,11 @@ $tests = $pdo->query("SELECT id, title FROM tests ORDER BY created_at DESC LIMIT
             <select class="form-select" name="batch_id" onchange="this.form.submit()">
                 <option value="">All Batches</option>
                 <?php
-                $bStmt = $pdo->prepare("SELECT id, name FROM batches WHERE course_id = ? ORDER BY name");
+                $bStmt = $pdo->prepare("SELECT id, name, section FROM batches WHERE course_id = ? ORDER BY name, section");
                 $bStmt->execute([$filterCourse]);
                 foreach ($bStmt->fetchAll() as $ba):
                 ?>
-                    <option value="<?= $ba['id'] ?>" <?= $filterBatch === $ba['id'] ? 'selected' : '' ?>><?= h($ba['name']) ?></option>
+                    <option value="<?= $ba['id'] ?>" <?= $filterBatch === $ba['id'] ? 'selected' : '' ?>><?= h($ba['name']) ?><?= $ba['section'] ? ' — ' . h($ba['section']) : '' ?></option>
                 <?php endforeach; ?>
             </select>
             <?php endif; ?>
@@ -308,7 +308,7 @@ $tests = $pdo->query("SELECT id, title FROM tests ORDER BY created_at DESC LIMIT
                         <td class="text-sm"><?= h($s['college_name']) ?></td>
                         <td>
                             <div><?= h($s['course_name']) ?></div>
-                            <div class="text-sm text-muted"><?= h($s['batch_name']) ?></div>
+                            <div class="text-sm text-muted"><?= h($s['batch_name']) ?><?= $s['batch_section'] ? ' — ' . h($s['batch_section']) : '' ?></div>
                         </td>
                         <td class="text-sm"><?= h($s['roll_number']) ?></td>
                         <td class="text-sm"><?= h($s['year_of_joining']) ?></td>
