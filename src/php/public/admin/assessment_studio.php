@@ -168,19 +168,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ─── Publish Assessment ─────────────────────────────────────
     elseif ($action === 'publish_now' && !empty($_POST['id'])) {
-        $pdo->prepare("UPDATE tests SET status = 'active' WHERE id = ? AND status = 'upcoming'")->execute([(int)$_POST['id']]);
-        $message = 'Assessment published and is now Live.';
-        redirect('/admin/assessment_management.php?tab=live');
+        $testIdPub = (int)$_POST['id'];
+        $pdo->prepare("UPDATE tests SET status = 'active' WHERE id = ? AND status = 'upcoming'")->execute([$testIdPub]);
+        $testTitle = '';
+        $tRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
+        $tRow->execute([$testIdPub]);
+        $tRow = $tRow->fetch();
+        if ($tRow) $testTitle = $tRow['title'];
+        redirect('/admin/assessment_management.php?tab=live&toast=published&title=' . urlencode($testTitle));
     }
     elseif ($action === 'schedule_publish' && !empty($_POST['id'])) {
+        $testIdSched = (int)$_POST['id'];
         $stmt = $pdo->prepare("UPDATE tests SET status = 'upcoming', start_time = ?, end_time = ? WHERE id = ? AND status = 'upcoming'");
         $stmt->execute([
             $_POST['start_time'] ?: null,
             $_POST['end_time'] ?: null,
-            (int)$_POST['id'],
+            $testIdSched,
         ]);
-        $message = 'Assessment scheduled.';
-        redirect('/admin/assessment_management.php?tab=upcoming');
+        $testTitle = '';
+        $tRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
+        $tRow->execute([$testIdSched]);
+        $tRow = $tRow->fetch();
+        if ($tRow) $testTitle = $tRow['title'];
+        redirect('/admin/assessment_management.php?tab=upcoming&toast=scheduled&title=' . urlencode($testTitle));
     }
 
     // ─── Delete Draft ───────────────────────────────────────────

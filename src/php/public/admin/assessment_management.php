@@ -91,6 +91,33 @@ if ($activeTab === 'live' && !empty($assessments)) {
         </div>
     <?php endif; ?>
 
+    <?php
+    // Toast notifications from query params (passed via redirect from assessment_studio)
+    $toastType = $_GET['toast'] ?? '';
+    $toastTitle = $_GET['title'] ?? '';
+    if ($toastType): ?>
+    <div class="toast-container" id="toastContainer">
+        <div class="toast toast-<?= $toastType === 'published' ? 'success' : ($toastType === 'scheduled' ? 'info' : 'success') ?>" id="activeToast">
+            <?php if ($toastType === 'published'): ?>
+            <svg viewBox="0 0 20 20" fill="currentColor" style="color:var(--green);"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg>
+            <div style="flex:1;">
+                <div style="font-weight:600;color:var(--gray-90);">Published Successfully</div>
+                <div style="color:var(--gray-50);margin-top:2px;"><?= $toastTitle ? h($toastTitle) . ' is now live and visible to students.' : 'Assessment is now live and visible to students.' ?></div>
+            </div>
+            <?php elseif ($toastType === 'scheduled'): ?>
+            <svg viewBox="0 0 20 20" fill="currentColor" style="color:var(--accent);"><path d="M5.5 2a.5.5 0 0 1 .5.5V3h8v-.5a.5.5 0 0 1 1 0V3h1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h1v-.5a.5.5 0 0 1 .5-.5zM4 4a1 1 0 0 0-1 1v1h14V5a1 1 0 0 0-1-1H4z"/></svg>
+            <div style="flex:1;">
+                <div style="font-weight:600;color:var(--gray-90);">Scheduled</div>
+                <div style="color:var(--gray-50);margin-top:2px;"><?= $toastTitle ? h($toastTitle) . ' has been scheduled for later publication.' : 'Assessment has been scheduled for later publication.' ?></div>
+            </div>
+            <?php endif; ?>
+            <button onclick="dismissToast()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--gray-40);flex-shrink:0;">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M4.09 4.09a.5.5 0 0 1 .7 0L10 9.29l5.2-5.2a.5.5 0 0 1 .7.7L10.7 10l5.2 5.2a.5.5 0 0 1-.7.7L10 10.7l-5.2 5.2a.5.5 0 0 1-.7-.7L9.29 10 4.09 4.8a.5.5 0 0 1 0-.7z"/></svg>
+            </button>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Page Header -->
     <div class="dashboard-header" style="margin-bottom:var(--space-4);">
         <div class="dashboard-header-left">
@@ -410,6 +437,16 @@ function openExtendModal(id, title) {
     document.getElementById('extendTitle').textContent = 'Extend time for "' + title + '"';
     document.getElementById('extendModal').style.display = 'flex';
 }
+
+// Toast auto-dismiss
+function dismissToast() {
+    var t = document.getElementById('activeToast');
+    if (t) { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; t.style.transition = 'all 0.3s ease'; setTimeout(function(){ var c = document.getElementById('toastContainer'); if (c) c.remove(); }, 300); }
+}
+(function(){
+    var toast = document.getElementById('activeToast');
+    if (toast) { setTimeout(dismissToast, 5000); }
+})();
 </script>
 
 <?php
@@ -417,13 +454,25 @@ function openExtendModal(id, title) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     if ($action === 'publish_now' && !empty($_POST['id'])) {
-        $pdo->prepare("UPDATE tests SET status = 'active' WHERE id = ? AND status = 'upcoming'")->execute([(int)$_POST['id']]);
-        redirect('/admin/assessment_management.php?tab=live');
+        $pubId = (int)$_POST['id'];
+        $pdo->prepare("UPDATE tests SET status = 'active' WHERE id = ? AND status = 'upcoming'")->execute([$pubId]);
+        $pubTitle = '';
+        $pubRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
+        $pubRow->execute([$pubId]);
+        $pubRow = $pubRow->fetch();
+        if ($pubRow) $pubTitle = $pubRow['title'];
+        redirect('/admin/assessment_management.php?tab=live&toast=published&title=' . urlencode($pubTitle));
     }
     if ($action === 'schedule_publish' && !empty($_POST['id'])) {
+        $schedId = (int)$_POST['id'];
         $stmt = $pdo->prepare("UPDATE tests SET start_time = ?, end_time = ? WHERE id = ? AND status = 'upcoming'");
-        $stmt->execute([$_POST['start_time'] ?: null, $_POST['end_time'] ?: null, (int)$_POST['id']]);
-        redirect('/admin/assessment_management.php?tab=upcoming');
+        $stmt->execute([$_POST['start_time'] ?: null, $_POST['end_time'] ?: null, $schedId]);
+        $schedTitle = '';
+        $schedRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
+        $schedRow->execute([$schedId]);
+        $schedRow = $schedRow->fetch();
+        if ($schedRow) $schedTitle = $schedRow['title'];
+        redirect('/admin/assessment_management.php?tab=upcoming&toast=scheduled&title=' . urlencode($schedTitle));
     }
 }
 ?>
