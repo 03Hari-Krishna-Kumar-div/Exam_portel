@@ -1,247 +1,184 @@
-Exam Portal
+🎓 Exam Portal
 
-A web-based Online Examination and Student Test Analysis Platform built using PHP, MySQL, JavaScript, HTML, CSS, and Python Flask.
+«A comprehensive web-based examination and student performance analysis platform for managing online assessments, students, tests, evaluations, and performance analytics.»
 
-The platform provides functionality for managing colleges, courses, batches, students, tests, questions, submissions, evaluations, and student performance analysis.
+📌 Overview
 
-📌 Project Overview
+Exam Portal is a full-stack web application designed to simplify and digitize the examination process for educational institutions.
 
-The Exam Portal is designed to simplify the process of conducting online examinations and analysing student performance.
+The platform provides administrators with tools to manage colleges, courses, batches, students, examinations, questions, and results. Students can participate in online examinations through a secure and structured interface, while the system records submissions and examination activity for further analysis.
 
-The system supports:
+The project also includes a dedicated Python Flask analytics service for calculating PCI (Performance/Competency Index) scores and generating performance analytics.
 
-- Admin management
+---
+
+✨ Key Features
+
+👨‍💼 Administration
+
+- Admin authentication
 - College management
 - Course and batch management
-- Student registration and management
-- Online tests/examinations
+- Student management
+- Examination management
+- Question management
+- Test scheduling
+- Student performance monitoring
+
+🧑‍🎓 Student Examination
+
+- Student registration and authentication
+- Online examination interface
 - Multiple question types
-- MCQ questions
+- MCQ-based questions
 - Coding questions
 - Explanation/descriptive questions
-- Student submissions
-- Automatic and manual evaluation support
-- Test timer
-- Tab-switch monitoring
-- Guest/QR-based test access
+- Examination timer
+- Test submission
+- Automatic submission handling
+- Guest/QR-based examination access
+
+📊 Evaluation & Analytics
+
+- Examination submission tracking
+- Question-level answer storage
+- Marks management
 - Student performance analysis
-- PCI (Performance/Competency Index) calculation
-- Analytics and charts
-- Notifications and system error reporting
+- PCI score calculation
+- Performance bands
+- Batch-level performance analysis
+- Student performance history
+- Analytical chart data
+- Tab-switch monitoring
+
+🔔 System Features
+
+- Notification support
+- OTP-related functionality
+- Soft-delete support
+- System error notifications
+- Database migrations
+- Test data seeding
+
+---
+
+🏗️ Architecture
+
+The application follows a modular architecture consisting of three major layers:
+
+                    ┌─────────────────────┐
+                    │      Frontend       │
+                    │ HTML / CSS / JS     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │    PHP Backend      │
+                    │   Apache / XAMPP    │
+                    └──────────┬──────────┘
+                               │
+                  ┌────────────┴────────────┐
+                  │                         │
+                  ▼                         ▼
+        ┌──────────────────┐      ┌──────────────────┐
+        │      MySQL       │      │   Flask API      │
+        │    Database      │      │ PCI / Analytics  │
+        └──────────────────┘      └────────┬─────────┘
+                                           │
+                                           ▼
+                                  ┌──────────────────┐
+                                  │ Performance      │
+                                  │ Analytics        │
+                                  └──────────────────┘
 
 ---
 
 🛠️ Technology Stack
 
-Frontend
-
-- HTML5
-- CSS3
-- JavaScript
-- Bootstrap / CSS-based UI components
-
-Backend
-
-- PHP
-- PHP PDO
-- MySQL
-
-Database
-
-- MySQL 8.0+
-- phpMyAdmin
-
-Local Server
-
-- XAMPP
-- Apache
-- MySQL
-
-Analysis Service
-
-- Python 3
-- Flask
-- MySQL Connector
-- Gunicorn
-
-Testing
-
-- Playwright
-- Node.js
-- npm
+Layer| Technology
+Frontend| HTML5, CSS3, JavaScript
+Backend| PHP
+Web Server| Apache
+Local Development| XAMPP
+Database| MySQL 8.0+
+Database Administration| phpMyAdmin
+Analytics API| Python, Flask
+Python Database Driver| mysql-connector-python
+Testing| Playwright
+Package Management| npm / pip
 
 ---
 
-💻 Requirements
+📋 Requirements
 
-Before setting up the project, make sure the following software is installed on your system.
+Before running the project, install the following:
 
-1. XAMPP
+Required
 
-Install XAMPP because the project uses PHP, Apache, and MySQL.
+- "XAMPP" (https://www.apachefriends.org/)
+- PHP (included with XAMPP)
+- MySQL (included with XAMPP)
+- phpMyAdmin (included with XAMPP)
+- Python 3.x
 
-XAMPP provides:
+Optional
 
-- Apache Web Server
-- PHP
-- MySQL/MariaDB
-- phpMyAdmin
-
-Download XAMPP from the official website:
-
-https://www.apachefriends.org/
-
-After installation, open the XAMPP Control Panel.
-
-Start:
-
-Apache
-MySQL
-
-Both services should be running before opening the application.
+- Node.js and npm — required for Playwright automated tests
+- Git — recommended for cloning the repository
+- Visual Studio Code or another code editor
 
 ---
 
-2. PHP
+🚀 Installation & Setup
 
-PHP is required because the main application is written in PHP.
-
-XAMPP already includes PHP, so a separate PHP installation is normally not required.
-
-Check your PHP version:
-
-php -v
-
-The project uses modern PHP features, so use a recent PHP version compatible with your XAMPP installation.
-
----
-
-3. MySQL
-
-The application uses MySQL as its database.
-
-XAMPP includes MySQL/MariaDB and phpMyAdmin.
-
-The project database is:
-
-test_platform
-
-The database schema is available at:
-
-sql/schema.sql
-
----
-
-4. Python
-
-Python is required for the PCI analysis API.
-
-Install Python 3.x and verify:
-
-python --version
-
-or:
-
-python3 --version
-
-The Python service uses the dependencies listed in:
-
-src/python/requirements.txt
-
-Current Python dependencies include:
-
-Flask 3.0.0
-mysql-connector-python 8.2.0
-gunicorn 21.2.0
-
----
-
-5. Node.js and npm
-
-Node.js and npm are required only if you want to run the automated Playwright tests.
-
-Check installation:
-
-node -v
-npm -v
-
-The project includes:
-
-package.json
-
-with Playwright configured for testing.
-
----
-
-📥 Installation
-
-Step 1: Clone the Repository
-
-Clone the project using Git:
+1. Clone the Repository
 
 git clone https://github.com/03Hari-Krishna-Kumar-div/Exam_portel.git
 
-Or download the repository as a ZIP file from GitHub and extract it.
+Navigate into the project:
+
+cd Exam_portel
 
 ---
 
-📂 Step 2: Move the Project to XAMPP
+2. Configure XAMPP
 
-Copy the project into the XAMPP "htdocs" directory.
+Install and open XAMPP Control Panel.
 
-For a default Windows XAMPP installation:
-
-C:\xampp\htdocs\
-
-The recommended folder structure for the current configuration is:
-
-C:\xampp\htdocs\test-platform\
-
-The project should look approximately like:
-
-C:\xampp\htdocs\test-platform\
-│
-├── assets\
-├── docs\
-├── sql\
-├── src\
-│   ├── php\
-│   │   ├── api\
-│   │   ├── config\
-│   │   ├── includes\
-│   │   └── public\
-│   │
-│   └── python\
-│       ├── analysis\
-│       ├── app.py
-│       └── requirements.txt
-│
-├── router.php
-├── package.json
-└── ...
-
-«Important: The repository is named "Exam_portel", but the current PHP configuration expects the XAMPP folder/path to be "test-platform". If you keep the folder name as "Exam_portel", update the "BASE_URL" value in "src/php/config/db.php".»
-
----
-
-🗄️ Step 3: Start XAMPP
-
-Open:
-
-XAMPP Control Panel
-
-Start:
+Start the following services:
 
 Apache
 MySQL
 
-Make sure both services show as running.
+Both services must be running before accessing the application.
 
 ---
 
-🗃️ Step 4: Create the Database
+3. Move the Project to "htdocs"
 
-Open phpMyAdmin in your browser:
+Copy the project into the XAMPP "htdocs" directory.
+
+Windows
+
+C:\xampp\htdocs\
+
+For the current configuration, the recommended folder name is:
+
+C:\xampp\htdocs\test-platform\
+
+Therefore, the final path should be:
+
+C:\xampp\htdocs\test-platform\
+
+«Important: The repository is named "Exam_portel", but the current PHP configuration uses "/test-platform" as the Apache base path. If you use another folder name, update "BASE_URL" in "src/php/config/db.php".»
+
+---
+
+🗄️ Database Setup
+
+4. Open phpMyAdmin
+
+Open:
 
 http://localhost/phpmyadmin/
 
@@ -249,148 +186,110 @@ Create a database named:
 
 test_platform
 
-Alternatively, the provided schema already contains:
-
-CREATE DATABASE IF NOT EXISTS test_platform;
-
-So you can import the schema directly.
+The project's database schema already contains the database creation statement, so you can also import it directly.
 
 ---
 
-📥 Step 5: Import the Database Schema
+5. Import the Database Schema
 
 In phpMyAdmin:
 
-1. Open "http://localhost/phpmyadmin/"
-2. Select the "test_platform" database.
-3. Click Import.
-4. Select:
+1. Select the "test_platform" database.
+2. Click Import.
+3. Select:
 
 sql/schema.sql
 
-5. Click Go.
+4. Click Go.
 
-The schema creates the required tables for:
+The schema creates the core database structure required by the application, including tables for:
 
-- Admins
+- Administrators
 - Colleges
 - Courses
 - Batches
 - Students
-- Guest entries
 - Tests
 - Questions
 - Submissions
 - Student answers
 - Tab-switch logs
 - PCI records
+- Guest entries
 
-The database schema uses MySQL 8.0+ and "utf8mb4".
-
----
-
-🔐 Default Admin Login
-
-The database schema contains a seeded administrator account.
-
-Email: admin@testplatform.com
-Password: admin123
-
-For security, change the default administrator password after the first login.
-
-«Do not use the default password in a production environment.»
+The database uses MySQL 8.0+, "InnoDB", and "utf8mb4".
 
 ---
 
-⚙️ Step 6: Configure the PHP Database Connection
+⚙️ Backend Configuration
 
-The database configuration file is:
+6. Configure Database Connection
+
+The PHP database configuration is located at:
 
 src/php/config/db.php
 
-The default local XAMPP configuration is:
+The default XAMPP configuration is:
 
-define('DB_HOST', '127.0.0.1');
-define('DB_PORT', '3306');
-define('DB_NAME', 'test_platform');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+DB_HOST = 127.0.0.1
+DB_PORT = 3306
+DB_NAME = test_platform
+DB_USER = root
+DB_PASS = ''
 
-This means the application expects:
+In the current project configuration, these values are already configured for a standard local XAMPP installation.
 
-Host:     127.0.0.1
-Port:     3306
-Database: test_platform
-Username: root
-Password: empty
-
-If your XAMPP MySQL installation uses a password, update:
-
-define('DB_PASS', 'your_password');
+If your MySQL installation uses a password, update the "DB_PASS" value accordingly.
 
 ---
 
-🌐 Step 7: Configure the Project URL
+🌐 Running the PHP Application
 
-The current "db.php" configuration uses:
+7. Start the Application
 
-/test-platform/src/php/public
-
-for the Apache/XAMPP environment.
-
-Therefore, if your project is located at:
-
-C:\xampp\htdocs\test-platform
-
-the application can be accessed through:
+With Apache and MySQL running, open:
 
 http://localhost/test-platform/src/php/public/
 
-If you want to use a different project folder name, update the following value in:
+If you keep the original project folder name instead of "test-platform", update the "BASE_URL" configuration in:
 
 src/php/config/db.php
 
-For example:
-
-define('BASE_URL', '/Exam_portel/src/php/public');
-
-if the project is located at:
-
-C:\xampp\htdocs\Exam_portel
-
-Also make sure the corresponding asset path is correct.
+and use the corresponding URL.
 
 ---
 
-🚀 Step 8: Run the PHP Application
+🐍 Python Analytics Service
 
-After starting Apache and MySQL, open:
+The project contains a separate Flask-based service responsible for PCI calculation and analytics.
 
-http://localhost/test-platform/src/php/public/
+The Python service is located at:
 
-If you renamed the folder to "Exam_portel" and updated "BASE_URL", use:
+src/python/
 
-http://localhost/Exam_portel/src/php/public/
-
----
-
-🐍 Step 9: Set Up the Python PCI Analysis API
-
-The project contains a Python Flask service for PCI calculation and analytics.
-
-Python source:
+The main application is:
 
 src/python/app.py
 
-Requirements:
+The required dependencies are defined in:
 
 src/python/requirements.txt
 
-Navigate to the Python directory:
+Current dependencies include:
+
+Flask==3.0.0
+mysql-connector-python==8.2.0
+gunicorn==21.2.0
+
+---
+
+8. Create a Python Virtual Environment
+
+From the project root:
 
 cd src/python
 
-Create a virtual environment:
+Create the environment:
 
 Windows
 
@@ -400,84 +299,64 @@ Activate it:
 
 venv\Scripts\activate
 
-Linux/macOS
+Linux / macOS
 
 python3 -m venv venv
 
-Activate it:
+Activate:
 
 source venv/bin/activate
 
 ---
 
-📦 Step 10: Install Python Dependencies
-
-Run:
+9. Install Python Dependencies
 
 pip install -r requirements.txt
 
-The project currently requires:
-
-flask==3.0.0
-mysql-connector-python==8.2.0
-gunicorn==21.2.0
-
 ---
 
-▶️ Step 11: Start the Python API
+10. Start the Flask Service
 
-From:
-
-src/python
-
-run:
+Run:
 
 python app.py
 
-The Python service is configured to use:
+The PHP application is configured to communicate with the Python service through:
 
 http://127.0.0.1:5000
 
-The service provides endpoints for:
+The API provides endpoints for health checks, PCI calculation, student performance history, batch analytics, and chart data.
 
-GET  /health
-POST /api/pci/calculate
-GET  /api/pci/batch/<test_id>
-GET  /api/pci/student/<student_id>
-GET  /api/charts/test/<test_id>
-
-The "/health" endpoint can be used to verify that the Python service is running.
+Health Check
 
 Open:
 
 http://127.0.0.1:5000/health
 
-Expected response:
-
-{
-  "status": "ok",
-  "service": "pci-analysis"
-}
+A successful service should return a response indicating that the "pci-analysis" service is running.
 
 ---
 
-🔗 PHP + Python Communication
+🔌 API Endpoints
 
-The PHP configuration contains the Python API URL:
+The Flask analytics service currently exposes endpoints including:
 
-define('PYTHON_API_URL', 'http://127.0.0.1:5000');
-
-Therefore, when using the analysis functionality, make sure the Python Flask service is running on port:
-
-5000
+Method| Endpoint| Description
+"GET"| "/health"| Service health check
+"POST"| "/api/pci/calculate"| Calculate PCI for a submission
+"GET"| "/api/pci/batch/<test_id>"| Retrieve PCI results for a test
+"GET"| "/api/pci/student/<student_id>"| Retrieve student PCI history
+"GET"| "/api/charts/test/<test_id>"| Retrieve test chart data
 
 ---
 
-🧪 Automated Testing
+🧪 Testing
 
-The project contains Playwright-based automated tests.
+The project includes Playwright-based automated testing.
 
-Install Node.js dependencies from the project root:
+Install Node Dependencies
+
+From the project root:
 
 npm install
 
@@ -485,26 +364,27 @@ Install Playwright browsers:
 
 npx playwright install
 
-Run tests:
+Run the test suite:
 
 npm test
 
-Run tests with the browser visible:
+Run tests in headed mode:
 
 npm run test:headed
 
-View the Playwright test report:
+View the Playwright report:
 
 npm run test:report
 
+The project's "package.json" currently defines these Playwright commands.
+
 ---
 
-📁 Important Project Directories
+📁 Project Structure
 
 Exam_portel/
 │
 ├── assets/
-│   └── css/
 │
 ├── docs/
 │
@@ -520,6 +400,7 @@ Exam_portel/
 │   └── seed_test_data.php
 │
 ├── src/
+│   │
 │   ├── php/
 │   │   ├── api/
 │   │   ├── config/
@@ -533,242 +414,254 @@ Exam_portel/
 │       ├── app.py
 │       └── requirements.txt
 │
-├── tests/
-│
-├── router.php
 ├── package.json
-└── ...
+├── router.php
+└── README.md
 
 ---
 
-🗄️ Database Migrations
+🗃️ Database Migrations
 
-Additional SQL migration files are available inside:
+Additional database migrations are available in:
 
 sql/
 
-These include migrations for functionality such as:
+These migrations provide additional functionality such as:
 
-- College wizard
+- College wizard support
 - Notifications
-- OTP
-- Soft delete
+- OTP functionality
+- Soft deletion
 - Stream categories
-- Student timestamps
-- Unverified users
+- Student timestamp updates
+- Unverified user handling
 
-If you are setting up a fresh installation, start with:
+For a fresh installation, start with:
 
 sql/schema.sql
 
-Then apply additional migration files when required by the version of the application you are using.
+Apply additional migrations according to the features/version required by your deployment.
 
 ---
 
-🔧 Troubleshooting
+🔐 Default Administrator
 
-Apache is not starting
+The database schema contains a default administrator account:
 
-If Apache does not start, another application may already be using port "80" or "443".
+Email:    admin@testplatform.com
+Password: admin123
 
-Check the XAMPP Control Panel and Apache configuration.
-
-You can also configure Apache to use another port if necessary.
-
----
-
-MySQL is not starting
-
-Make sure another MySQL/MariaDB service is not already running on port:
-
-3306
-
-Check your XAMPP MySQL configuration.
+«⚠️ Security: Change the default password immediately after the first login. Never use the default credentials in a production environment.»
 
 ---
 
-Database Connection Error
+🔒 Security Considerations
 
-If you see a database connection error, verify:
+Before deploying the application to production:
 
-Host: 127.0.0.1
-Port: 3306
-Database: test_platform
-Username: root
-Password: your configured password
+- Change all default credentials.
+- Configure a strong MySQL password.
+- Store credentials using environment variables.
+- Do not commit secrets or passwords to Git.
+- Enable HTTPS.
+- Configure secure session cookies.
+- Validate all user input.
+- Use prepared SQL statements.
+- Restrict database permissions.
+- Disable unnecessary PHP error output in production.
+- Configure the Flask service securely.
+- Review CORS and API access policies.
+- Keep PHP, Python, MySQL, Node.js, and dependencies updated.
+
+---
+
+🐛 Troubleshooting
+
+Database Connection Failed
 
 Check:
 
+Host:     127.0.0.1
+Port:     3306
+Database: test_platform
+Username: root
+Password: your MySQL password
+
+Then verify:
+
 src/php/config/db.php
 
 ---
 
-404 Error
+404 / Page Not Found
 
-If the application displays a 404 error, check:
-
-1. Apache is running.
-2. The project is inside "xampp/htdocs".
-3. The project folder name is correct.
-4. The URL matches the folder name.
-5. "BASE_URL" in "src/php/config/db.php" matches the project path.
-
-For the default configuration:
-
-C:\xampp\htdocs\test-platform
-
-use:
-
-http://localhost/test-platform/src/php/public/
-
----
-
-Python API Not Working
-
-Check whether the Flask server is running:
-
-python src/python/app.py
-
-Then open:
-
-http://127.0.0.1:5000/health
-
-If the service does not start, reinstall the dependencies:
-
-cd src/python
-pip install -r requirements.txt
-
----
-
-MySQL Connector Error in Python
-
-Install the required connector:
-
-pip install mysql-connector-python==8.2.0
-
----
-
-Playwright Tests Not Working
-
-Install dependencies:
-
-npm install
-
-Then install browsers:
-
-npx playwright install
-
-Run:
-
-npm test
-
----
-
-🔒 Security Notes
-
-This project is intended primarily for development and educational/testing purposes.
-
-Before deploying to production:
-
-- Change the default admin password.
-- Do not use an empty MySQL password.
-- Use environment variables for sensitive credentials.
-- Do not commit passwords or API secrets.
-- Configure HTTPS.
-- Restrict database access.
-- Review PHP error handling.
-- Configure secure session cookies.
-- Validate and sanitize all user input.
-- Use prepared statements for database queries.
-- Configure the production Python server properly.
-
----
-
-📝 Quick Setup Summary
-
-For a quick local setup using XAMPP:
-
-1. Install XAMPP
-
-Install XAMPP and start:
-
-Apache
-MySQL
-
-2. Copy the project
-
-Place the project inside:
+Verify that the project is inside:
 
 C:\xampp\htdocs\
 
-Recommended:
+and that Apache is running.
+
+For the default configuration:
 
 C:\xampp\htdocs\test-platform\
 
-3. Create the database
-
-Open:
-
-http://localhost/phpmyadmin/
-
-Create/import:
-
-test_platform
-
-Import:
-
-sql/schema.sql
-
-4. Check database configuration
-
-Open:
-
-src/php/config/db.php
-
-Make sure the local configuration is:
-
-DB_HOST = 127.0.0.1
-DB_PORT = 3306
-DB_NAME = test_platform
-DB_USER = root
-DB_PASS = empty
-
-5. Open the application
+open:
 
 http://localhost/test-platform/src/php/public/
 
-6. Set up Python analysis
+---
+
+Flask API Not Available
+
+Check whether the Python service is running:
+
+python src/python/app.py
+
+Then test:
+
+http://127.0.0.1:5000/health
+
+---
+
+Python Dependency Error
+
+Run:
 
 cd src/python
-python -m venv venv
-venv\Scripts\activate
 pip install -r requirements.txt
-python app.py
 
-Python API:
+---
 
-http://127.0.0.1:5000
+Playwright Test Error
 
-7. Optional: Run automated tests
-
-From the project root:
+Run:
 
 npm install
 npx playwright install
+
+Then:
+
 npm test
 
 ---
 
-👤 Default Admin Account
+📈 Performance Analysis
 
-Email: admin@testplatform.com
-Password: admin123
+The platform includes a dedicated PCI analysis component.
 
-Change this password after the first login.
+The Python service processes examination performance data and calculates:
+
+- MCQ performance
+- Coding performance
+- Explanation performance
+- Overall PCI score
+- Performance bands
+- Student performance history
+- Batch-level statistics
+- Distribution data
+- Chart data
+
+The PHP application communicates with the Python service through the configured:
+
+PYTHON_API_URL
+
+which defaults to:
+
+http://127.0.0.1:5000
 
 ---
 
-📚 Repository
+🚀 Quick Start
+
+For developers who want to get the application running quickly:
+
+# 1. Clone
+git clone https://github.com/03Hari-Krishna-Kumar-div/Exam_portel.git
+
+# 2. Enter project
+cd Exam_portel
+
+# 3. Copy project to XAMPP htdocs
+# C:\xampp\htdocs\test-platform\
+
+# 4. Start Apache and MySQL from XAMPP
+
+# 5. Import database
+# sql/schema.sql
+
+# 6. Install Python dependencies
+cd src/python
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+pip install -r requirements.txt
+
+# 7. Start Python API
+python app.py
+
+# 8. From another terminal, install frontend test dependencies
+cd ../..
+npm install
+npx playwright install
+
+Then open:
+
+http://localhost/test-platform/src/php/public/
+
+---
+
+📌 Development Notes
+
+The application supports both:
+
+- Local XAMPP/Apache deployment
+- PHP development-server style routing
+
+The repository also includes "router.php", which provides routing support for the PHP built-in development server and handles application paths, assets, APIs, and clean URLs.
+
+For a standard student/developer setup, XAMPP + Apache + MySQL + Python Flask is recommended.
+
+---
+
+🤝 Contributing
+
+Contributions, improvements, and bug fixes are welcome.
+
+To contribute:
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Make your changes.
+4. Test the changes locally.
+5. Commit your changes.
+6. Push the branch.
+7. Open a Pull Request.
+
+Example:
+
+git checkout -b feature/new-feature
+
+git add .
+
+git commit -m "Add new feature"
+
+git push origin feature/new-feature
+
+---
+
+📜 License
+
+This project is currently maintained as an academic/development project.
+
+Refer to the repository for the latest project information and licensing details.
+
+---
+
+👨‍💻 Author
+
+03Hari-Krishna-Kumar-div
 
 GitHub Repository:
 
@@ -776,8 +669,8 @@ https://github.com/03Hari-Krishna-Kumar-div/Exam_portel
 
 ---
 
-📄 License
+⭐ Support
 
-This project is currently maintained as a development/academic project.
+If you find this project useful, consider giving the repository a ⭐ on GitHub.
 
-Refer to the repository for the latest source code, documentation, and project updates.
+Built for modern, efficient, and data-driven online examinations.
