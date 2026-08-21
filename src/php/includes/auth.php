@@ -89,10 +89,14 @@ function logFailedLogin(
 function isBruteForceLocked(string $email): bool {
     try {
         $pdo = getDB();
+        // Exclude 'invalid_email' entries — those are "email not found" lookups
+        // (e.g. studentLogin looking up an admin email), not actual wrong-password
+        // attempts. Counting them would let studentLogin brute-force-lock an admin.
         $stmt = $pdo->prepare("
             SELECT COUNT(*) AS attempts
             FROM failed_login_log
-            WHERE email = ? AND attempted_at >= DATE_SUB(NOW(), INTERVAL ? SECOND)
+            WHERE email = ? AND attempt_type != 'invalid_email'
+              AND attempted_at >= DATE_SUB(NOW(), INTERVAL ? SECOND)
         ");
         $stmt->execute([$email, BRUTE_FORCE_WINDOW]);
         $row = $stmt->fetch();

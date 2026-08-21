@@ -99,6 +99,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = 'Question deleted.';
     }
 
+    // ─── Reorder Question ───────────────────────────────────────
+    elseif ($action === 'reorder_question' && !empty($_POST['question_id']) && !empty($_POST['direction'])) {
+        $qid = (int)$_POST['question_id'];
+        $dir = $_POST['direction'] === 'up' ? 'up' : 'down';
+        $testIdForReorder = (int)($_POST['test_id'] ?? 0);
+
+        // Get the current question
+        $cur = $pdo->prepare("SELECT id, sort_order FROM questions WHERE id = ?");
+        $cur->execute([$qid]);
+        $cur = $cur->fetch();
+        if ($cur && $testIdForReorder > 0) {
+            if ($dir === 'up') {
+                // Find the question directly above (lower sort_order, or same sort_order but lower id)
+                $adj = $pdo->prepare("SELECT id, sort_order FROM questions WHERE test_id = ? AND (sort_order < ? OR (sort_order = ? AND id < ?)) ORDER BY sort_order DESC, id DESC LIMIT 1");
+                $adj->execute([$testIdForReorder, $cur['sort_order'], $cur['sort_order'], $cur['id']]);
+            } else {
+                // Find the question directly below
+                $adj = $pdo->prepare("SELECT id, sort_order FROM questions WHERE test_id = ? AND (sort_order > ? OR (sort_order = ? AND id > ?)) ORDER BY sort_order ASC, id ASC LIMIT 1");
+                $adj->execute([$testIdForReorder, $cur['sort_order'], $cur['sort_order'], $cur['id']]);
+            }
+            $adj = $adj->fetch();
+            if ($adj) {
+                // Swap sort_order values
+                $pdo->prepare("UPDATE questions SET sort_order = ? WHERE id = ?")->execute([(int)$adj['sort_order'], $qid]);
+                $pdo->prepare("UPDATE questions SET sort_order = ? WHERE id = ?")->execute([(int)$cur['sort_order'], $adj['id']]);
+                $message = 'Question order updated.';
+            }
+        }
+        redirect('/admin/assessment_studio.php?edit_test=' . $testIdForReorder . '&step=2&view=reorder');
+    }
+
     // ─── CSV Import ─────────────────────────────────────────────
     elseif ($action === 'import_csv' && !empty($_POST['test_id']) && !empty($_FILES['csv_file']['tmp_name'])) {
         $testId = (int)$_POST['test_id'];
@@ -199,6 +230,7 @@ $drafts = $pdo->query("
 ")->fetchAll();
 
 $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
+$isReorderView = isset($_GET['view']) && $_GET['view'] === 'reorder' && $editTestId > 0 && $editTest;
 ?>
 
 <div class="studio-page">
@@ -273,8 +305,8 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
             </div>
         <?php endif; ?>
 
-    <?php elseif ($editTestId > 0 && $editTest): ?>
-        <!-- ═══════════════ EDITING DRAFT — STEP 2 & 3 ═══════════════ -->
+    <?php elseif ($editTestId > 0 && $editTest && !(isset($_GET['step']) && $_GET['step'] == 3)): ?>
+        <!-- ═══════════════ EDITING DRAFT — STEP 2 ═══════════════ -->
 
         <a href="assessment_studio.php" class="studio-back">
             <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.65 3.15a.5.5 0 0 0-.7-.7l-6.5 6.5a.5.5 0 0 0 0 .7l6.5 6.5a.5.5 0 0 0 .7-.7L3.2 10H17.5a.5.5 0 0 0 0-1H3.2l5.45-5.85z"/></svg>
@@ -417,6 +449,21 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
                         <div class="studio-section">
                             <div class="studio-section-header">
                                 <div class="studio-section-title">Questions (<?= count($questions) ?>)</div>
+                                <?php if (!empty($questions)): ?>
+                                <div style="display:flex;gap:var(--space-2);align-items:center;">
+                                    <?php if ($isReorderView): ?>
+                                        <a href="assessment_studio.php?edit_test=<?= $editTestId ?>&step=2" class="studio-btn studio-btn-sm studio-btn-secondary">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg>
+                                            Done Reordering
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="assessment_studio.php?edit_test=<?= $editTestId ?>&step=2&view=reorder" class="studio-btn studio-btn-sm studio-btn-ghost">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M3 4a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1zm4 0a1 1 0 0 1 1-1h9a1 1 0 0 1 0 2H8a1 1 0 0 1-1-1zm-4 4a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1zm4 0a1 1 0 0 1 1-1h9a1 1 0 0 1 0 2H8a1 1 0 0 1-1-1zm-4 4a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1zm4 0a1 1 0 0 1 1-1h9a1 1 0 0 1 0 2H8a1 1 0 0 1-1-1zm-4 4a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1zm4 0a1 1 0 0 1 1-1h9a1 1 0 0 1 0 2H8a1 1 0 0 1-1-1z"/></svg>
+                                            Reorder
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endif; ?>
                             </div>
                             <?php if (empty($questions)): ?>
                                 <div class="studio-empty">
@@ -428,6 +475,34 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
                                 <div>
                                     <?php foreach ($questions as $i => $q): ?>
                                     <div class="studio-question-item">
+                                        <?php if ($isReorderView): ?>
+                                        <div class="studio-question-meta" style="gap:2px;margin-right:var(--space-2);">
+                                            <?php if ($i > 0): ?>
+                                            <form method="POST" style="display:inline">
+                                                <?= csrfField() ?>
+                                                <input type="hidden" name="action" value="reorder_question">
+                                                <input type="hidden" name="question_id" value="<?= $q['id'] ?>">
+                                                <input type="hidden" name="direction" value="up">
+                                                <input type="hidden" name="test_id" value="<?= $editTestId ?>">
+                                                <button type="submit" class="studio-question-delete" data-tooltip="Move Up" style="color:var(--accent);">
+                                                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 4.5a.5.5 0 0 1 .5.5v8.793l3.15-3.15a.5.5 0 0 1 .7.7l-4 4a.5.5 0 0 1-.7 0l-4-4a.5.5 0 0 1 .7-.7L9.5 13.793V5a.5.5 0 0 1 .5-.5z"/></svg>
+                                                </button>
+                                            </form>
+                                            <?php endif; ?>
+                                            <?php if ($i < count($questions) - 1): ?>
+                                            <form method="POST" style="display:inline">
+                                                <?= csrfField() ?>
+                                                <input type="hidden" name="action" value="reorder_question">
+                                                <input type="hidden" name="question_id" value="<?= $q['id'] ?>">
+                                                <input type="hidden" name="direction" value="down">
+                                                <input type="hidden" name="test_id" value="<?= $editTestId ?>">
+                                                <button type="submit" class="studio-question-delete" data-tooltip="Move Down" style="color:var(--accent);">
+                                                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 15.5a.5.5 0 0 1-.5-.5V6.207l-3.15 3.15a.5.5 0 0 1-.7-.7l4-4a.5.5 0 0 1 .7 0l4 4a.5.5 0 0 1-.7.7L10.5 6.207V15a.5.5 0 0 1-.5.5z"/></svg>
+                                                </button>
+                                            </form>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php endif; ?>
                                         <div class="studio-question-number"><?= $i + 1 ?></div>
                                         <div class="studio-question-text"><?= h(mb_substr($q['question_text'], 0, 120)) ?><?= mb_strlen($q['question_text']) > 120 ? '...' : '' ?></div>
                                         <div class="studio-question-meta">
@@ -435,6 +510,7 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
                                                 <?= ucfirst($q['type']) ?>
                                             </span>
                                             <span class="badge badge-neutral"><?= $q['marks'] ?> pts</span>
+                                            <?php if (!$isReorderView): ?>
                                             <form method="POST" style="display:inline" onsubmit="return confirm('Delete this question?')">
                                                 <?= csrfField() ?>
                                                 <input type="hidden" name="action" value="delete_question">
@@ -443,12 +519,49 @@ $showDrafts = isset($_GET['tab']) && $_GET['tab'] === 'drafts';
                                                     <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.5 2.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1V3h3.5a.5.5 0 0 1 0 1h-.55l-.77 11.57A2 2 0 0 1 11.7 17H8.3a2 2 0 0 1-2-1.93L5.55 4H5a.5.5 0 0 1 0-1h3.5V2.5z"/></svg>
                                                 </button>
                                             </form>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
+
+                        <?php if ($isReorderView && !empty($questions)): ?>
+                        <!-- Live Preview (inline) -->
+                        <div class="studio-section" style="margin-top:var(--space-5);">
+                            <div class="studio-section-header">
+                                <div class="studio-section-title">Preview — Student View</div>
+                                <div class="studio-section-subtitle">How students will see the questions in this order.</div>
+                            </div>
+                            <div style="background:var(--surface);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:var(--space-5);">
+                                <?php foreach ($questions as $pi => $pq): ?>
+                                <div style="padding:var(--space-4);<?= $pi > 0 ? 'border-top:1px solid var(--gray-10);' : '' ?>">
+                                    <div style="display:flex;align-items:flex-start;gap:var(--space-3);">
+                                        <div style="min-width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--fs-12);"><?= $pi + 1 ?></div>
+                                        <div style="flex:1;">
+                                            <div style="font-weight:500;color:var(--gray-80);line-height:1.5;"><?= h($pq['question_text']) ?></div>
+                                            <?php if ($pq['type'] === 'mcq' && !empty($pq['options_json'])): ?>
+                                            <div style="margin-top:var(--space-2);display:flex;flex-direction:column;gap:var(--space-1);">
+                                                <?php foreach (json_decode($pq['options_json'], true) as $opt): ?>
+                                                <div style="display:flex;align-items:center;gap:var(--space-2);padding:var(--space-1) var(--space-2);background:var(--gray-05);border-radius:var(--radius-sm);font-size:var(--fs-13);color:var(--gray-60);">
+                                                    <span style="font-weight:600;color:var(--gray-70);"><?= h($opt['key']) ?>.</span> <?= h($opt['text']) ?>
+                                                </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                            <?php elseif ($pq['type'] === 'coding'): ?>
+                                            <div style="margin-top:var(--space-2);padding:var(--space-2) var(--space-3);background:var(--gray-05);border-radius:var(--radius-sm);font-size:var(--fs-12);color:var(--gray-50);font-family:var(--font-mono);">Code editor will appear here</div>
+                                            <?php elseif ($pq['type'] === 'explanation'): ?>
+                                            <div style="margin-top:var(--space-2);padding:var(--space-2) var(--space-3);background:var(--gray-05);border-radius:var(--radius-sm);font-size:var(--fs-12);color:var(--gray-50);">Text area for explanation</div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <span class="badge badge-neutral" style="flex-shrink:0;"><?= $pq['marks'] ?> pts</span>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
 
                         <div class="studio-card-footer" style="border-top: 1px solid var(--glass-border); margin-top: var(--space-6); padding: var(--space-5) 0 0;">
                             <a href="assessment_studio.php?edit_test=<?= $editTestId ?>&step=1" class="studio-btn studio-btn-secondary">
