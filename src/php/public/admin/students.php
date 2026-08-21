@@ -423,7 +423,7 @@ function loadGuestCourses() {
     select.innerHTML = '<option value="">Loading...</option>'; select.disabled = true;
     document.getElementById('guest_batch_id').innerHTML = '<option value="">Select Course first</option>'; document.getElementById('guest_batch_id').disabled = true;
     if (!collegeId) { select.innerHTML = '<option value="">Select College</option>'; return; }
-    fetch(API_URL + '/get_courses.php?college_id=' + collegeId)
+    fetch(API_URL + '/get_courses.php?college_id=' + collegeId + '&active=1')
         .then(r => r.json()).then(data => {
             select.innerHTML = '<option value="">Select Course</option>';
             data.forEach(c => { select.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>'; });
@@ -436,7 +436,7 @@ function loadGuestBatches() {
     const select = document.getElementById('guest_batch_id');
     select.innerHTML = '<option value="">Loading...</option>'; select.disabled = true;
     if (!courseId) { select.innerHTML = '<option value="">Select Course first</option>'; return; }
-    fetch(API_URL + '/get_batches.php?course_id=' + courseId)
+    fetch(API_URL + '/get_batches.php?course_id=' + courseId + '&active=1')
         .then(r => r.json()).then(data => {
             select.innerHTML = '<option value="">Select Batch</option>';
             data.forEach(b => { select.innerHTML += '<option value="' + b.id + '">' + b.name + '</option>'; });

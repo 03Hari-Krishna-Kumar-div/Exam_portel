@@ -312,8 +312,7 @@ $remaining = max(0, $totalSeconds - $elapsed);
             <?php endforeach; ?>
 
             <div style="text-align:center;padding:24px 0 48px;">
-                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn"
-                        onclick="return confirm('Are you sure you want to submit? This action cannot be undone.')">
+                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
                     <?= icon('check-circle', 18) ?> Submit Test
                 </button>
             </div>
@@ -321,6 +320,45 @@ $remaining = max(0, $totalSeconds - $elapsed);
     </div>
 
     <script>
+    // ─── Idempotent submission guard ─────────────────────────
+    // One submit per interaction session: double-clicks, timer auto-submit
+    // and stray auto-saves can never flip the submission twice. The server
+    // additionally enforces idempotency with a conditional status transition
+    // and UNIQUE KEY upserts on student_answers.
+    let isSubmitting = false;
+    const submitBtn = document.getElementById('submitBtn');
+    const testForm = document.getElementById('testForm');
+
+    function lockSubmissionUI() {
+        isSubmitting = true;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting…';
+        }
+    }
+
+    function requestSubmission(askConfirm) {
+        if (isSubmitting) return;
+        if (askConfirm && !confirm('Are you sure you want to submit? This action cannot be undone.')) return;
+        lockSubmissionUI();
+        testForm.submit(); // native submit (runs the idempotent server path)
+    }
+
+    // Guard the browser-native submit path (Enter key / non-JS fallback)
+    testForm.addEventListener('submit', function(e) {
+        if (isSubmitting) {
+            e.preventDefault();
+            return false;
+        }
+        if (!confirm('Are you sure you want to submit? This action cannot be undone.')) {
+            e.preventDefault();
+            return false;
+        }
+        lockSubmissionUI();
+    });
+
+    if (submitBtn) submitBtn.addEventListener('click', function() { requestSubmission(true); });
+
     // ─── Timer ──────────────────────────────────────────────
     let remainingSeconds = <?= $remaining ?>;
     const timerDisplay = document.getElementById('timerDisplay');
@@ -329,7 +367,7 @@ $remaining = max(0, $totalSeconds - $elapsed);
         remainingSeconds--;
         if (remainingSeconds <= 0) {
             timerDisplay.textContent = '00:00:00';
-            document.getElementById('testForm').submit();
+            requestSubmission(false); // guarded — no confirm on timeout
             return;
         }
         const h = Math.floor(remainingSeconds / 3600);
@@ -378,6 +416,7 @@ $remaining = max(0, $totalSeconds - $elapsed);
 
     // ─── Auto-save on answer change ─────────────────────────
     let autoSaveTimer;
+    let autoSaveInFlight = false;
     document.querySelectorAll('input[name^="answer["], textarea[name^="answer["]').forEach(el => {
         el.addEventListener('change', function() {
             clearTimeout(autoSaveTimer);
@@ -386,6 +425,9 @@ $remaining = max(0, $totalSeconds - $elapsed);
     });
 
     function autoSave() {
+        // Never auto-save after submission started, and never overlap requests
+        if (isSubmitting || autoSaveInFlight) return;
+        autoSaveInFlight = true;
         const form = document.getElementById('testForm');
         const formData = new FormData(form);
         formData.append('auto_save', '1');
@@ -393,7 +435,9 @@ $remaining = max(0, $totalSeconds - $elapsed);
         fetch('<?= $apiUrl ?>/submit_answer.php', {
             method: 'POST',
             body: formData
-        }).catch(() => {});
+        })
+        .catch(() => {})
+        .finally(() => { autoSaveInFlight = false; });
     }
 
     // ─── Tab Switch Detection ───────────────────────────────

@@ -13,7 +13,14 @@ if ($courseId <= 0) {
 }
 
 $pdo = getDB();
-$stmt = $pdo->prepare("SELECT id, name FROM batches WHERE course_id = ? ORDER BY name");
+// Soft-delete awareness: ?active=1 excludes archived batches (used by creation
+// flows). By default ALL batches are returned so retained/archived records stay
+// manageable in edit flows and student management screens.
+if (isset($_GET['active']) && (int)$_GET['active'] === 1) {
+    $stmt = $pdo->prepare("SELECT id, name FROM batches WHERE course_id = ? AND status = 'active' ORDER BY name");
+} else {
+    $stmt = $pdo->prepare("SELECT id, name FROM batches WHERE course_id = ? ORDER BY name");
+}
 $stmt->execute([$courseId]);
 $batches = $stmt->fetchAll();
 

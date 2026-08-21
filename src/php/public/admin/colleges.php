@@ -307,7 +307,7 @@ $addCode = (function () use ($pdo) {
                             'streams' => $c['streams_csv'] ?? '',
                         ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_UNESCAPED_UNICODE);
                     ?>
-                    <tr>
+                    <tr data-college-id="<?= (int)$c['id'] ?>">
                         <td class="text-muted"><?= $c['id'] ?></td>
                         <td>
                             <strong><?= h($c['name']) ?></strong>
@@ -327,6 +327,11 @@ $addCode = (function () use ($pdo) {
                                 <input type="hidden" name="id" value="<?= $c['id'] ?>">
                                 <button type="submit" class="btn btn-sm btn-ghost">Restore</button>
                             </form>
+                            <?php if ($canManage): ?>
+                            <button type="button" class="btn btn-sm btn-danger" data-perm-delete="<?= (int)$c['id'] ?>"
+                                    data-name="<?= h($c['name']) ?>"
+                                    onclick="requestPermanentDelete(this)">Delete Permanently</button>
+                            <?php endif; ?>
                             <?php else: ?>
                             <form method="POST" style="display:inline" onsubmit="return confirm('Archive this college? Its courses, batches and students will be retained (not deleted).')">
                                 <?= csrfField() ?>
@@ -717,5 +722,153 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
     });
 });
 </script>
+
+<?php if ($canManage): ?>
+<!-- ─── Permanent Delete Confirmation Modal ─────────────────────── -->
+<div class="modal-overlay" id="permDeleteModal" style="display:none;">
+    <div class="modal" style="max-width:480px;">
+        <div class="modal-header">
+            <h3 style="color:#BC2F32;">Delete Permanently</h3>
+            <button type="button" class="modal-close" onclick="closeModal('permDeleteModal')">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4.09 4.09a.5.5 0 0 1 .7 0L10 9.29l5.2-5.2a.5.5 0 0 1 .7.7L10.7 10l5.2 5.2a.5.5 0 0 1-.7.7L10 10.7l-5.2 5.2a.5.5 0 0 1-.7-.7L9.29 10 4.09 4.8a.5.5 0 0 1 0-.7z"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-top:0;">You are about to permanently delete
+                <strong id="permDeleteCollegeName"></strong>.</p>
+            <div style="border:1px solid rgba(188,47,50,.35);background:rgba(188,47,50,.06);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3);">
+                <p style="margin:0;font-size:var(--fs-13);color:#BC2F32;">
+                    <strong>This action is irreversible.</strong> It will permanently delete all
+                    associated courses, batches, students, test attempts, and records linked to this college.
+                </p>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="permDeleteConfirm">Type <strong id="permDeleteConfirmHint"></strong> to confirm</label>
+                <input class="form-input" type="text" id="permDeleteConfirm" autocomplete="off"
+                       placeholder="Type the college name to confirm">
+            </div>
+            <div class="text-sm text-muted" id="permDeleteError" style="display:none;color:#BC2F32;"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('permDeleteModal')">Cancel</button>
+            <button type="button" class="btn btn-danger" id="permDeleteConfirmBtn" disabled>Delete Permanently</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ─── Permanent Delete flow (archived colleges only) ──────────────
+(function () {
+    'use strict';
+    var pendingId = 0;
+    var pendingName = '';
+    var csrfToken = '';
+    var box = document.getElementById('permDeleteModal');
+    if (!box) return;
+
+    var nameEl = document.getElementById('permDeleteCollegeName');
+    var hintEl = document.getElementById('permDeleteConfirmHint');
+    var inputEl = document.getElementById('permDeleteConfirm');
+    var errEl = document.getElementById('permDeleteError');
+    var confirmBtn = document.getElementById('permDeleteConfirmBtn');
+
+    // CSRF token lives in every form on this page.
+    var tokenInput = document.querySelector('input[name="csrf_token"]');
+    if (tokenInput) csrfToken = tokenInput.value;
+
+    function setErr(msg) {
+        errEl.textContent = msg || '';
+        errEl.style.display = msg ? 'block' : 'none';
+    }
+
+    function updateConfirmState() {
+        confirmBtn.disabled = (inputEl.value.trim() !== pendingName);
+    }
+
+    window.requestPermanentDelete = function (btn) {
+        pendingId = parseInt(btn.getAttribute('data-perm-delete'), 10);
+        pendingName = btn.getAttribute('data-name') || '';
+        nameEl.textContent = pendingName;
+        hintEl.textContent = pendingName;
+        inputEl.value = '';
+        setErr('');
+        updateConfirmState();
+        openModal('permDeleteModal');
+        setTimeout(function () { inputEl.focus(); }, 60);
+    };
+
+    inputEl.addEventListener('input', updateConfirmState);
+
+    confirmBtn.addEventListener('click', function () {
+        if (confirmBtn.disabled) return;
+        var original = confirmBtn.textContent;
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Deleting…';
+        setErr('');
+
+        fetch('<?= BASE_URL ?>/api/delete_college.php', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'fetch'
+            },
+            body: JSON.stringify({ college_id: pendingId, csrf_token: csrfToken })
+        })
+            .then(function (r) {
+                return r.json().catch(function () { return { success: false, message: 'Unexpected server response (' + r.status + ').' }; })
+                    .then(function (d) { d._status = r.status; return d; });
+            })
+            .then(function (d) {
+                if (!d.success) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = original;
+                    setErr(d.message || 'Permanent deletion failed.');
+                    return;
+                }
+                closeModal('permDeleteModal');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = original;
+                removeRow(pendingId, d.message || 'College and all associated data permanently deleted.');
+            })
+            .catch(function () {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = original;
+                setErr('Network error — try again.');
+            });
+    });
+
+    function removeRow(collegeId, message) {
+        var row = document.querySelector('tr[data-college-id="' + collegeId + '"]');
+        if (row) {
+            row.style.transition = 'opacity .25s ease';
+            row.style.opacity = '0';
+            setTimeout(function () {
+                if (row.parentNode) row.parentNode.removeChild(row);
+                if (row.parentNode && row.parentNode.querySelectorAll('tr[data-college-id]').length === 0) {
+                    row.parentNode.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:32px;color:var(--gray-50);">No archived colleges.</td></tr>';
+                }
+            }, 260);
+        }
+        // Keep the "Show Archived (N)" counter honest.
+        var link = document.querySelector('a[href*="show=archived"]');
+        if (link) {
+            var m = link.textContent.match(/\((\d+)\)/);
+            if (m) {
+                var n = Math.max(0, parseInt(m[1], 10) - 1);
+                link.textContent = link.textContent.replace(/\(\d+\)/, '(' + n + ')');
+                if (n === 0 && link.parentNode) link.parentNode.removeChild(link);
+            }
+        }
+        // Transient success toast.
+        var toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:#1E4620;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 6px 24px rgba(0,0,0,.25);';
+        document.body.appendChild(toast);
+        setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 4000);
+    }
+})();
+</script>
+<?php endif; ?>
 
 <?php require_once __DIR__ . '/../../includes/admin_footer.php'; ?>

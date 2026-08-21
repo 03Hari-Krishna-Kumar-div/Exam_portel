@@ -56,12 +56,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = 'Test resumed. Students can now access it.';
     } elseif ($action === 'stop_test' && !empty($_POST['id'])) {
         $testId = (int)$_POST['id'];
-        $pdo->beginTransaction();
-        $pdo->prepare("UPDATE tests SET status = 'completed' WHERE id = ?")->execute([$testId]);
-        // Auto-submit all in-progress submissions
-        $pdo->prepare("UPDATE submissions SET status = 'submitted', submitted_at = NOW() WHERE test_id = ? AND status = 'in_progress'")->execute([$testId]);
-        $pdo->commit();
-        $message = 'Test stopped. All in-progress submissions have been auto-submitted.';
+        try {
+            $pdo->beginTransaction();
+            $pdo->prepare("UPDATE tests SET status = 'completed' WHERE id = ?")->execute([$testId]);
+            // Auto-submit all in-progress submissions (atomic with the status flip)
+            $pdo->prepare("UPDATE submissions SET status = 'submitted', submitted_at = NOW() WHERE test_id = ? AND status = 'in_progress'")->execute([$testId]);
+            $pdo->commit();
+            $message = 'Test stopped. All in-progress submissions have been auto-submitted.';
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            error_log('stop_test failed: ' . $e->getMessage());
+            $message = 'Failed to stop test: ' . h($e->getMessage());
+        }
     }
 
     // ─── CSV Import ─────────────────────────────────────
@@ -73,47 +79,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $imported = 0;
             $errors = [];
             $lineNum = 0;
-            while (($row = fgetcsv($handle)) !== false) {
-                $lineNum++;
-                // Skip header row if first line looks like a header
-                if ($lineNum === 1 && preg_match('/question/i', $row[0] ?? '')) continue;
-
-                $qText = trim($row[0] ?? '');
-                $optA  = trim($row[1] ?? '');
-                $optB  = trim($row[2] ?? '');
-                $optC  = trim($row[3] ?? '');
-                $optD  = trim($row[4] ?? '');
-                $answer = strtoupper(trim($row[5] ?? ''));
-                $marks = (int)($row[6] ?? 1);
-                if ($marks < 1) $marks = 1;
-
-                if (empty($qText)) {
-                    $errors[] = "Line $lineNum: empty question text, skipped.";
-                    continue;
-                }
-                if (empty($optA) || empty($optB)) {
-                    $errors[] = "Line $lineNum: need at least 2 options.";
-                    continue;
-                }
-                if (!in_array($answer, ['A','B','C','D'])) {
-                    $errors[] = "Line $lineNum: invalid answer '$answer'. Use A, B, C, or D.";
-                    continue;
-                }
-
-                $options = [];
-                if ($optA) $options[] = ['key' => 'A', 'text' => $optA];
-                if ($optB) $options[] = ['key' => 'B', 'text' => $optB];
-                if ($optC) $options[] = ['key' => 'C', 'text' => $optC];
-                if ($optD) $options[] = ['key' => 'D', 'text' => $optD];
-
+            // All rows commit together — a mid-file failure can never leave a partial import.
+            $pdo->beginTransaction();
+            try {
                 $stmt = $pdo->prepare("
                     INSERT INTO questions (test_id, type, question_text, options_json, correct_answer, marks, sort_order)
                     VALUES (?, 'mcq', ?, ?, ?, ?, ?)
                 ");
-                $stmt->execute([
-                    $testId, $qText, json_encode($options), $answer, $marks, $lineNum
-                ]);
-                $imported++;
+                while (($row = fgetcsv($handle)) !== false) {
+                    $lineNum++;
+                    // Skip header row if first line looks like a header
+                    if ($lineNum === 1 && preg_match('/question/i', $row[0] ?? '')) continue;
+
+                    $qText = trim($row[0] ?? '');
+                    $optA  = trim($row[1] ?? '');
+                    $optB  = trim($row[2] ?? '');
+                    $optC  = trim($row[3] ?? '');
+                    $optD  = trim($row[4] ?? '');
+                    $answer = strtoupper(trim($row[5] ?? ''));
+                    $marks = (int)($row[6] ?? 1);
+                    if ($marks < 1) $marks = 1;
+
+                    if (empty($qText)) {
+                        $errors[] = "Line $lineNum: empty question text, skipped.";
+                        continue;
+                    }
+                    if (empty($optA) || empty($optB)) {
+                        $errors[] = "Line $lineNum: need at least 2 options.";
+                        continue;
+                    }
+                    if (!in_array($answer, ['A','B','C','D'])) {
+                        $errors[] = "Line $lineNum: invalid answer '$answer'. Use A, B, C, or D.";
+                        continue;
+                    }
+
+                    $options = [];
+                    if ($optA) $options[] = ['key' => 'A', 'text' => $optA];
+                    if ($optB) $options[] = ['key' => 'B', 'text' => $optB];
+                    if ($optC) $options[] = ['key' => 'C', 'text' => $optC];
+                    if ($optD) $options[] = ['key' => 'D', 'text' => $optD];
+
+                    $stmt->execute([
+                        $testId, $qText, json_encode($options), $answer, $marks, $lineNum
+                    ]);
+                    $imported++;
+                }
+                $pdo->commit();
+            } catch (Exception $e) {
+                if ($pdo->inTransaction()) $pdo->rollBack();
+                error_log('import_csv failed: ' . $e->getMessage());
+                $errors[] = 'Import rolled back due to an error: ' . $e->getMessage();
+                $imported = 0;
             }
             fclose($handle);
             $msg = "Imported $imported questions successfully.";
@@ -181,12 +197,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ─── Timer Extension ────────────────────────────────
     elseif ($action === 'extend_timer' && !empty($_POST['submission_id'])) {
         $extendMinutes = (int)($_POST['extend_minutes'] ?? 5);
-        $stmt = $pdo->prepare("UPDATE submissions SET timer_extended_minutes = timer_extended_minutes + ? WHERE id = ?");
-        $stmt->execute([$extendMinutes, (int)$_POST['submission_id']]);
-        // Also log the extension
-        $stmt = $pdo->prepare("INSERT INTO tab_switch_logs (submission_id, switch_count, type, metadata) VALUES (?, ?, 'timer_extend', ?)");
-        $stmt->execute([(int)$_POST['submission_id'], 0, json_encode(['extended_by' => $extendMinutes])]);
-        $message = 'Timer extended by ' . $extendMinutes . ' minutes.';
+        try {
+            $pdo->beginTransaction();
+            $stmt = $pdo->prepare("UPDATE submissions SET timer_extended_minutes = timer_extended_minutes + ? WHERE id = ?");
+            $stmt->execute([$extendMinutes, (int)$_POST['submission_id']]);
+            // Also log the extension (atomic with the counter update)
+            $stmt = $pdo->prepare("INSERT INTO tab_switch_logs (submission_id, switch_count, type, metadata) VALUES (?, ?, 'timer_extend', ?)");
+            $stmt->execute([(int)$_POST['submission_id'], 0, json_encode(['extended_by' => $extendMinutes])]);
+            $pdo->commit();
+            $message = 'Timer extended by ' . $extendMinutes . ' minutes.';
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            error_log('extend_timer failed: ' . $e->getMessage());
+            $message = 'Failed to extend timer: ' . h($e->getMessage());
+        }
     }
 }
 
@@ -202,9 +226,11 @@ if ($editTestId > 0) {
 $viewTestId = (int)($_GET['view_test'] ?? ($editTestId ?: 0));
 if ($viewTestId > 0) $showQuestions = true;
 
-// Get colleges, batches for filters
+// Get colleges, batches for filters (archived batches stay visible but are labelled,
+// so editing a test whose batch was archived keeps working)
 $batches = $pdo->query("
-    SELECT b.id, b.name AS batch_name, c.name AS course_name, cl.name AS college_name
+    SELECT b.id, b.name AS batch_name, c.name AS course_name, cl.name AS college_name,
+           b.status AS batch_status
     FROM batches b
     JOIN courses c ON c.id = b.course_id
     JOIN colleges cl ON cl.id = c.college_id
@@ -267,7 +293,7 @@ if ($viewTestId > 0) {
                         <option value="">Select Batch</option>
                         <?php foreach ($batches as $b): ?>
                             <option value="<?= $b['id'] ?>" <?= ($editTest['batch_id'] ?? '') == $b['id'] ? 'selected' : '' ?>>
-                                <?= h($b['college_name']) ?> → <?= h($b['course_name']) ?> → <?= h($b['batch_name']) ?>
+                                <?= h($b['college_name']) ?> → <?= h($b['course_name']) ?> → <?= h($b['batch_name']) ?><?= $b['batch_status'] === 'archived' ? ' (archived)' : '' ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -621,8 +647,10 @@ if ($viewTestId > 0) {
 
 <script>
 function toggleOptions() {
-    const type = document.getElementById('qType').value;
-    document.getElementById('mcqOptions').style.display = type === 'mcq' ? 'block' : 'none';
+    const type = document.getElementById('qType');
+    const optionsBox = document.getElementById('mcqOptions');
+    if (!type || !optionsBox) return; // add-question panel not on this view
+    optionsBox.style.display = type.value === 'mcq' ? 'block' : 'none';
 }
 toggleOptions();
 

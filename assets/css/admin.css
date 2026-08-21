@@ -6325,3 +6325,203 @@ a.notif-item { text-decoration: none; }
     transform: translateY(-2px);
   }
 }
+
+/* ---------------------------------------------------------------
+   College Wizard — UGC/PGC Degree Picker
+   Categorized multi-select grid (Undergraduate / Postgraduate).
+   Accessible custom checkboxes: flex wrapper + hidden input +
+   fixed 18px box + centered SVG checkmark (no offset pseudo-elements).
+   Uses design tokens ? correct in both light and [data-theme="dark"].
+   --------------------------------------------------------------- */
+.degree-categories {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.degree-category {
+  border: 1px solid var(--gray-20);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.degree-category-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.degree-category-header strong {
+  font-size: var(--fs-13);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-80);
+}
+
+.degree-category-header .degree-cat-count {
+  color: var(--gray-50);
+  font-weight: 500;
+}
+
+.degree-category-header .select-all-btn {
+  margin-left: auto;
+}
+
+.degree-pills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* -- Pill row: label IS the click target (box + text) ------- */
+.degree-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 9px 10px;
+  border: 1px solid var(--gray-20);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--fs-12);
+  line-height: 1.35;
+  color: var(--gray-80);
+  transition: border-color 0.15s var(--ease-out), background 0.15s var(--ease-out);
+}
+
+.degree-pill:hover {
+  border-color: var(--gray-40);
+  background: var(--surface-hover);
+}
+
+/* Hidden native input (kept for a11y + form submission) */
+.degree-check-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  margin: 0;
+}
+
+/* -- Custom box: fixed 18px, solid surface fill, high-contrast border -- */
+.degree-check {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 1.5px solid var(--gray-40);
+  border-radius: 4px;
+  background: var(--surface);           /* solid — never transparent/black */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s var(--ease-out), border-color 0.15s var(--ease-out);
+}
+
+.degree-check svg {
+  display: none;
+  width: 11px;
+  height: 11px;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.degree-pill:hover .degree-check {
+  border-color: var(--gray-50);
+}
+
+/* Checked state: brand accent fill + centered white checkmark */
+.degree-check-input:checked + .degree-check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.degree-check-input:checked + .degree-check svg {
+  display: block;
+}
+
+/* Keyboard focus ring */
+.degree-check-input:focus-visible + .degree-check {
+  outline: 2px solid #60A5FA;
+  outline-offset: 2px;
+}
+
+.degree-pill:has(.degree-check-input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.degree-pill-text {
+  min-width: 0;
+  overflow-wrap: break-word;
+  color: var(--gray-80);
+}
+
+/* -- Custom course row: radios aligned with tokens ----------- */
+.degree-custom-category label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 14px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--gray-80);
+  font-size: var(--fs-12);
+}
+
+.degree-custom-category input[type="radio"] {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* Dark theme refinements (denser neutrals, brighter labels) */
+[data-theme="dark"] .degree-check {
+  border-color: var(--gray-40);         /* #4E5970 — high-contrast neutral */
+  background: var(--gray-10);           /* solid dark neutral, not black   */
+}
+
+[data-theme="dark"] .degree-pill {
+  background: var(--gray-10);
+  color: var(--gray-90);
+}
+
+[data-theme="dark"] .degree-pill:hover {
+  background: var(--gray-15);
+}
+
+[data-theme="dark"] .degree-pill-text {
+  color: var(--gray-90);                /* readable on dark surfaces */
+}
+
+[data-theme="dark"] .degree-category {
+  background: var(--surface-card);
+}
+
+[data-theme="dark"] .degree-category-header strong {
+  color: var(--gray-90);
+}
+
+[data-theme="dark"] .degree-category-header .degree-cat-count {
+  color: var(--gray-60);
+}
+
+[data-theme="dark"] .degree-pill:has(.degree-check-input:checked) {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
+
+/* Responsive: single column under 900px */
+@media (max-width: 900px) {
+  .degree-categories { grid-template-columns: 1fr; }
+  .degree-pills { grid-template-columns: 1fr; }
+}

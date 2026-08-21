@@ -55,8 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $pdo->commit();
             $message = 'Grades saved. Submission marked as evaluated.';
+
+            // Answers are committed above — safe to refresh PCI analytics now.
+            // Python service first (retries + error boundary inside), PHP fallback otherwise.
+            recalculatePciForSubmission($submissionId);
         } catch (Exception $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) $pdo->rollBack();
             $message = 'Error saving grades: ' . h($e->getMessage());
         }
     }
@@ -67,36 +71,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $marks = (float)$_POST['marks'];
         $submissionId = (int)$_POST['submission_id'];
 
-        $stmt = $pdo->prepare("
-            UPDATE student_answers
-            SET marks_obtained = ?, evaluated_at = NOW()
-            WHERE id = ?
-        ");
-        $stmt->execute([$marks, $answerId]);
+        try {
+            $pdo->beginTransaction();
 
-        // Recalculate submission totals
-        $stmt = $pdo->prepare("
-            SELECT SUM(sa.marks_obtained), SUM(q.marks)
-            FROM student_answers sa
-            JOIN questions q ON q.id = sa.question_id
-            WHERE sa.submission_id = ?
-        ");
-        $stmt->execute([$submissionId]);
-        $row = $stmt->fetch();
-
-        if ($row[0] !== null) {
             $stmt = $pdo->prepare("
-                UPDATE submissions
-                SET status = 'evaluated',
-                    total_marks_obtained = ?,
-                    total_marks = ?,
-                    submitted_at = COALESCE(submitted_at, NOW())
+                UPDATE student_answers
+                SET marks_obtained = ?, evaluated_at = NOW()
                 WHERE id = ?
             ");
-            $stmt->execute([(float)$row[0], (float)$row[1], $submissionId]);
-        }
+            $stmt->execute([$marks, $answerId]);
 
-        $message = 'Marks saved.';
+            // Recalculate submission totals
+            $stmt = $pdo->prepare("
+                SELECT SUM(sa.marks_obtained), SUM(q.marks)
+                FROM student_answers sa
+                JOIN questions q ON q.id = sa.question_id
+                WHERE sa.submission_id = ?
+            ");
+            $stmt->execute([$submissionId]);
+            $row = $stmt->fetch();
+
+            if ($row[0] !== null) {
+                $stmt = $pdo->prepare("
+                    UPDATE submissions
+                    SET status = 'evaluated',
+                        total_marks_obtained = ?,
+                        total_marks = ?,
+                        submitted_at = COALESCE(submitted_at, NOW())
+                    WHERE id = ?
+                ");
+                $stmt->execute([(float)$row[0], (float)$row[1], $submissionId]);
+            }
+
+            $pdo->commit();
+
+            // Answers are committed — refresh PCI analytics (Python → PHP fallback)
+            recalculatePciForSubmission($submissionId);
+
+            $message = 'Marks saved.';
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            $message = 'Error saving marks: ' . h($e->getMessage());
+        }
     }
 }
 

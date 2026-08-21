@@ -33,15 +33,74 @@ if (!in_array($adminRole, ['super_admin', 'platform_admin'], true)) {
 }
 
 // ─── Constants ──────────────────────────────────────────────
-$INDIAN_STREAMS = [
-    'Engineering', 'Arts', 'Science', 'Commerce', 'Management',
-    'Computer Applications', 'Nursing', 'Pharmacy', 'Medical', 'Dental',
-    'Law', 'Agriculture', 'Architecture', 'Polytechnic', 'ITI',
-    'Education', 'Fine Arts', 'Hotel Management', 'Journalism', 'Design',
-    'Aviation', 'Veterinary', 'Fisheries', 'Paramedical', 'Home Science',
-    'Physical Education', 'Performing Arts',
-    'Bachelor of Commerce', 'Bachelor of Business Administration', 'Bachelor of Computer Applications',
+/**
+ * Canonical degree / stream catalogue, grouped by academic level.
+ * Used for the Step 2 "Streams" picker and server-side validation.
+ */
+$DEGREE_OPTIONS = [
+    'UGC' => [
+        'Bachelor of Arts (BA)',
+        'Bachelor of Science (BSc)',
+        'Bachelor of Commerce (BCom)',
+        'Bachelor of Technology (BTech)',
+        'Bachelor of Engineering (BE)',
+        'Bachelor of Business Administration (BBA)',
+        'Bachelor of Computer Applications (BCA)',
+        'Bachelor of Pharmacy (BPharm)',
+        'Bachelor of Medicine, Bachelor of Surgery (MBBS)',
+        'Bachelor of Dental Surgery (BDS)',
+        'Bachelor of Laws (LLB)',
+        'Bachelor of Education (BEd)',
+        'Bachelor of Architecture (BArch)',
+        'Bachelor of Design (BDes)',
+        'Bachelor of Fine Arts (BFA)',
+        'Bachelor of Hotel Management (BHM)',
+        'Bachelor of Social Work (BSW)',
+        'Bachelor of Physiotherapy (BPT)',
+        'Bachelor of Nursing (BSc Nursing)',
+        'Bachelor of Ayurvedic Medicine and Surgery (BAMS)',
+        'Bachelor of Homeopathic Medicine and Surgery (BHMS)',
+        'Bachelor of Veterinary Science and Animal Husbandry (BVSc & AH)',
+        'Bachelor of Journalism and Mass Communication (BJMC)',
+        'Bachelor of Library and Information Science (BLIS)',
+        'Bachelor of Agricultural Science (BSc Agriculture)',
+    ],
+    'PGC' => [
+        'Master of Arts (MA)',
+        'Master of Science (MSc)',
+        'Master of Commerce (MCom)',
+        'Master of Technology (MTech)',
+        'Master of Engineering (ME)',
+        'Master of Business Administration (MBA)',
+        'Master of Computer Applications (MCA)',
+        'Master of Pharmacy (MPharm)',
+        'Master of Laws (LLM)',
+        'Master of Education (MEd)',
+        'Master of Architecture (MArch)',
+        'Master of Design (MDes)',
+        'Master of Fine Arts (MFA)',
+        'Master of Social Work (MSW)',
+        'Master of Public Health (MPH)',
+        'Master of Journalism and Mass Communication (MJMC)',
+        'Master of Library and Information Science (MLIS)',
+        'Master of Engineering Management (MEM)',
+        'Master of Public Administration (MPA)',
+        'Master of Social Sciences (MSS)',
+        'Master of Philosophy (MPhil)',
+        'Master of Veterinary Science (MVSc)',
+        'Master of Agricultural Science (MSc Agriculture)',
+        'Master of Physiotherapy (MPT)',
+    ],
 ];
+
+// Flat canonical list + reverse lookup: degree name → category
+$DEGREE_FLAT = array_merge($DEGREE_OPTIONS['UGC'], $DEGREE_OPTIONS['PGC']);
+$DEGREE_CATEGORY = [];
+foreach ($DEGREE_OPTIONS as $cat => $names) {
+    foreach ($names as $name) {
+        $DEGREE_CATEGORY[$name] = $cat;
+    }
+}
 
 $NAAC_GRADES = ['None', 'A++', 'A+', 'A', 'B+', 'B', 'C'];
 
@@ -57,12 +116,32 @@ if (!isset($_SESSION['college_draft'])) {
 $draft = &$_SESSION['college_draft'];
 $currentStep = (int)($draft['step'] ?? 1);
 
-// ─── Helper: Generate College Code ──────────────────────────
+// ─── Helper: Generate Unique College Code ───────────────────
+/**
+ * Always returns a code that is NOT already present in the colleges table.
+ * Starts from the next sequential id, then walks upward / falls back to a
+ * random suffix so stale drafts can never collide with an existing code
+ * (e.g. a draft that carried the seed college's "COL000001").
+ */
 function generateCollegeCode(PDO $pdo): string {
-    $stmt = $pdo->query("SELECT MAX(id) AS max_id FROM colleges");
-    $row = $stmt->fetch();
-    $nextId = ($row['max_id'] ?? 0) + 1;
-    return 'COL' . str_pad((string)$nextId, 6, '0', STR_PAD_LEFT);
+    $nextId = 0;
+    $stmt = $pdo->query("SELECT id FROM colleges ORDER BY id DESC LIMIT 1");
+    $row = $stmt->fetchColumn();
+    if ($row !== false) $nextId = ((int)$row) + 1;
+
+    $attempts = 0;
+    while ($attempts < 10000) {
+        $candidate = 'COL' . str_pad((string)$nextId, 6, '0', STR_PAD_LEFT);
+        $chk = $pdo->prepare("SELECT COUNT(*) FROM colleges WHERE college_code = ?");
+        $chk->execute([$candidate]);
+        if ((int)$chk->fetchColumn() === 0) {
+            return $candidate;
+        }
+        $nextId++;
+        $attempts++;
+    }
+    // Extremely unlikely fallback: random 6-digit suffix
+    return 'COL' . str_pad((string)random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
 }
 
 // ─── Helper: Generate Batch Nick Name ───────────────────────
@@ -170,9 +249,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Email address is not valid.';
         }
 
-        // Auto-generate college code if not set
+        // Auto-generate the college code if it is missing OR if the draft
+        // carried a code that is already taken (e.g. a stale draft that
+        // reused the seed college's "COL000001"). Regenerating silently
+        // guarantees the "Duplicate entry '...' for key 'uq_college_code'"
+        // failure can never block creation.
         if (empty($data['college_code'])) {
             $data['college_code'] = generateCollegeCode($pdo);
+        } else {
+            $exists = $pdo->prepare("SELECT id FROM colleges WHERE college_code = ?");
+            $exists->execute([$data['college_code']]);
+            if ($exists->fetch()) {
+                $data['college_code'] = generateCollegeCode($pdo);
+            }
         }
 
         if (empty($errors)) {
@@ -185,21 +274,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif ($step === 2) {
         $selectedStreams = $_POST['streams'] ?? [];
         $customStream = trim($_POST['custom_stream'] ?? '');
+        $customCategory = ($_POST['custom_stream_category'] ?? 'UGC') === 'PGC' ? 'PGC' : 'UGC';
 
-        // Build stream list
+        // Build stream list from the canonical catalogue only.
+        // Unknown/injected keys are silently dropped (whitelist validation).
         $streams = [];
+        $streamCategoryMap = [];
         foreach ((array)$selectedStreams as $s) {
-            if (in_array($s, $INDIAN_STREAMS, true)) {
-                $streams[] = $s;
+            $s = trim($s);
+            if (isset($DEGREE_CATEGORY[$s])) {
+                if (!in_array($s, $streams, true)) {
+                    $streams[] = $s;
+                    $streamCategoryMap[$s] = $DEGREE_CATEGORY[$s];
+                }
             }
         }
         if (!empty($customStream)) {
             // Split custom stream by comma for multiple entries
             $customs = array_map('trim', explode(',', $customStream));
             foreach ($customs as $cs) {
-                if (!empty($cs) && !in_array($cs, $streams, true)) {
-                    $streams[] = $cs;
-                }
+                if (empty($cs)) continue;
+                if (in_array($cs, $streams, true)) continue;
+                if (count($streams) >= 60) break; // sanity cap
+                $streams[] = $cs;
+                $streamCategoryMap[$cs] = $customCategory;
             }
         }
 
@@ -213,6 +311,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'accreditation_aicte'   => !empty($_POST['accreditation_aicte']) ? 1 : 0,
             'accreditation_ugc'     => !empty($_POST['accreditation_ugc']) ? 1 : 0,
             'streams'               => $streams,
+            'stream_category_map'   => $streamCategoryMap,
+            'custom_stream_value'   => $customStream,
         ];
 
         // Validate at least one stream
@@ -325,6 +425,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->beginTransaction();
 
                     // 1. Insert college
+                    // Belt-and-braces: guarantee a unique code inside the
+                    // transaction even if the draft somehow still holds a
+                    // code that was taken between Step 1 and now.
+                    $collegeCode = trim((string)($step1['college_code'] ?? ''));
+                    if ($collegeCode === '') {
+                        $collegeCode = generateCollegeCode($pdo);
+                    } else {
+                        $dup = $pdo->prepare("SELECT COUNT(*) FROM colleges WHERE college_code = ?");
+                        $dup->execute([$collegeCode]);
+                        if ((int)$dup->fetchColumn() > 0) {
+                            $collegeCode = generateCollegeCode($pdo);
+                        }
+                    }
+
                     $stmt = $pdo->prepare("
                         INSERT INTO colleges (
                             college_code, name, nick_name, established_year,
@@ -343,7 +457,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         )
                     ");
                     $stmt->execute([
-                        'college_code'          => $step1['college_code'] ?? generateCollegeCode($pdo),
+                        'college_code'          => $collegeCode,
                         'name'                  => $step1['name'],
                         'nick_name'             => $step1['nick_name'],
                         'established_year'      => !empty($step1['established_year']) ? (int)$step1['established_year'] : null,
@@ -370,11 +484,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $collegeId = (int)$pdo->lastInsertId();
 
-                    // 2. Insert streams
-                    $streamInsert = $pdo->prepare("INSERT INTO college_streams (college_id, stream_name) VALUES (?, ?)");
+                    // 2. Insert streams (with UGC/PGC category from the canonical catalogue)
+                    $streamInsert = $pdo->prepare("INSERT INTO college_streams (college_id, stream_name, category) VALUES (?, ?, ?)");
                     $streamIdMap = []; // old idx → new stream id
                     foreach ($step2['streams'] as $idx => $streamName) {
-                        $streamInsert->execute([$collegeId, $streamName]);
+                        $category = $step2['stream_category_map'][$streamName] ?? 'UGC';
+                        $streamInsert->execute([$collegeId, $streamName, $category]);
                         $newStreamId = (int)$pdo->lastInsertId();
                         $streamIdMap[$idx + 1] = $newStreamId; // 1-based index
                     }
@@ -707,27 +822,123 @@ $step3 = $draft['step3'] ?? [];
         </div>
 
         <div class="card-flat" style="margin-bottom:var(--space-5);">
-            <div class="card-header"><h3>Streams <span class="text-warning">*</span></h3></div>
+            <div class="card-header">
+                <h3>Streams / Courses <span class="text-warning">*</span></h3>
+            </div>
             <div class="card-body">
-                <div class="form-hint" style="margin-bottom:var(--space-3);">Select all streams offered by the college.</div>
-                <div class="streams-grid">
-                    <?php $selectedStreams = $step2['streams'] ?? []; ?>
-                    <?php foreach ($INDIAN_STREAMS as $stream): ?>
-                    <label class="form-checkbox">
-                        <input type="checkbox" name="streams[]" value="<?= h($stream) ?>"
-                               <?= in_array($stream, $selectedStreams) ? 'checked' : '' ?>>
-                        <span><?= h($stream) ?></span>
-                    </label>
+                <div class="form-hint" style="margin-bottom:var(--space-3);">
+                    Select all undergraduate (UGC) and postgraduate (PGC) courses offered by the college.
+                </div>
+
+                <?php
+                $selectedStreams = $step2['streams'] ?? [];
+                $selectedCatMap = $step2['stream_category_map'] ?? [];
+                $summaryCount = count($selectedStreams);
+                ?>
+
+                <!-- Live selection summary -->
+                <div id="streamSummary" class="text-sm" style="margin-bottom:var(--space-3);">
+                    <strong><span id="streamCount"><?= (int)$summaryCount ?></span></strong> selected
+                    (<span id="streamUgCount">0</span> UGC · <span id="streamPgCount">0</span> PGC)
+                </div>
+
+                <div class="degree-categories">
+                    <?php foreach (['UGC', 'PGC'] as $cat): ?>
+                    <?php $catLabel = $cat === 'UGC' ? 'Undergraduate Courses (UGC)' : 'Postgraduate Courses (PGC)'; ?>
+                    <div class="degree-category degree-category-<?= strtolower($cat) ?>" data-category="<?= $cat ?>">
+                        <div class="degree-category-header">
+                            <strong><?= $catLabel ?></strong>
+                            <span class="text-sm text-muted"><span class="degree-cat-count">0</span>/<?= count($DEGREE_OPTIONS[$cat]) ?> selected</span>
+                            <button type="button" class="btn btn-sm btn-ghost select-all-btn" data-category="<?= $cat ?>">Select All <?= $cat ?></button>
+                        </div>
+                        <div class="degree-pills" role="group" aria-label="<?= h($catLabel) ?>">
+                            <?php foreach ($DEGREE_OPTIONS[$cat] as $degree): ?>
+                            <label class="degree-pill">
+                                <input type="checkbox" class="degree-check-input" name="streams[]" value="<?= h($degree) ?>"
+                                       data-category="<?= $cat ?>"
+                                       <?= in_array($degree, $selectedStreams) ? 'checked' : '' ?>>
+                                <span class="degree-check" aria-hidden="true">
+                                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6.2 4.8 9 10 3.4"></polyline></svg>
+                                </span>
+                                <span class="degree-pill-text"><?= h($degree) ?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                     <?php endforeach; ?>
                 </div>
+
                 <div class="form-group" style="margin-top:var(--space-3);">
-                    <label class="form-label" for="custom_stream">Custom Stream(s)</label>
-                    <input class="form-input" type="text" id="custom_stream" name="custom_stream"
-                           value="" placeholder="e.g. Data Science, Artificial Intelligence (comma separated)">
-                    <div class="form-hint">Add streams not listed above. Separate multiple with commas.</div>
+                    <label class="form-label" for="custom_stream">Custom Course(s)</label>
+                    <div class="form-row" style="align-items:center;">
+                        <div class="form-group" style="flex:2;margin-bottom:0;">
+                            <input class="form-input" type="text" id="custom_stream" name="custom_stream"
+                                   value="<?= h($draft['step2']['custom_stream_value'] ?? '') ?>"
+                                   placeholder="e.g. Data Science, Artificial Intelligence (comma separated)">
+                        </div>
+                        <div class="form-group degree-custom-category" style="flex:0 0 auto;margin-bottom:0;">
+                            <label>
+                                <input type="radio" name="custom_stream_category" value="UGC" checked> UGC
+                            </label>
+                            <label>
+                                <input type="radio" name="custom_stream_category" value="PGC"> PGC
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-hint">Add courses not listed above, choosing their level (UGC/PGC). Separate multiple with commas.</div>
                 </div>
             </div>
         </div>
+
+        <style>
+        /* Degree picker styles live in assets/css/admin.css (section:
+           "College Wizard — UGC/PGC Degree Picker") for theme consistency. */
+        </style>
+
+        <script>
+        (function () {
+            'use strict';
+            var countEl  = document.getElementById('streamCount');
+            var ugEl     = document.getElementById('streamUgCount');
+            var pgEl     = document.getElementById('streamPgCount');
+            var catCounts = { UGC: [], PGC: [] };
+            document.querySelectorAll('.degree-category').forEach(function (box) {
+                var cat = box.getAttribute('data-category');
+                box.querySelectorAll('.degree-check-input').forEach(function (cb) {
+                    cb.addEventListener('change', refreshSummary);
+                    catCounts[cat].push(cb);
+                });
+            });
+            function refreshSummary() {
+                var total = 0, ug = 0, pg = 0;
+                Object.keys(catCounts).forEach(function (cat) {
+                    catCounts[cat].forEach(function (cb) {
+                        if (cb.checked) { total++; if (cat === 'UGC') ug++; else pg++; }
+                    });
+                });
+                if (countEl) countEl.textContent = total;
+                if (ugEl) ugEl.textContent = ug;
+                if (pgEl) pgEl.textContent = pg;
+                document.querySelectorAll('.degree-category').forEach(function (box) {
+                    var label = box.querySelector('.degree-cat-count');
+                    if (label) label.textContent = box.querySelectorAll('.degree-check-input:checked').length;
+                });
+            }
+            refreshSummary();
+
+            // Select All / Clear toggles per category
+            document.querySelectorAll('.select-all-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var cat = btn.getAttribute('data-category');
+                    var boxes = catCounts[cat];
+                    var allOn = boxes.every(function (cb) { return cb.checked; });
+                    boxes.forEach(function (cb) { cb.checked = !allOn; });
+                    btn.textContent = allOn ? 'Select All ' + cat : 'Clear ' + cat;
+                    refreshSummary();
+                });
+            });
+        })();
+        </script>
 
         <div class="ws-actions">
             <button type="submit" class="btn btn-secondary" onclick="document.getElementById('wizardAction').value='prev'">&larr; Previous</button>
@@ -941,14 +1152,27 @@ $step3 = $draft['step3'] ?? [];
             </div>
             <div class="card-body">
                 <?php $streams = $step2['streams'] ?? []; ?>
+                <?php $streamCatMap = $step2['stream_category_map'] ?? []; ?>
                 <?php if (empty($streams)): ?>
                     <div style="color:var(--gray-50);">No streams selected.</div>
                 <?php else: ?>
-                    <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);">
-                        <?php foreach ($streams as $s): ?>
-                        <span class="badge badge-active"><?= h($s) ?></span>
-                        <?php endforeach; ?>
+                    <?php foreach (['UGC', 'PGC'] as $cat): ?>
+                    <?php $catStreams = array_values(array_filter($streams, function ($s) use ($cat, $streamCatMap) {
+                            return ($streamCatMap[$s] ?? 'UGC') === $cat;
+                        })); ?>
+                    <?php if (!empty($catStreams)): ?>
+                    <div style="margin-bottom:var(--space-3);">
+                        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:var(--space-2);">
+                            <?= $cat === 'UGC' ? 'Undergraduate (UGC)' : 'Postgraduate (PGC)' ?> — <?= count($catStreams) ?>
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);">
+                            <?php foreach ($catStreams as $s): ?>
+                            <span class="badge <?= $cat === 'UGC' ? 'badge-active' : 'badge-pending' ?>"><?= h($s) ?></span>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
+                    <?php endif; ?>
+                    <?php endforeach; ?>
                 <?php endif; ?>
             </div>
         </div>

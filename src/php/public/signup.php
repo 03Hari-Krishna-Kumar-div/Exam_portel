@@ -275,7 +275,7 @@ try {
                 return;
             }
 
-            fetch(API_BASE + '/get_courses.php?college_id=' + collegeId)
+            fetch(API_BASE + '/get_courses.php?college_id=' + collegeId + '&active=1')
                 .then(r => r.json())
                 .then(data => {
                     if (data.error) {
@@ -306,7 +306,7 @@ try {
                 return;
             }
 
-            fetch(API_BASE + '/get_batches.php?course_id=' + courseId)
+            fetch(API_BASE + '/get_batches.php?course_id=' + courseId + '&active=1')
                 .then(r => r.json())
                 .then(data => {
                     if (data.error) {

@@ -1,7 +1,7 @@
 <?php
 /**
  * Log tab switch events from the student test interface.
- * POST: JSON body with test_id, submission_id, switch_count, csrf_token
+ * POST: JSON body or form data with test_id, submission_id, switch_count, csrf_token
  */
 
 require_once __DIR__ . '/../includes/session.php';
@@ -17,11 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Read JSON body
-$input = json_decode(file_get_contents('php://input'), true);
-if (!$input) {
+// Accept JSON bodies AND standard form posts uniformly
+$input = parseRequestBody();
+if (empty($input)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON']);
+    echo json_encode(['error' => 'Invalid or empty request body']);
     exit;
 }
 
