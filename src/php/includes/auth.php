@@ -393,9 +393,23 @@ function studentRegister(array $data): array {
     ");
     $stmt->execute([$data['batch_id'], $data['course_id'], $data['college_id']]);
     if (!$stmt->fetch()) {
+        // Provide specific error so the student knows what's wrong
+        $courseCheck = $pdo->prepare("SELECT id FROM courses WHERE id = ? AND college_id = ?");
+        $courseCheck->execute([$data['course_id'], $data['college_id']]);
+        if (!$courseCheck->fetch()) {
+            $error = 'This college has no courses available. Contact your admin.';
+        } else {
+            $batchCheck = $pdo->prepare("SELECT id FROM batches WHERE id = ? AND course_id = ?");
+            $batchCheck->execute([$data['batch_id'], $data['course_id']]);
+            if (!$batchCheck->fetch()) {
+                $error = 'This course has no batches available. Contact your admin.';
+            } else {
+                $error = 'Invalid batch selection.';
+            }
+        }
         notifyAdmin('student_account', 'Signup blocked — invalid batch',
             $data['name'] . ' (' . $data['email'] . ') submitted an invalid college/course/batch combination.');
-        return ['success' => false, 'error' => 'Invalid batch selection.'];
+        return ['success' => false, 'error' => $error];
     }
 
     // Get college name and course name for record

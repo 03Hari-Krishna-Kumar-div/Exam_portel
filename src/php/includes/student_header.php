@@ -41,10 +41,21 @@ $currentNav = $pageToNavMap[$currentPage] ?? $currentPage;
     <aside class="dashboard-sidebar" id="sidebar">
         <!-- Logo -->
         <a href="dashboard.php" class="sidebar-logo" style="text-decoration:none;">
-            <div class="sidebar-logo-icon">
-                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5a.5.5 0 0 1 .28-.46l7-3.5a.5.5 0 0 1 .44 0l7 3.5a.5.5 0 0 1 .28.46v12a.5.5 0 0 1-1 0V3.2l-6.5 3.25V15.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-13z"/></svg>
-            </div>
-            <span class="sidebar-logo-text">Test Platform</span>
+            <?php if (!empty($student['college_logo'])): ?>
+                <div class="sidebar-logo-icon" style="background:rgba(255,255,255,0.05);padding:4px;">
+                    <img src="<?= h($student['college_logo']) ?>" alt="<?= h($student['college_name']) ?>"
+                         style="width:36px;height:36px;object-fit:contain;border-radius:8px;"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    <div class="sidebar-logo-icon-fallback" style="display:none;">
+                        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5a.5.5 0 0 1 .28-.46l7-3.5a.5.5 0 0 1 .44 0l7 3.5a.5.5 0 0 1 .28.46v12a.5.5 0 0 1-1 0V3.2l-6.5 3.25V15.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-13z"/></svg>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="sidebar-logo-icon">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5a.5.5 0 0 1 .28-.46l7-3.5a.5.5 0 0 1 .44 0l7 3.5a.5.5 0 0 1 .28.46v12a.5.5 0 0 1-1 0V3.2l-6.5 3.25V15.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-13z"/></svg>
+                </div>
+            <?php endif; ?>
+            <span class="sidebar-logo-text"><?= h($student['college_name'] ?? 'Test Platform') ?></span>
         </a>
 
         <!-- Primary Navigation -->

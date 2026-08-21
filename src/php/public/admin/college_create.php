@@ -531,6 +531,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
 
+                    // 4. Auto-sync: streams → courses, batches → legacy batches
+                    //    So signup/test assignment works even if admin forgets
+                    //    to add courses manually via the courses page.
+                    $legacyCourseIns = $pdo->prepare(
+                        "INSERT INTO courses (college_id, name, status) VALUES (?, ?, 'active')"
+                    );
+                    $legacyBatchIns = $pdo->prepare(
+                        "INSERT INTO batches (course_id, name, section, status) VALUES (?, ?, NULL, 'active')"
+                    );
+
+                    foreach ($streamIdMap as $wizardIdx => $dbStreamId) {
+                        $streamName = $step2['streams'][($wizardIdx - 1)] ?? 'Unknown';
+                        $legacyCourseIns->execute([$collegeId, $streamName]);
+                        $courseId = (int)$pdo->lastInsertId();
+
+                        // Find all college_batches for this stream → legacy batches
+                        $cbStmt = $pdo->prepare(
+                            "SELECT batch_nick_name FROM college_batches WHERE stream_id = ?"
+                        );
+                        $cbStmt->execute([$dbStreamId]);
+                        foreach ($cbStmt->fetchAll() as $cb) {
+                            $legacyBatchIns->execute([$courseId, $cb['batch_nick_name']]);
+                        }
+                    }
+
                     $pdo->commit();
 
                     // Clear draft

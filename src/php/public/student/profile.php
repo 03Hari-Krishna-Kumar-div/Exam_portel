@@ -10,12 +10,13 @@ requireStudent();
 $pdo = getDB();
 $studentId = $_SESSION['student_id'];
 
-// Student info with course/batch
+// Student info with course/batch/college
 $stmt = $pdo->prepare("
-    SELECT s.*, b.name AS batch_name, c.name AS course_name
+    SELECT s.*, b.name AS batch_name, c.name AS course_name, cl.name AS college_name, cl.logo AS college_logo
     FROM students s
     JOIN batches b ON b.id = s.batch_id
     JOIN courses c ON c.id = b.course_id
+    JOIN colleges cl ON cl.id = c.college_id
     WHERE s.id = ?
 ");
 $stmt->execute([$studentId]);

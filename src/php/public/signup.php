@@ -296,13 +296,18 @@ try {
                         courseSelect.innerHTML = '<option value="">' + data.error + '</option>';
                         return;
                     }
-                    courseSelect.innerHTML = '<option value="">Select Course</option>';
-                    data.forEach(c => {
-                        const sel = c.id == selectedCourse ? 'selected' : '';
-                        courseSelect.innerHTML += '<option value="' + c.id + '" ' + sel + '>' + c.name + '</option>';
-                    });
-                    courseSelect.disabled = false;
-                    if (selectedCourse) courseSelect.dispatchEvent(new Event('change'));
+                    if (data.length === 0) {
+                        courseSelect.innerHTML = '<option value="">No courses available for this college</option>';
+                        courseSelect.disabled = true;
+                    } else {
+                        courseSelect.innerHTML = '<option value="">Select Course</option>';
+                        data.forEach(c => {
+                            const sel = c.id == selectedCourse ? 'selected' : '';
+                            courseSelect.innerHTML += '<option value="' + c.id + '" ' + sel + '>' + c.name + '</option>';
+                        });
+                        courseSelect.disabled = false;
+                        if (selectedCourse) courseSelect.dispatchEvent(new Event('change'));
+                    }
                 })
                 .catch(() => {
                     courseSelect.innerHTML = '<option value="">Error loading courses</option>';
@@ -329,14 +334,19 @@ try {
                         batchSelect.innerHTML = '<option value="">' + data.error + '</option>';
                         return;
                     }
-                    batchSelect.innerHTML = '<option value="">Select Batch</option>';
-                    data.forEach(b => {
-                        const sel = b.id == selectedBatch ? 'selected' : '';
-                        batchSelect.innerHTML += '<option value="' + b.id + '" ' + sel + '>' + (b.display_name || b.name) + '</option>';
-                    });
-                    batchSelect.disabled = false;
-                    // Trigger section load if batch was pre-selected
-                    if (selectedBatch) batchSelect.dispatchEvent(new Event('change'));
+                    if (data.length === 0) {
+                        batchSelect.innerHTML = '<option value="">No batches available for this course</option>';
+                        batchSelect.disabled = true;
+                    } else {
+                        batchSelect.innerHTML = '<option value="">Select Batch</option>';
+                        data.forEach(b => {
+                            const sel = b.id == selectedBatch ? 'selected' : '';
+                            batchSelect.innerHTML += '<option value="' + b.id + '" ' + sel + '>' + (b.display_name || b.name) + '</option>';
+                        });
+                        batchSelect.disabled = false;
+                        // Trigger section load if batch was pre-selected
+                        if (selectedBatch) batchSelect.dispatchEvent(new Event('change'));
+                    }
                 })
                 .catch(() => {
                     batchSelect.innerHTML = '<option value="">Error loading batches</option>';
