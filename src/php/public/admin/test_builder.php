@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                          ->execute([$startDT->format('Y-m-d H:i:s'), $endDT->format('Y-m-d H:i:s'), $schedId]);
                     $sRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
                     $sRow->execute([$schedId]); $sRow = $sRow->fetch();
-                    redirect('/admin/assessment_management.php?tab=upcoming&toast=scheduled&title=' . urlencode($sRow['title'] ?? ''));
+                    redirect('/admin/assessment_management.php?tab=scheduled&toast=scheduled&title=' . urlencode($sRow['title'] ?? ''));
                 }
             } catch (Exception $e) { $message = 'Invalid date format.'; $wizardStep = 3; }
         }

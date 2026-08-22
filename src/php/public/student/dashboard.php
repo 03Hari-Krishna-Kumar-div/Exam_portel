@@ -185,6 +185,16 @@ $currentPage = 'dashboard';
                                                 $actionBtn = '<span class="badge badge-pending">Paused by Admin</span>';
                                             } elseif ($t['status'] === 'upcoming') {
                                                 $actionBtn = '<span class="badge badge-pending">Upcoming</span>';
+                                            } elseif ($t['status'] === 'scheduled') {
+                                                if ($start !== null && $now < $start) {
+                                                    $mins = ceil(($start - $now) / 60);
+                                                    $hours = floor($mins / 60);
+                                                    $remainMins = $mins % 60;
+                                                    $timeStr = $hours > 0 ? "{$hours}h {$remainMins}m" : "{$remainMins} min";
+                                                    $actionBtn = '<span class="badge badge-info">' . icon('calendar', 12) . ' Starts in ' . $timeStr . '</span>';
+                                                } else {
+                                                    $actionBtn = '<span class="badge badge-pending">Scheduled</span>';
+                                                }
                                             } elseif ($t['status'] === 'active' && !$canStart) {
                                                 if ($start !== null && $now < $start) {
                                                     $mins = ceil(($start - $now) / 60);
@@ -200,6 +210,7 @@ $currentPage = 'dashboard';
             if ($t['status'] === 'active') $statusClass = 'badge-active';
             elseif ($t['status'] === 'paused') $statusClass = 'badge-pending';
             elseif ($t['status'] === 'completed') $statusClass = 'badge-success';
+            elseif ($t['status'] === 'scheduled') $statusClass = 'badge-info';
 
                                             $submissionLabel = '';
                                             if ($t['submission_status'] === 'evaluated') {
@@ -285,6 +296,16 @@ $currentPage = 'dashboard';
                                         $actionBtn = '<span class="badge badge-pending">Paused by Admin</span>';
                                     } elseif ($t['status'] === 'upcoming') {
                                         $actionBtn = '<span class="badge badge-pending">Upcoming</span>';
+                                    } elseif ($t['status'] === 'scheduled') {
+                                        if ($start !== null && $now < $start) {
+                                            $mins = ceil(($start - $now) / 60);
+                                            $hours = floor($mins / 60);
+                                            $remainMins = $mins % 60;
+                                            $timeStr = $hours > 0 ? "{$hours}h {$remainMins}m" : "{$remainMins} min";
+                                            $actionBtn = '<span class="badge badge-info">' . icon('calendar', 12) . ' Starts in ' . $timeStr . '</span>';
+                                        } else {
+                                            $actionBtn = '<span class="badge badge-pending">Scheduled</span>';
+                                        }
                                     } elseif ($t['status'] === 'active' && !$canStart) {
                                         if ($start !== null && $now < $start) {
                                             $mins = ceil(($start - $now) / 60);
@@ -299,6 +320,7 @@ $currentPage = 'dashboard';
                                     if ($t['status'] === 'active') $statusClass = 'badge-active';
                                     elseif ($t['status'] === 'paused') $statusClass = 'badge-pending';
                                     elseif ($t['status'] === 'completed') $statusClass = 'badge-success';
+                                    elseif ($t['status'] === 'scheduled') $statusClass = 'badge-info';
                                 ?>
                                 <div class="test-card">
                                     <div class="test-card-top">

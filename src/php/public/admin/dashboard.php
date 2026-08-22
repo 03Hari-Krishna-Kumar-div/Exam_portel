@@ -43,6 +43,7 @@ $recentStudents = $pdo->query("
 $testStatusCounts = [
     'active'    => (int)$pdo->query("SELECT COUNT(*) FROM tests WHERE status = 'active'")->fetchColumn(),
     'upcoming'  => (int)$pdo->query("SELECT COUNT(*) FROM tests WHERE status = 'upcoming'")->fetchColumn(),
+    'scheduled' => (int)$pdo->query("SELECT COUNT(*) FROM tests WHERE status = 'scheduled'")->fetchColumn(),
     'completed' => (int)$pdo->query("SELECT COUNT(*) FROM tests WHERE status = 'completed'")->fetchColumn(),
 ];
 
@@ -230,12 +231,13 @@ $hasRecentActivity = $recentActivityAny->fetchColumn() > 0;
         </div>
         <div class="analytics-card-body">
             <div class="ring-container" id="ring-assessment" data-total="<?= array_sum($testStatusCounts) ?>"
-                 data-labels='<?= json_encode(['Active', 'Upcoming', 'Completed']) ?>'
+                 data-labels='<?= json_encode(['Active', 'Upcoming', 'Scheduled', 'Completed']) ?>'
                  data-values='<?= json_encode(array_values($testStatusCounts)) ?>'
-                 data-colors='<?= json_encode(['#4F8CFF', '#F59E0B', '#22C55E']) ?>'
+                 data-colors='<?= json_encode(['#4F8CFF', '#F59E0B', '#8B5CF6', '#22C55E']) ?>'
                  data-gradients='<?= json_encode([
                      ['#4F8CFF', '#6C63FF'],
                      ['#F59E0B', '#FBBF24'],
+                     ['#8B5CF6', '#A78BFA'],
                      ['#22C55E', '#34D399']
                  ]) ?>'>
             </div>

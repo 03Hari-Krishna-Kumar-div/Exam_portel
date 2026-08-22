@@ -33,19 +33,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'unpublish' && $testId) {
         $pdo->prepare("UPDATE tests SET status = 'upcoming' WHERE id = ? AND status = 'active'")->execute([$testId]);
         $message = 'Assessment unpublished. It has been moved back to upcoming.';
+    } elseif ($action === 'publish_now' && $testId) {
+        // Handle publishing from management page (both upcoming and scheduled)
+        $dRow = $pdo->prepare("SELECT duration_minutes, title FROM tests WHERE id = ?");
+        $dRow->execute([$testId]);
+        $dRow = $dRow->fetch();
+        $duration = $dRow ? (int)$dRow['duration_minutes'] : 30;
+        $pdo->prepare("UPDATE tests SET status = 'active', start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE id = ? AND (status = 'upcoming' OR status = 'scheduled')")->execute([$duration, $testId]);
+        $message = 'Assessment published and now live.';
+    } elseif ($action === 'cancel_schedule' && $testId) {
+        // Move scheduled test back to upcoming
+        $pdo->prepare("UPDATE tests SET status = 'upcoming', start_time = NULL, end_time = NULL WHERE id = ? AND status = 'scheduled'")->execute([$testId]);
+        $sTitle = '';
+        $sRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
+        $sRow->execute([$testId]);
+        $sRow = $sRow->fetch();
+        if ($sRow) $sTitle = $sRow['title'];
+        redirect('/admin/assessment_management.php?tab=upcoming&toast=cancelled&title=' . urlencode($sTitle));
+    } elseif ($action === 'schedule_publish' && $testId) {
+        // Schedule a test for future publication
+        $startTime = $_POST['start_time'] ?? '';
+        $endTime = $_POST['end_time'] ?? '';
+        if (!empty($startTime) && !empty($endTime)) {
+            try {
+                $tz = new DateTimeZone('Asia/Kolkata');
+                $startDT = new DateTime($startTime, $tz);
+                $endDT = new DateTime($endTime, $tz);
+                $now = new DateTime('now', $tz);
+                if ($startDT < $now) {
+                    $message = 'Start time must be in the future (IST).';
+                } elseif ($endDT <= $startDT) {
+                    $message = 'End time must be after start time.';
+                } else {
+                    $sTitle = '';
+                    $sRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
+                    $sRow->execute([$testId]);
+                    $sRow = $sRow->fetch();
+                    if ($sRow) $sTitle = $sRow['title'];
+                    $pdo->prepare("UPDATE tests SET status = 'scheduled', start_time = ?, end_time = ? WHERE id = ? AND (status = 'upcoming' OR status = 'scheduled')")
+                        ->execute([$startDT->format('Y-m-d H:i:s'), $endDT->format('Y-m-d H:i:s'), $testId]);
+                    redirect('/admin/assessment_management.php?tab=scheduled&toast=scheduled&title=' . urlencode($sTitle));
+                }
+            } catch (Exception $e) {
+                $message = 'Invalid date format.';
+            }
+        } else {
+            $message = 'Start and end times are required.';
+        }
     }
 }
 
 // Current tab
 $activeTab = $_GET['tab'] ?? 'upcoming';
-$validTabs = ['upcoming', 'live', 'paused', 'completed'];
+$validTabs = ['upcoming', 'scheduled', 'live', 'paused', 'completed'];
 if (!in_array($activeTab, $validTabs)) $activeTab = 'upcoming';
 
 // Build query based on tab
 $statusMap = [
-    'upcoming' => "t.status = 'upcoming'",
-    'live'     => "t.status = 'active'",
-    'paused'   => "t.status = 'paused'",
+    'upcoming'  => "t.status = 'upcoming'",
+    'scheduled' => "t.status = 'scheduled'",
+    'live'      => "t.status = 'active'",
+    'paused'    => "t.status = 'paused'",
     'completed' => "t.status = 'completed'",
 ];
 
@@ -134,6 +182,11 @@ if ($activeTab === 'live' && !empty($assessments)) {
                 Upcoming
                 <span class="tab-badge"><?= (int)$tabCounts['upcoming'] ?></span>
             </a>
+            <a href="?tab=scheduled" class="tab <?= $activeTab === 'scheduled' ? 'active' : '' ?>">
+                <?= icon('calendar', 16) ?>
+                Scheduled
+                <span class="tab-badge"><?= (int)$tabCounts['scheduled'] ?></span>
+            </a>
             <a href="?tab=live" class="tab <?= $activeTab === 'live' ? 'active' : '' ?>">
                 <?= icon('play', 16) ?>
                 Live
@@ -166,10 +219,28 @@ if ($activeTab === 'live' && !empty($assessments)) {
                         <?php endif; ?>
                     </div>
                     <h3>
-                        <?= $activeTab === 'upcoming' ? 'No Upcoming Assessments' : ($activeTab === 'live' ? 'No Live Assessments' : ($activeTab === 'paused' ? 'No Paused Assessments' : 'No Completed Assessments')) ?>
+                        <?php
+                        $emptyTitles = [
+                            'upcoming' => 'No Upcoming Assessments',
+                            'scheduled' => 'No Scheduled Assessments',
+                            'live' => 'No Live Assessments',
+                            'paused' => 'No Paused Assessments',
+                            'completed' => 'No Completed Assessments',
+                        ];
+                        echo $emptyTitles[$activeTab] ?? 'No Assessments';
+                        ?>
                     </h3>
                     <p>
-                        <?= $activeTab === 'upcoming' ? 'Create a new assessment in the Assessment Studio to get started.' : ($activeTab === 'live' ? 'Publish an upcoming assessment to make it live.' : ($activeTab === 'paused' ? 'No assessments are currently paused.' : 'Completed assessments will appear here.')) ?>
+                        <?php
+                        $emptyMsgs = [
+                            'upcoming' => 'Create a new assessment in the Assessment Studio to get started.',
+                            'scheduled' => 'Schedule an assessment from the Test Builder or Assessment Studio.',
+                            'live' => 'Publish an upcoming assessment to make it live.',
+                            'paused' => 'No assessments are currently paused.',
+                            'completed' => 'Completed assessments will appear here.',
+                        ];
+                        echo $emptyMsgs[$activeTab] ?? '';
+                        ?>
                     </p>
                     <?php if ($activeTab === 'upcoming'): ?>
                         <a href="assessment_studio.php" class="btn btn-primary">
@@ -191,6 +262,8 @@ if ($activeTab === 'live' && !empty($assessments)) {
                                     <th>Progress</th>
                                 <?php elseif ($activeTab === 'completed'): ?>
                                     <th>Submissions</th>
+                                <?php elseif ($activeTab === 'scheduled'): ?>
+                                    <th>Starts At</th>
                                 <?php else: ?>
                                     <th>Scheduled</th>
                                 <?php endif; ?>
@@ -228,6 +301,15 @@ if ($activeTab === 'live' && !empty($assessments)) {
                                     <td>
                                         <span class="badge badge-success"><?= (int)$a['submission_count'] ?> submitted</span>
                                     </td>
+                                <?php elseif ($activeTab === 'scheduled'): ?>
+                                    <td class="text-sm">
+                                        <?php if ($a['start_time']): ?>
+                                            <div style="font-weight:500"><?= date('d M Y, h:i A', strtotime($a['start_time'])) ?></div>
+                                            <div class="text-muted" style="font-size:.75rem">IST</div>
+                                        <?php else: ?>
+                                            <span class="badge badge-pending">Not set</span>
+                                        <?php endif; ?>
+                                    </td>
                                 <?php else: ?>
                                     <td class="text-sm text-muted">
                                         <?php if ($a['start_time']): ?>
@@ -255,6 +337,26 @@ if ($activeTab === 'live' && !empty($assessments)) {
                                             <input type="hidden" name="id" value="<?= $a['id'] ?>">
                                             <button type="submit" class="btn btn-sm btn-danger" data-tooltip="Delete">
                                                 <?= icon('trash', 14) ?>
+                                            </button>
+                                        </form>
+
+                                    <?php elseif ($activeTab === 'scheduled'): ?>
+                                        <form method="POST" style="display:inline" onsubmit="return confirm('Publish this assessment now? Students will be able to start immediately.')">
+                                            <?= csrfField() ?>
+                                            <input type="hidden" name="action" value="publish_now">
+                                            <input type="hidden" name="id" value="<?= $a['id'] ?>">
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                <?= icon('play', 14) ?>
+                                                Publish Now
+                                            </button>
+                                        </form>
+                                        <form method="POST" style="display:inline" onsubmit="return confirm('Cancel this schedule? The assessment will move back to upcoming.')">
+                                            <?= csrfField() ?>
+                                            <input type="hidden" name="action" value="cancel_schedule">
+                                            <input type="hidden" name="id" value="<?= $a['id'] ?>">
+                                            <button type="submit" class="btn btn-sm btn-secondary">
+                                                <?= icon('x', 14) ?>
+                                                Cancel
                                             </button>
                                         </form>
 
@@ -423,7 +525,9 @@ function openPublishModal(id, title) {
     document.getElementById('publishTestId').value = id;
     document.getElementById('scheduleTestId').value = id;
     document.getElementById('publishTitle').textContent = 'Publish "' + title + '" — students will immediately be able to see and start this assessment.';
-    document.getElementById('publishModal').style.display = 'flex';
+    var el = document.getElementById('publishModal');
+    el.style.display = 'flex';
+    el.classList.add('open');
     document.getElementById('scheduleForm').style.display = 'none';
 }
 
@@ -435,7 +539,9 @@ function showScheduleForm() {
 function openExtendModal(id, title) {
     document.getElementById('extendTestId').value = id;
     document.getElementById('extendTitle').textContent = 'Extend time for "' + title + '"';
-    document.getElementById('extendModal').style.display = 'flex';
+    var el = document.getElementById('extendModal');
+    el.style.display = 'flex';
+    el.classList.add('open');
 }
 
 // Toast auto-dismiss
@@ -450,30 +556,10 @@ function dismissToast() {
 </script>
 
 <?php
-// Publish/schedule POST handling for this page
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    if ($action === 'publish_now' && !empty($_POST['id'])) {
-        $pubId = (int)$_POST['id'];
-        $pdo->prepare("UPDATE tests SET status = 'active' WHERE id = ? AND status = 'upcoming'")->execute([$pubId]);
-        $pubTitle = '';
-        $pubRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
-        $pubRow->execute([$pubId]);
-        $pubRow = $pubRow->fetch();
-        if ($pubRow) $pubTitle = $pubRow['title'];
-        redirect('/admin/assessment_management.php?tab=live&toast=published&title=' . urlencode($pubTitle));
-    }
-    if ($action === 'schedule_publish' && !empty($_POST['id'])) {
-        $schedId = (int)$_POST['id'];
-        $stmt = $pdo->prepare("UPDATE tests SET start_time = ?, end_time = ? WHERE id = ? AND status = 'upcoming'");
-        $stmt->execute([$_POST['start_time'] ?: null, $_POST['end_time'] ?: null, $schedId]);
-        $schedTitle = '';
-        $schedRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
-        $schedRow->execute([$schedId]);
-        $schedRow = $schedRow->fetch();
-        if ($schedRow) $schedTitle = $schedRow['title'];
-        redirect('/admin/assessment_management.php?tab=upcoming&toast=scheduled&title=' . urlencode($schedTitle));
-    }
+// Publish/schedule POST handling for this page (from modal)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
+    // Already handled at top of file — this block is a no-op placeholder.
+    // Publish and schedule actions are processed in the header section above.
 }
 ?>
 

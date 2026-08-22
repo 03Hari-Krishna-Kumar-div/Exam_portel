@@ -169,28 +169,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ─── Publish Assessment ─────────────────────────────────────
     elseif ($action === 'publish_now' && !empty($_POST['id'])) {
         $testIdPub = (int)$_POST['id'];
-        $pdo->prepare("UPDATE tests SET status = 'active' WHERE id = ? AND status = 'upcoming'")->execute([$testIdPub]);
-        $testTitle = '';
-        $tRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
-        $tRow->execute([$testIdPub]);
-        $tRow = $tRow->fetch();
-        if ($tRow) $testTitle = $tRow['title'];
+        // Handle both upcoming and scheduled tests
+        $dRow = $pdo->prepare("SELECT duration_minutes, title FROM tests WHERE id = ?");
+        $dRow->execute([$testIdPub]);
+        $dRow = $dRow->fetch();
+        $duration = $dRow ? (int)$dRow['duration_minutes'] : 30;
+        $testTitle = $dRow ? $dRow['title'] : '';
+        $pdo->prepare("UPDATE tests SET status = 'active', start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE id = ? AND (status = 'upcoming' OR status = 'scheduled')")->execute([$duration, $testIdPub]);
         redirect('/admin/assessment_management.php?tab=live&toast=published&title=' . urlencode($testTitle));
     }
     elseif ($action === 'schedule_publish' && !empty($_POST['id'])) {
         $testIdSched = (int)$_POST['id'];
-        $stmt = $pdo->prepare("UPDATE tests SET status = 'upcoming', start_time = ?, end_time = ? WHERE id = ? AND status = 'upcoming'");
-        $stmt->execute([
-            $_POST['start_time'] ?: null,
-            $_POST['end_time'] ?: null,
-            $testIdSched,
-        ]);
-        $testTitle = '';
-        $tRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
-        $tRow->execute([$testIdSched]);
-        $tRow = $tRow->fetch();
-        if ($tRow) $testTitle = $tRow['title'];
-        redirect('/admin/assessment_management.php?tab=upcoming&toast=scheduled&title=' . urlencode($testTitle));
+        $startTime = $_POST['start_time'] ?? '';
+        $endTime = $_POST['end_time'] ?? '';
+        if (empty($startTime) || empty($endTime)) {
+            $message = 'Start and end times are required.';
+        } else {
+            try {
+                $tz = new DateTimeZone('Asia/Kolkata');
+                $startDT = new DateTime($startTime, $tz);
+                $endDT = new DateTime($endTime, $tz);
+                $now = new DateTime('now', $tz);
+                if ($startDT < $now) {
+                    $message = 'Start time must be in the future (IST).';
+                } elseif ($endDT <= $startDT) {
+                    $message = 'End time must be after start time.';
+                } else {
+                    $stmt = $pdo->prepare("UPDATE tests SET status = 'scheduled', start_time = ?, end_time = ? WHERE id = ? AND (status = 'upcoming' OR status = 'scheduled')");
+                    $stmt->execute([
+                        $startDT->format('Y-m-d H:i:s'),
+                        $endDT->format('Y-m-d H:i:s'),
+                        $testIdSched,
+                    ]);
+                    $testTitle = '';
+                    $tRow = $pdo->prepare("SELECT title FROM tests WHERE id = ?");
+                    $tRow->execute([$testIdSched]);
+                    $tRow = $tRow->fetch();
+                    if ($tRow) $testTitle = $tRow['title'];
+                    redirect('/admin/assessment_management.php?tab=scheduled&toast=scheduled&title=' . urlencode($testTitle));
+                }
+            } catch (Exception $e) {
+                $message = 'Invalid date format.';
+            }
+        }
     }
 
     // ─── Delete Draft ───────────────────────────────────────────
@@ -879,12 +900,16 @@ function openPublishModal(id, title) {
     document.getElementById('publishTestId').value = id;
     document.getElementById('scheduleTestId').value = id;
     document.getElementById('publishTitle').textContent = 'Publish "' + title + '" — students will immediately be able to see and start this assessment.';
-    document.getElementById('publishModal').style.display = 'flex';
+    var el = document.getElementById('publishModal');
+    el.style.display = 'flex';
+    el.classList.add('open');
     document.getElementById('scheduleForm').style.display = 'none';
 }
 
 function closePublishModal() {
-    document.getElementById('publishModal').style.display = 'none';
+    var el = document.getElementById('publishModal');
+    el.classList.remove('open');
+    el.style.display = 'none';
 }
 
 function showScheduleForm() {
