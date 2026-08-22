@@ -39,8 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dRow->execute([$testId]);
         $dRow = $dRow->fetch();
         $duration = $dRow ? (int)$dRow['duration_minutes'] : 30;
+        $pTitle = $dRow ? $dRow['title'] : '';
         $pdo->prepare("UPDATE tests SET status = 'active', start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE id = ? AND (status = 'upcoming' OR status = 'scheduled')")->execute([$duration, $testId]);
-        $message = 'Assessment published and now live.';
+        redirect('/admin/assessment_management.php?tab=live&toast=published&title=' . urlencode($pTitle));
     } elseif ($action === 'cancel_schedule' && $testId) {
         // Move scheduled test back to upcoming
         $pdo->prepare("UPDATE tests SET status = 'upcoming', start_time = NULL, end_time = NULL WHERE id = ? AND status = 'scheduled'")->execute([$testId]);
