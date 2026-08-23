@@ -1,0 +1,1098 @@
+{
+  "communities": {
+    "0": [
+      "test_report",
+      "test_report_10_1_unfixed_feature_scope",
+      "test_report_10_2_non_issues_verified_working",
+      "test_report_10_known_issues",
+      "test_report_11_1_quality_gates",
+      "test_report_11_2_coverage_matrix",
+      "test_report_11_3_test_credentials",
+      "test_report_11_coverage_summary",
+      "test_report_1_executive_summary",
+      "test_report_2_1_server_configuration",
+      "test_report_2_2_file_inventory_35_files",
+      "test_report_2_3_database_schema",
+      "test_report_2_infrastructure_environment",
+      "test_report_3_1_public_pages_unauthenticated",
+      "test_report_3_2_student_pages_authenticated",
+      "test_report_3_3_admin_pages_authenticated",
+      "test_report_3_page_by_page_audit",
+      "test_report_4_api_endpoint_audit",
+      "test_report_5_static_assets",
+      "test_report_6_1_admin_crud_operations",
+      "test_report_6_2_admin_test_questions",
+      "test_report_6_3_student_registration",
+      "test_report_6_4_student_test_taking",
+      "test_report_6_5_data_flow_submit_answer",
+      "test_report_6_6_admin_grading",
+      "test_report_6_7_admin_pci_reports",
+      "test_report_6_e2e_workflow_tests",
+      "test_report_7_1_critical_bugs_5_5_fixed",
+      "test_report_7_2_high_severity_3_3_fixed",
+      "test_report_7_3_low_severity_2_2_fixed",
+      "test_report_7_4_additional_fixes_not_in_original_bug_list",
+      "test_report_7_bug_fix_log",
+      "test_report_8_1_authentication",
+      "test_report_8_2_csrf_protection",
+      "test_report_8_3_input_validation",
+      "test_report_8_4_submission_integrity",
+      "test_report_8_security_audit",
+      "test_report_9_1_page_load_times",
+      "test_report_9_2_database_query_count_per_page_load",
+      "test_report_9_performance_metrics",
+      "test_report_appendix_a_router_configuration",
+      "test_report_appendix_b_first_time_setup",
+      "test_report_detailed_test_report_student_test_analysis_platform",
+      "test_report_table_of_contents"
+    ],
+    "1": [
+      "route",
+      "src_python_analysis_charts",
+      "src_python_analysis_charts_build_bar_chart_data",
+      "src_python_analysis_charts_build_doughnut_data",
+      "src_python_analysis_charts_build_histogram_data",
+      "src_python_analysis_charts_build_radar_data",
+      "src_python_analysis_charts_build_stacked_bar_data",
+      "src_python_analysis_charts_rationale_1",
+      "src_python_analysis_charts_rationale_114",
+      "src_python_analysis_charts_rationale_145",
+      "src_python_analysis_charts_rationale_15",
+      "src_python_analysis_charts_rationale_46",
+      "src_python_analysis_charts_rationale_85",
+      "src_python_analysis_pci",
+      "src_python_analysis_pci_calculate_pci",
+      "src_python_analysis_pci_get_distribution",
+      "src_python_analysis_pci_get_performance_band",
+      "src_python_analysis_pci_get_stats",
+      "src_python_analysis_pci_rationale_1",
+      "src_python_analysis_pci_rationale_110",
+      "src_python_analysis_pci_rationale_22",
+      "src_python_analysis_pci_rationale_64",
+      "src_python_analysis_pci_rationale_87",
+      "src_python_app",
+      "src_python_app_api_batch_pci",
+      "src_python_app_api_calculate_pci",
+      "src_python_app_api_charts_test",
+      "src_python_app_api_student_pci",
+      "src_python_app_fetch_submission_scores",
+      "src_python_app_get_db",
+      "src_python_app_health",
+      "src_python_app_rationale_1",
+      "src_python_app_rationale_157",
+      "src_python_app_rationale_194",
+      "src_python_app_rationale_221",
+      "src_python_app_rationale_42",
+      "src_python_app_rationale_54",
+      "src_python_app_rationale_88",
+      "src_python_app_rationale_94"
+    ],
+    "2": [
+      "non_tech_manual",
+      "non_tech_manual_adding_a_single_student",
+      "non_tech_manual_bulk_import_students_from_csv",
+      "non_tech_manual_common_tasks_step_by_step",
+      "non_tech_manual_creating_a_new_test",
+      "non_tech_manual_exam_portal_simple_user_guide",
+      "non_tech_manual_frequently_asked_questions",
+      "non_tech_manual_generating_a_guest_link_or_qr_code",
+      "non_tech_manual_guest_link_qr_code_giving_test_access_without_login",
+      "non_tech_manual_how_guest_access_works_simplified",
+      "non_tech_manual_how_student_registration_login_works",
+      "non_tech_manual_how_students_use_guest_access",
+      "non_tech_manual_logging_in",
+      "non_tech_manual_managing_guest_entries",
+      "non_tech_manual_manual_token_entry_backup",
+      "non_tech_manual_option_1_registered_students_email_password",
+      "non_tech_manual_option_2_guest_access_no_account_required",
+      "non_tech_manual_pausing_or_ending_a_test",
+      "non_tech_manual_setting_up_your_institution_step_by_step",
+      "non_tech_manual_step_1_adding_a_college",
+      "non_tech_manual_step_2_adding_a_course",
+      "non_tech_manual_step_3_adding_a_batch",
+      "non_tech_manual_step_4_adding_students",
+      "non_tech_manual_step_5_creating_a_test_assessment",
+      "non_tech_manual_student_dashboard",
+      "non_tech_manual_student_experience",
+      "non_tech_manual_student_sidebar",
+      "non_tech_manual_taking_a_test",
+      "non_tech_manual_theme_toggle_dark_light_mode",
+      "non_tech_manual_using_on_mobile",
+      "non_tech_manual_verifying_a_new_student",
+      "non_tech_manual_via_link",
+      "non_tech_manual_via_qr_code",
+      "non_tech_manual_viewing_test_results",
+      "non_tech_manual_what_is_this",
+      "non_tech_manual_what_students_see_after_you_add_them",
+      "non_tech_manual_what_you_get"
+    ],
+    "3": [
+      "non_tech_manual_activity_logs",
+      "non_tech_manual_all_assessments",
+      "non_tech_manual_assessment_management",
+      "non_tech_manual_assessment_studio",
+      "non_tech_manual_batches",
+      "non_tech_manual_bottom_of_sidebar",
+      "non_tech_manual_colleges",
+      "non_tech_manual_courses",
+      "non_tech_manual_create_assessment",
+      "non_tech_manual_dashboard",
+      "non_tech_manual_draft_assessments",
+      "non_tech_manual_failed_logins",
+      "non_tech_manual_grading",
+      "non_tech_manual_guest_access",
+      "non_tech_manual_help_documentation",
+      "non_tech_manual_institution_management",
+      "non_tech_manual_left_sidebar_complete_guide_to_every_menu_item",
+      "non_tech_manual_live_monitor",
+      "non_tech_manual_overview",
+      "non_tech_manual_pending_verifications",
+      "non_tech_manual_question_library",
+      "non_tech_manual_reports",
+      "non_tech_manual_reports_analytics",
+      "non_tech_manual_settings",
+      "non_tech_manual_student_management",
+      "non_tech_manual_students",
+      "non_tech_manual_support",
+      "non_tech_manual_system",
+      "non_tech_manual_tab_activity"
+    ],
+    "4": [
+      "path_bug_report",
+      "path_bug_report_1_executive_summary",
+      "path_bug_report_2_1_the_duality_problem",
+      "path_bug_report_2_2_why_type_c_failed",
+      "path_bug_report_2_3_why_redirect_calls_work",
+      "path_bug_report_2_problem_analysis",
+      "path_bug_report_3_1_confirmed_404_bugs_3_fixed",
+      "path_bug_report_3_2_router_safety_net_4_added",
+      "path_bug_report_3_3_previously_fixed_url_bugs_5_already_fixed",
+      "path_bug_report_3_4_dormant_fragilities_not_fixed_acceptable_risk",
+      "path_bug_report_3_bug_inventory",
+      "path_bug_report_4_1_final_router_flow_after_fixes",
+      "path_bug_report_4_2_test_matrix",
+      "path_bug_report_4_router_architecture",
+      "path_bug_report_5_1_file_src_php_includes_admin_header_php_line_77",
+      "path_bug_report_5_2_file_src_php_public_student_dashboard_php_line_38",
+      "path_bug_report_5_3_file_src_php_public_admin_students_php_line_38",
+      "path_bug_report_5_4_file_router_php_lines_71_74",
+      "path_bug_report_5_fix_details",
+      "path_bug_report_6_1_path_test_results_13_13_pass",
+      "path_bug_report_6_2_code_cleanliness",
+      "path_bug_report_6_3_no_regression",
+      "path_bug_report_6_verification_results",
+      "path_bug_report_7_1_path_classification_by_environment",
+      "path_bug_report_7_2_all_file_paths_after_fix",
+      "path_bug_report_7_appendix_all_path_types_classified",
+      "path_bug_report_comprehensive_path_bug_report",
+      "path_bug_report_quick_reference_the_rules_for_urls",
+      "path_bug_report_table_of_contents"
+    ],
+    "5": [
+      "bugs",
+      "bugs_bug_tracker_student_test_platform",
+      "bugs_crit_001_svg_iconsprite_dumped_inside_style_tag",
+      "bugs_crit_002_assets_path_resolution_broken_css_doesn_t_load",
+      "bugs_critical_bugs",
+      "bugs_high_001_hardcoded_test_platform_asset_paths_in_test_php",
+      "bugs_high_002_hardcoded_asset_path_in_verify_otp_php",
+      "bugs_high_003_my_tests_sidebar_link_is_a_dead_placeholder",
+      "bugs_high_004_massive_sidebar_html_duplication_across_5_student_pages",
+      "bugs_high_bugs",
+      "bugs_info_001_45_defined_icons_are_never_used",
+      "bugs_info_002_redirect_function_handles_hardcoded_paths_intentionally",
+      "bugs_info_003_no_csrf_issues_found",
+      "bugs_info_004_all_include_require_paths_resolve_correctly",
+      "bugs_informational_notes",
+      "bugs_low_001_analytics_php_redundant_sql_join_pattern",
+      "bugs_low_002_verify_otp_php_missing_iconsprite_call",
+      "bugs_low_003_dashboard_stat_cards_use_icon_arrow_right_14_as_decoration",
+      "bugs_low_004_no_favicon_in_any_page",
+      "bugs_low_005_timer_critical_state_uses_bare_300_and_60_constants",
+      "bugs_low_bugs",
+      "bugs_med_001_missing_mt_5_utility_class",
+      "bugs_med_002_php_8_match_expression_version_compatibility",
+      "bugs_med_003_str_contains_str_starts_with_php_8_polyfill_needed",
+      "bugs_medium_bugs",
+      "bugs_severity_legend",
+      "bugs_summary"
+    ],
+    "6": [
+      "claude_skills_graphify_skill",
+      "claude_skills_graphify_skill_for_graphify_add_and_watch",
+      "claude_skills_graphify_skill_for_graphify_query",
+      "claude_skills_graphify_skill_for_the_commit_hook_and_native_claude_md_integration",
+      "claude_skills_graphify_skill_for_update_and_cluster_only",
+      "claude_skills_graphify_skill_graphify",
+      "claude_skills_graphify_skill_honesty_rules",
+      "claude_skills_graphify_skill_interpreter_guard_for_subcommands",
+      "claude_skills_graphify_skill_part_a_structural_extraction_for_code_files",
+      "claude_skills_graphify_skill_part_b_semantic_extraction_parallel_subagents",
+      "claude_skills_graphify_skill_part_c_merge_ast_semantic_into_final_extraction",
+      "claude_skills_graphify_skill_powershell_5_1_vertical_scrolling_stops_working",
+      "claude_skills_graphify_skill_step_0_github_repos_and_multi_path_merge_only_if_a_url_or_several_paths",
+      "claude_skills_graphify_skill_step_1_ensure_graphify_is_installed",
+      "claude_skills_graphify_skill_step_2_5_video_and_audio_only_if_video_files_detected",
+      "claude_skills_graphify_skill_step_2_detect_files",
+      "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "claude_skills_graphify_skill_step_4_5_graph_health_check_read_only_integrity_gate",
+      "claude_skills_graphify_skill_step_4_build_graph_cluster_analyze_generate_outputs",
+      "claude_skills_graphify_skill_step_5_label_communities",
+      "claude_skills_graphify_skill_step_6_generate_obsidian_vault_opt_in_html",
+      "claude_skills_graphify_skill_step_9_save_manifest_update_cost_tracker_clean_up_and_report",
+      "claude_skills_graphify_skill_steps_6b_8_wiki_neo4j_falkordb_svg_graphml_mcp_benchmark_only_on_their_flags",
+      "claude_skills_graphify_skill_troubleshooting",
+      "claude_skills_graphify_skill_usage",
+      "claude_skills_graphify_skill_what_graphify_is_for",
+      "claude_skills_graphify_skill_what_you_must_do_when_invoked"
+    ],
+    "7": [
+      "non_tech_manual_adding_questions_one_by_one_manual",
+      "non_tech_manual_bulk_upload_via_csv_file_for_mcq_questions_only",
+      "non_tech_manual_coding_grading_manual",
+      "non_tech_manual_coding_question_tips",
+      "non_tech_manual_explanation_grading_manual",
+      "non_tech_manual_explanation_question_tips",
+      "non_tech_manual_for_coding_questions",
+      "non_tech_manual_for_explanation_questions",
+      "non_tech_manual_for_mcq_questions",
+      "non_tech_manual_how_grading_works_for_each_question_type",
+      "non_tech_manual_how_to_create_in_excel_google_sheets",
+      "non_tech_manual_how_to_upload_the_csv_file",
+      "non_tech_manual_mcq_best_practices",
+      "non_tech_manual_mcq_grading_automatic",
+      "non_tech_manual_sample_csv_copy_this_template",
+      "non_tech_manual_step_1_choose_the_question_type",
+      "non_tech_manual_step_2_set_marks",
+      "non_tech_manual_step_3_type_your_question",
+      "non_tech_manual_step_4_fill_in_the_answer_details",
+      "non_tech_manual_step_5_click_add_question",
+      "non_tech_manual_the_exact_csv_format",
+      "non_tech_manual_the_grading_dashboard",
+      "non_tech_manual_tips_for_writing_good_questions",
+      "non_tech_manual_what_is_a_csv_file",
+      "non_tech_manual_working_with_questions_in_detail"
+    ],
+    "8": [
+      "src_php_includes_helpers",
+      "src_php_includes_helpers_flash",
+      "src_php_includes_helpers_flashmessage",
+      "src_php_includes_helpers_formatdatetime",
+      "src_php_includes_helpers_generatetoken",
+      "src_php_includes_helpers_getremainingseconds",
+      "src_php_includes_helpers_getstudenttests",
+      "src_php_includes_helpers_h",
+      "src_php_includes_helpers_parserequestbody",
+      "src_php_includes_helpers_pythonapirequest",
+      "src_php_includes_helpers_recalculatepciforsubmission",
+      "src_php_includes_helpers_redirect",
+      "src_php_includes_helpers_rendernotificationitems",
+      "src_php_includes_helpers_str_contains",
+      "src_php_includes_helpers_str_starts_with",
+      "src_php_includes_helpers_timeago",
+      "src_php_includes_icons",
+      "src_php_includes_icons_geticondef",
+      "src_php_includes_icons_geticondefinitions",
+      "src_php_includes_icons_icon",
+      "src_php_includes_icons_iconsprite",
+      "src_php_includes_icons_resolveiconcolor",
+      "src_php_public_guest",
+      "src_php_public_guest_processguesttoken"
+    ],
+    "9": [
+      "analytics_card_redesign",
+      "analytics_card_redesign_added",
+      "analytics_card_redesign_analytics_card_redesign_enterprise_saas",
+      "analytics_card_redesign_animation_micro_interactions",
+      "analytics_card_redesign_card_hover",
+      "analytics_card_redesign_card_specification",
+      "analytics_card_redesign_center_content",
+      "analytics_card_redesign_changes_summary",
+      "analytics_card_redesign_dark_mode",
+      "analytics_card_redesign_data_flow",
+      "analytics_card_redesign_empty_state",
+      "analytics_card_redesign_files_created",
+      "analytics_card_redesign_files_modified",
+      "analytics_card_redesign_gradient_colors",
+      "analytics_card_redesign_icon_system",
+      "analytics_card_redesign_legend_items",
+      "analytics_card_redesign_light_mode",
+      "analytics_card_redesign_objective",
+      "analytics_card_redesign_page_load",
+      "analytics_card_redesign_quality_targets",
+      "analytics_card_redesign_removed",
+      "analytics_card_redesign_segmented_progress_ring_specification"
+    ],
+    "10": [
+      "src_php_config_db",
+      "src_php_config_db_getdb",
+      "src_php_config_db_php_pdo",
+      "src_php_config_db_registernotificationhandlers",
+      "src_php_includes_auth",
+      "src_php_includes_auth_adminlogin",
+      "src_php_includes_auth_generatestudentotp",
+      "src_php_includes_auth_getclientip",
+      "src_php_includes_auth_guestlogin",
+      "src_php_includes_auth_isadmin",
+      "src_php_includes_auth_isstudent",
+      "src_php_includes_auth_logfailedlogin",
+      "src_php_includes_auth_logout",
+      "src_php_includes_auth_requireadmin",
+      "src_php_includes_auth_requirestudent",
+      "src_php_includes_auth_resendstudentotp",
+      "src_php_includes_auth_studentlogin",
+      "src_php_includes_auth_studentregister",
+      "src_php_includes_auth_verifystudentotp",
+      "src_php_includes_helpers_notifyadmin"
+    ],
+    "11": [
+      "test",
+      "test_10_fluent_2_design_system_8_tests",
+      "test_1_database_connectivity_schema_16_tests",
+      "test_2_column_validation_17_tests",
+      "test_3_admin_dashboard_queries_6_tests",
+      "test_4_admin_management_pages_10_tests",
+      "test_5_reports_tab_switcher_2_tests",
+      "test_6_student_pages_4_tests",
+      "test_7_authentication_3_tests",
+      "test_8_application_infrastructure_10_tests",
+      "test_9_security_3_tests",
+      "test_configuration_verified",
+      "test_database_migration_applied",
+      "test_executive_summary",
+      "test_file_inventory",
+      "test_issues_found_fixed_during_testing",
+      "test_report_structure",
+      "test_test_coverage",
+      "test_test_platform_comprehensive_test_report"
+    ],
+    "12": [
+      "package",
+      "package_author",
+      "package_description",
+      "package_devdependencies",
+      "package_devdependencies_playwright_test",
+      "package_directories",
+      "package_directories_doc",
+      "package_keywords",
+      "package_license",
+      "package_main",
+      "package_name",
+      "package_scripts",
+      "package_scripts_test",
+      "package_scripts_test_headed",
+      "package_scripts_test_report",
+      "package_type",
+      "package_version",
+      "playwright_test"
+    ],
+    "13": [
+      "ui_suggestions",
+      "ui_suggestions_10_recommended_next_steps",
+      "ui_suggestions_1_current_limitation_admin_dashboard_md_is_a_starter_document",
+      "ui_suggestions_2_current_limitation_admin_png_cannot_be_rendered",
+      "ui_suggestions_3_issue_admin_profile_onclick_navigates_to_logout",
+      "ui_suggestions_4_issue_system_health_card_uses_alert",
+      "ui_suggestions_5_issue_stat_card_menu_buttons_have_no_dropdown_behavior",
+      "ui_suggestions_6_issue_add_student_url_has_no_action_parameter",
+      "ui_suggestions_7_issue_edit_buttons_in_students_table_use_invalid_anchor_links",
+      "ui_suggestions_8_1_keyboard_navigation",
+      "ui_suggestions_8_2_aria_attributes",
+      "ui_suggestions_8_3_performance",
+      "ui_suggestions_8_4_data_freshness",
+      "ui_suggestions_8_additional_observations",
+      "ui_suggestions_9_summary_of_deferred_decisions",
+      "ui_suggestions_date_2026_07_24",
+      "ui_suggestions_specification_gap_analysis_recommendations",
+      "ui_suggestions_status_requires_review"
+    ],
+    "14": [
+      "docs_logic_4_10_questions_test_questions",
+      "docs_logic_4_11_submissions_student_test_attempts",
+      "docs_logic_4_12_student_answers_individual_answer_records",
+      "docs_logic_4_13_tab_switch_logs_tab_visibility_change_log",
+      "docs_logic_4_14_pci_records_performance_competency_index_scores",
+      "docs_logic_4_1_admins_platform_administrators",
+      "docs_logic_4_2_colleges_educational_institutions",
+      "docs_logic_4_3_courses_programs_offered_unique_per_college",
+      "docs_logic_4_4_batches_cohorts_within_a_course",
+      "docs_logic_4_5_students_verified_students",
+      "docs_logic_4_6_unverified_students_pre_otp_verification_registrations",
+      "docs_logic_4_7_failed_login_log_audit_log_for_failed_auth_attempts",
+      "docs_logic_4_8_guest_entries_guest_links_qr_codes",
+      "docs_logic_4_9_tests_test_definitions",
+      "docs_logic_4_database_schema"
+    ],
+    "15": [
+      "non_tech_manual_admin_dashboard_what_you_see_first",
+      "non_tech_manual_assessment_distribution_the_coloured_ring",
+      "non_tech_manual_average_performance_the_line_graph",
+      "non_tech_manual_charts_section",
+      "non_tech_manual_live_activity_feed",
+      "non_tech_manual_quick_actions_the_6_shortcut_cards",
+      "non_tech_manual_recent_activity",
+      "non_tech_manual_recent_assessments",
+      "non_tech_manual_recent_students",
+      "non_tech_manual_statistics_cards_the_4_big_numbers",
+      "non_tech_manual_submission_overview_another_coloured_ring",
+      "non_tech_manual_system_status",
+      "non_tech_manual_top_bar_header"
+    ],
+    "16": [
+      "docs_logic_19_1_admin_flow",
+      "docs_logic_19_2_student_flow",
+      "docs_logic_19_3_guest_flow",
+      "docs_logic_19_usage_manual",
+      "docs_logic_creating_managing_a_test",
+      "docs_logic_first_time_setup",
+      "docs_logic_grading",
+      "docs_logic_managing_students",
+      "docs_logic_registration",
+      "docs_logic_reports_analytics",
+      "docs_logic_taking_a_test",
+      "docs_logic_test_statuses_dashboard"
+    ],
+    "17": [
+      "docs_logic",
+      "docs_logic_11_1_grading_interface_admin_grading_php",
+      "docs_logic_11_2_save_grades",
+      "docs_logic_11_grading_evaluation",
+      "docs_logic_1_project_overview",
+      "docs_logic_2_system_architecture",
+      "docs_logic_3_folder_structure",
+      "docs_logic_7_student_registration_otp_verification_flow",
+      "docs_logic_appendix_key_design_decisions",
+      "docs_logic_student_test_analysis_platform_logic_document",
+      "docs_logic_table_of_contents"
+    ],
+    "18": [
+      "manual_2_1_data_generation",
+      "manual_2_2_svg_architecture",
+      "manual_2_3_smooth_path_generation",
+      "manual_2_4_visual_specifications",
+      "manual_2_5_y_axis_labels",
+      "manual_2_6_x_axis_labels",
+      "manual_2_7_grid_lines",
+      "manual_2_8_tooltip_javascript",
+      "manual_2_9_crosshair",
+      "manual_2_line_chart_premium_progressive_line"
+    ],
+    "19": [
+      "tests_analytics_grid_spec",
+      "tests_analytics_grid_spec_css_path",
+      "tests_analytics_grid_spec_fixture_path",
+      "tests_analytics_grid_spec_fs",
+      "tests_analytics_grid_spec_getcssvar",
+      "tests_analytics_grid_spec_getfirstrowitemcount",
+      "tests_analytics_grid_spec_getgridcolumns",
+      "tests_analytics_grid_spec_getstyle",
+      "tests_analytics_grid_spec_path",
+      "tests_analytics_grid_spec_test_expect"
+    ],
+    "20": [
+      "claude_skills_graphify_references_exports",
+      "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "claude_skills_graphify_references_exports_step_6b_wiki_only_if_wiki_flag",
+      "claude_skills_graphify_references_exports_step_7_neo4j_export_only_if_neo4j_or_neo4j_push_flag",
+      "claude_skills_graphify_references_exports_step_7a_falkordb_export_only_if_falkordb_or_falkordb_push_flag",
+      "claude_skills_graphify_references_exports_step_7b_svg_export_only_if_svg_flag",
+      "claude_skills_graphify_references_exports_step_7c_graphml_export_only_if_graphml_flag",
+      "claude_skills_graphify_references_exports_step_7d_mcp_server_only_if_mcp_flag",
+      "claude_skills_graphify_references_exports_step_8_token_reduction_benchmark_only_if_total_words_5000"
+    ],
+    "21": [
+      "src_php_includes_mailer",
+      "src_php_includes_mailer_sendmail",
+      "src_php_includes_mailer_sendnativemail",
+      "src_php_includes_mailer_sendotpemail",
+      "src_php_includes_mailer_sendsmtpmail",
+      "src_php_includes_mailer_smtpfirstline",
+      "src_php_includes_mailer_smtpissuccess",
+      "src_php_includes_mailer_smtpreadresponse",
+      "src_php_includes_mailer_smtpsendandread"
+    ],
+    "22": [
+      "docs_logic_16_1_fluent_2_design_tokens",
+      "docs_logic_16_2_student_theme_student_css",
+      "docs_logic_16_3_admin_theme_admin_css",
+      "docs_logic_16_ui_design_system",
+      "docs_logic_color_palette",
+      "docs_logic_radius",
+      "docs_logic_spacing",
+      "docs_logic_typography"
+    ],
+    "23": [
+      "manual",
+      "manual_1_overview",
+      "manual_8_design_inspiration",
+      "manual_appendix_a_file_reference",
+      "manual_appendix_b_design_tokens_reference",
+      "manual_design_principles",
+      "manual_exam_portal_enterprise_chart_analytics_redesign_manual",
+      "manual_table_of_contents"
+    ],
+    "24": [
+      "docs_logic_18_1_prerequisites",
+      "docs_logic_18_2_database_setup",
+      "docs_logic_18_3_configuration",
+      "docs_logic_18_4_running_the_server",
+      "docs_logic_18_5_seed_data",
+      "docs_logic_18_6_python_api_optional",
+      "docs_logic_18_setup_guide"
+    ],
+    "25": [
+      "claude_skills_graphify_references_query",
+      "claude_skills_graphify_references_query_for_graphify_explain",
+      "claude_skills_graphify_references_query_for_graphify_path",
+      "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "claude_skills_graphify_references_query_step_0_constrained_query_expansion_required_before_traversal",
+      "claude_skills_graphify_references_query_step_1_traversal"
+    ],
+    "26": [
+      "docs_logic_10_1_entry_points",
+      "docs_logic_10_2_test_interface_student_test_php",
+      "docs_logic_10_3_auto_save",
+      "docs_logic_10_4_submit",
+      "docs_logic_10_5_result_display",
+      "docs_logic_10_taking_a_test_student_view"
+    ],
+    "27": [
+      "docs_logic_15_1_overview",
+      "docs_logic_15_2_endpoints",
+      "docs_logic_15_3_running",
+      "docs_logic_15_4_php_integration",
+      "docs_logic_15_5_configuration",
+      "docs_logic_15_python_analysis_api"
+    ],
+    "28": [
+      "docs_logic_6_1_roles",
+      "docs_logic_6_2_admin_login",
+      "docs_logic_6_3_student_login",
+      "docs_logic_6_4_guest_token_login",
+      "docs_logic_6_5_session_csrf",
+      "docs_logic_6_authentication_user_roles"
+    ],
+    "29": [
+      "manual_3_1_architecture",
+      "manual_3_2_segment_rendering",
+      "manual_3_3_gradient_colour_system",
+      "manual_3_4_center_content",
+      "manual_3_5_legend_layout",
+      "manual_3_segmented_progress_ring"
+    ],
+    "30": [
+      "manual_4_1_breakpoint_strategy",
+      "manual_4_2_ring_alignment",
+      "manual_4_3_card_padding",
+      "manual_4_4_ring_sizing",
+      "manual_4_5_mobile_layout_vertical_stack",
+      "manual_4_mobile_responsive_layout"
+    ],
+    "31": [
+      "manual_9_1_chart_not_rendering",
+      "manual_9_2_line_chart_not_animating",
+      "manual_9_3_responsive_breakpoint_issues",
+      "manual_9_4_ring_alignment_on_mobile",
+      "manual_9_5_test_failures",
+      "manual_9_troubleshooting"
+    ],
+    "32": [
+      "src_php_includes_session",
+      "src_php_includes_session_csrffield",
+      "src_php_includes_session_getcsrftoken",
+      "src_php_includes_session_requirecsrf",
+      "src_php_includes_session_startsession",
+      "src_php_includes_session_validatecsrftoken"
+    ],
+    "33": [
+      "src_php_public_admin_college_create",
+      "src_php_public_admin_college_create_academicyearstring",
+      "src_php_public_admin_college_create_computeendingyear",
+      "src_php_public_admin_college_create_generatebatchnickname",
+      "src_php_public_admin_college_create_generatecollegecode",
+      "src_php_public_admin_college_create_php_pdo"
+    ],
+    "34": [
+      "docs_logic_12_1_formula",
+      "docs_logic_12_2_generation",
+      "docs_logic_12_3_performance_bands_python_api",
+      "docs_logic_12_4_reports_admin_reports_php",
+      "docs_logic_12_pci_scoring_system"
+    ],
+    "35": [
+      "docs_logic_13_1_detection",
+      "docs_logic_13_2_logging",
+      "docs_logic_13_3_admin_view",
+      "docs_logic_13_4_timer",
+      "docs_logic_13_tab_switch_detection_timer"
+    ],
+    "36": [
+      "docs_logic_17_1_configuration_config_mail_php",
+      "docs_logic_17_2_smtp_sender_includes_mailer_php",
+      "docs_logic_17_3_dev_mode",
+      "docs_logic_17_4_gmail_app_password",
+      "docs_logic_17_email_otp_system"
+    ],
+    "37": [
+      "manual_6_1_line_chart_draw_animation",
+      "manual_6_2_final_dot_animation",
+      "manual_6_3_ring_segment_stagger",
+      "manual_6_4_hover_interactions",
+      "manual_6_animation_system"
+    ],
+    "38": [
+      "manual_7_1_colour_contrast",
+      "manual_7_2_focus_indicators",
+      "manual_7_3_animation_respect",
+      "manual_7_4_aria_attributes",
+      "manual_7_accessibility"
+    ],
+    "39": [
+      "claude_skills_graphify_references_add_watch",
+      "claude_skills_graphify_references_add_watch_for_graphify_add",
+      "claude_skills_graphify_references_add_watch_for_watch",
+      "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder"
+    ],
+    "40": [
+      "claude_skills_graphify_references_hooks",
+      "claude_skills_graphify_references_hooks_for_git_commit_hook",
+      "claude_skills_graphify_references_hooks_for_native_claude_md_integration",
+      "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration"
+    ],
+    "41": [
+      "claude_skills_graphify_references_update",
+      "claude_skills_graphify_references_update_for_cluster_only",
+      "claude_skills_graphify_references_update_for_update_incremental_re_extraction",
+      "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only"
+    ],
+    "42": [
+      "docs_logic_14_1_format",
+      "docs_logic_14_2_import_logic_in_test_builder_php",
+      "docs_logic_14_3_sample_file",
+      "docs_logic_14_csv_question_import"
+    ],
+    "43": [
+      "docs_logic_20_1_config_db_php",
+      "docs_logic_20_2_config_mail_php",
+      "docs_logic_20_3_environment_variables_for_db_env_production",
+      "docs_logic_20_configuration_reference"
+    ],
+    "44": [
+      "docs_logic_5_1_dev_server_php_s_localhost_8000_router_php",
+      "docs_logic_5_2_base_url_detection",
+      "docs_logic_5_3_asset_urls",
+      "docs_logic_5_router_url_structure"
+    ],
+    "45": [
+      "docs_logic_8_1_generation",
+      "docs_logic_8_2_qr_code_display",
+      "docs_logic_8_3_access_flow",
+      "docs_logic_8_guest_access_qr_code_flow"
+    ],
+    "46": [
+      "docs_logic_9_1_status_transitions",
+      "docs_logic_9_2_access_control_logic_in_student_test_php",
+      "docs_logic_9_3_timer_extension",
+      "docs_logic_9_test_lifecycle"
+    ],
+    "47": [
+      "manual_5_1_design_tokens",
+      "manual_5_2_key_selectors",
+      "manual_5_3_responsive_overrides",
+      "manual_5_css_architecture_tokens"
+    ],
+    "48": [
+      "claude_skills_graphify_references_github_and_merge",
+      "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge",
+      "claude_skills_graphify_references_github_and_merge_step_0_clone_github_repo_s_only_if_a_github_url_was_given"
+    ],
+    "49": [
+      "claude_skills_graphify_references_transcribe",
+      "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio",
+      "claude_skills_graphify_references_transcribe_step_2_5_transcribe_video_audio_files_only_if_video_files_detected"
+    ],
+    "50": [
+      "opencode_plugins_graphify",
+      "opencode_plugins_graphify_graphifyplugin",
+      "opencode_plugins_graphify_rationale_4"
+    ],
+    "51": [
+      "agents",
+      "agents_graphify"
+    ],
+    "52": [
+      "claude",
+      "claude_graphify"
+    ],
+    "53": [
+      "claude_claude",
+      "claude_claude_graphify"
+    ],
+    "54": [
+      "claude_skills_graphify_references_extraction_spec",
+      "claude_skills_graphify_references_extraction_spec_graphify_reference_extraction_subagent_prompt"
+    ],
+    "55": [
+      "playwright_config",
+      "playwright_config_defineconfig"
+    ],
+    "56": [
+      "src_php_includes_admin_header",
+      "src_php_includes_admin_header_isnavactive"
+    ],
+    "57": [
+      "src_php_public_admin_colleges",
+      "src_php_public_admin_colleges_parsestreamsinput"
+    ],
+    "58": [
+      "src_php_public_admin_dashboard",
+      "src_php_public_admin_dashboard_perfsmoothpath"
+    ],
+    "59": [
+      "admin_dashboard"
+    ],
+    "60": [
+      "check_auth"
+    ],
+    "61": [
+      "router"
+    ],
+    "62": [
+      "seed_test"
+    ],
+    "63": [
+      "sql_seed_test_data"
+    ],
+    "64": [
+      "src_php_api_delete_college"
+    ],
+    "65": [
+      "src_php_api_get_batches"
+    ],
+    "66": [
+      "src_php_api_get_course_college"
+    ],
+    "67": [
+      "src_php_api_get_courses"
+    ],
+    "68": [
+      "src_php_api_submit_answer"
+    ],
+    "69": [
+      "src_php_api_tab_switch"
+    ],
+    "70": [
+      "src_php_config_mail"
+    ],
+    "71": [
+      "src_php_includes_admin_footer"
+    ],
+    "72": [
+      "src_php_public_admin_activity_logs"
+    ],
+    "73": [
+      "src_php_public_admin_assessment_management"
+    ],
+    "74": [
+      "src_php_public_admin_assessment_studio"
+    ],
+    "75": [
+      "src_php_public_admin_batches"
+    ],
+    "76": [
+      "src_php_public_admin_college_dashboard"
+    ],
+    "77": [
+      "src_php_public_admin_courses"
+    ],
+    "78": [
+      "src_php_public_admin_failed_logins"
+    ],
+    "79": [
+      "src_php_public_admin_grading"
+    ],
+    "80": [
+      "src_php_public_admin_help"
+    ],
+    "81": [
+      "src_php_public_admin_live_monitor"
+    ],
+    "82": [
+      "src_php_public_admin_notifications"
+    ],
+    "83": [
+      "src_php_public_admin_pending_verifications"
+    ],
+    "84": [
+      "src_php_public_admin_question_library"
+    ],
+    "85": [
+      "src_php_public_admin_reports"
+    ],
+    "86": [
+      "src_php_public_admin_settings"
+    ],
+    "87": [
+      "src_php_public_admin_students"
+    ],
+    "88": [
+      "src_php_public_admin_tab_switcher"
+    ],
+    "89": [
+      "src_php_public_admin_test_builder"
+    ],
+    "90": [
+      "src_php_public_index"
+    ],
+    "91": [
+      "src_php_public_login"
+    ],
+    "92": [
+      "src_php_public_logout"
+    ],
+    "93": [
+      "src_php_public_signup"
+    ],
+    "94": [
+      "src_php_public_student_analytics"
+    ],
+    "95": [
+      "src_php_public_student_dashboard"
+    ],
+    "96": [
+      "src_php_public_student_profile"
+    ],
+    "97": [
+      "src_php_public_student_results"
+    ],
+    "98": [
+      "src_php_public_student_test"
+    ],
+    "99": [
+      "src_php_public_verify_otp"
+    ],
+    "100": [
+      "src_python_analysis_init"
+    ],
+    "101": [
+      "temp_validate"
+    ]
+  },
+  "cohesion": {
+    "0": 0.045454545454545456,
+    "1": 0.09446693657219973,
+    "2": 0.05405405405405406,
+    "3": 0.06896551724137931,
+    "4": 0.06896551724137931,
+    "5": 0.07407407407407407,
+    "6": 0.07407407407407407,
+    "7": 0.08,
+    "8": 0.11594202898550725,
+    "9": 0.09090909090909091,
+    "10": 0.20526315789473684,
+    "11": 0.10526315789473684,
+    "12": 0.1111111111111111,
+    "13": 0.1111111111111111,
+    "14": 0.13333333333333333,
+    "15": 0.15384615384615385,
+    "16": 0.16666666666666666,
+    "17": 0.18181818181818182,
+    "18": 0.2,
+    "19": 0.2,
+    "20": 0.2222222222222222,
+    "21": 0.4444444444444444,
+    "22": 0.25,
+    "23": 0.25,
+    "24": 0.2857142857142857,
+    "25": 0.3333333333333333,
+    "26": 0.3333333333333333,
+    "27": 0.3333333333333333,
+    "28": 0.3333333333333333,
+    "29": 0.3333333333333333,
+    "30": 0.3333333333333333,
+    "31": 0.3333333333333333,
+    "32": 0.4666666666666667,
+    "33": 0.4,
+    "34": 0.4,
+    "35": 0.4,
+    "36": 0.4,
+    "37": 0.4,
+    "38": 0.4,
+    "39": 0.5,
+    "40": 0.5,
+    "41": 0.5,
+    "42": 0.5,
+    "43": 0.5,
+    "44": 0.5,
+    "45": 0.5,
+    "46": 0.5,
+    "47": 0.5,
+    "48": 0.6666666666666666,
+    "49": 0.6666666666666666,
+    "50": 0.6666666666666666,
+    "51": 1.0,
+    "52": 1.0,
+    "53": 1.0,
+    "54": 1.0,
+    "55": 1.0,
+    "56": 1.0,
+    "57": 1.0,
+    "58": 1.0,
+    "59": 1.0,
+    "60": 1.0,
+    "61": 1.0,
+    "62": 1.0,
+    "63": 1.0,
+    "64": 1.0,
+    "65": 1.0,
+    "66": 1.0,
+    "67": 1.0,
+    "68": 1.0,
+    "69": 1.0,
+    "70": 1.0,
+    "71": 1.0,
+    "72": 1.0,
+    "73": 1.0,
+    "74": 1.0,
+    "75": 1.0,
+    "76": 1.0,
+    "77": 1.0,
+    "78": 1.0,
+    "79": 1.0,
+    "80": 1.0,
+    "81": 1.0,
+    "82": 1.0,
+    "83": 1.0,
+    "84": 1.0,
+    "85": 1.0,
+    "86": 1.0,
+    "87": 1.0,
+    "88": 1.0,
+    "89": 1.0,
+    "90": 1.0,
+    "91": 1.0,
+    "92": 1.0,
+    "93": 1.0,
+    "94": 1.0,
+    "95": 1.0,
+    "96": 1.0,
+    "97": 1.0,
+    "98": 1.0,
+    "99": 1.0,
+    "100": 1.0,
+    "101": 1.0
+  },
+  "gods": [
+    {
+      "id": "docs_logic_student_test_analysis_platform_logic_document",
+      "label": "Student Test & Analysis Platform \u2014 Logic Document",
+      "degree": 23
+    },
+    {
+      "id": "docs_logic_4_database_schema",
+      "label": "4. Database Schema",
+      "degree": 15
+    },
+    {
+      "id": "test_report_detailed_test_report_student_test_analysis_platform",
+      "label": "Detailed Test Report \u2014 Student Test & Analysis Platform",
+      "degree": 15
+    },
+    {
+      "id": "manual_exam_portal_enterprise_chart_analytics_redesign_manual",
+      "label": "Exam Portal \u2014 Enterprise Chart & Analytics Redesign Manual",
+      "degree": 13
+    },
+    {
+      "id": "src_php_config_db_getdb",
+      "label": "getDB()",
+      "degree": 13
+    },
+    {
+      "id": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "label": "What You Must Do When Invoked",
+      "degree": 12
+    },
+    {
+      "id": "claude_skills_graphify_skill_graphify",
+      "label": "/graphify",
+      "degree": 11
+    },
+    {
+      "id": "analytics_card_redesign_analytics_card_redesign_enterprise_saas",
+      "label": "Analytics Card Redesign \u2014 Enterprise SaaS",
+      "degree": 11
+    },
+    {
+      "id": "test_test_coverage",
+      "label": "Test Coverage",
+      "degree": 11
+    },
+    {
+      "id": "manual_2_line_chart_premium_progressive_line",
+      "label": "2. Line Chart \u2014 Premium Progressive Line",
+      "degree": 10
+    }
+  ],
+  "surprises": [
+    {
+      "source": "getStudentTests()",
+      "target": "getDB()",
+      "source_files": [
+        "src/php/includes/helpers.php",
+        "src/php/config/db.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `getStudentTests()` unexpectedly reaches hub `getDB()`"
+    },
+    {
+      "source": "recalculatePciForSubmission()",
+      "target": "getDB()",
+      "source_files": [
+        "src/php/includes/helpers.php",
+        "src/php/config/db.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": "generateStudentOtp()",
+      "target": "sendOtpEmail()",
+      "source_files": [
+        "src/php/includes/auth.php",
+        "src/php/includes/mailer.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": "processGuestToken()",
+      "target": "guestLogin()",
+      "source_files": [
+        "src/php/public/guest.php",
+        "src/php/includes/auth.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": "adminLogin()",
+      "target": "getDB()",
+      "source_files": [
+        "src/php/includes/auth.php",
+        "src/php/config/db.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

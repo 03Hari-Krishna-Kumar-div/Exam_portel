@@ -1,0 +1,10 @@
+{
+  "date": "2026-08-23",
+  "url": "http://localhost:8000",
+  "healthScore": 97,
+  "issues": [
+    { "id": "ISSUE-001", "title": "Raw JSON shown after test submission", "severity": "high", "category": "functional", "status": "fixed" },
+    { "id": "ISSUE-002", "title": "Expired tests show Active chip", "severity": "low", "category": "visual", "status": "open" }
+  ],
+  "categoryScores": { "console": 100, "links": 100, "visual": 100, "functional": 85, "ux": 100, "performance": 100, "content": 100, "accessibility": 100 }
+}

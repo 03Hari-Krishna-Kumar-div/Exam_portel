@@ -1,0 +1,29 @@
+{
+  "run_id": "host-docker-internal-8000_f4f8",
+  "run_name": "host-docker-internal-8000_f4f8",
+  "status": "running",
+  "start_time": "2026-08-21T03:08:48.597470+00:00",
+  "end_time": null,
+  "auth_mode": "api_key",
+  "targets_info": [
+    {
+      "type": "web_application",
+      "details": {
+        "target_url": "http://host.docker.internal:8000/login.php"
+      },
+      "original": "http://localhost:8000/login.php"
+    }
+  ],
+  "scan_mode": "deep",
+  "instruction": null,
+  "user_instruction": null,
+  "non_interactive": true,
+  "local_sources": [],
+  "workspace_mount": null,
+  "diff_scope": {
+    "active": false,
+    "mode": "auto"
+  },
+  "scope_mode": "auto",
+  "diff_base": null
+}

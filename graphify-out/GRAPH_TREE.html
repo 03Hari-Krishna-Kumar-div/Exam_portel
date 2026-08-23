@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>/ — graphify tree viewer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      margin: 20px 0 0 24px;
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #1e3a56;
+    }
+    .controls {
+      margin: 20px 0 15px 24px;
+    }
+    button {
+      margin-right: 10px;
+      padding: 8px 18px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s ease-in-out;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:active {
+      background: #004085;
+    }
+    #tree-container {
+      width: calc(100vw - 48px); /* Adjust for body margin/padding */
+      height: 85vh;
+      overflow: auto;
+      border-radius: 8px;
+      background: #fff;
+      margin-left: 24px;
+      margin-right: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border: 1px solid #ddd;
+    }
+    svg {
+      background: #fff;
+      border-radius: 8px;
+      display: block; /* Important for D3 */
+    }
+    .node circle {
+      stroke-width: 2.5px;
+    }
+    .node text { /* Base style for the <text> container */
+      font: 13px 'Segoe UI', sans-serif;
+      paint-order: stroke fill; /* Ensures text is readable over lines */
+      stroke: #fff; /* White halo */
+      stroke-width: 3px; /* Halo thickness */
+      stroke-linejoin: round;
+      stroke-opacity: 0.85; /* Halo opacity */
+    }
+    .link {
+      fill: none;
+      stroke-opacity: 0.7;
+      stroke-width: 2px;
+    }
+  </style>
+</head>
+<body>
+  <h1>/ — Knowledge Graph</h1>
+  <div class="controls">
+    <button onclick="expandAll()">Expand All</button>
+    <button onclick="collapseAll()">Collapse All</button>
+    <button onclick="resetView()">Reset View</button>
+  </div>
+  <div id="tree-container">
+    <svg id="tree-svg" width="6000" height="8000"></svg>
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    const initialJsonData = {"name":"/","total_count":652,"children":[{"name":".claude","total_count":64,"children":[{"name":"CLAUDE.md","total_count":2,"children":[{"name":".claude/CLAUDE.md","total_count":1,"children":[]},{"name":"graphify","total_count":1,"children":[]}]},{"name":"skills","total_count":62,"children":[{"name":"graphify","total_count":62,"children":[{"name":"references","total_count":35,"children":[{"name":"add-watch.md","total_count":4,"children":[{"name":"add-watch.md","total_count":1,"children":[]},{"name":"For --watch","total_count":1,"children":[]},{"name":"For /graphify add","total_count":1,"children":[]},{"name":"graphify reference: add a URL and watch a folder","total_count":1,"children":[]}]},{"name":"exports.md","total_count":9,"children":[{"name":"exports.md","total_count":1,"children":[]},{"name":"graphify reference: extra exports and benchmark","total_count":1,"children":[]},{"name":"Step 6b - Wiki (only if --wiki flag)","total_count":1,"children":[]},{"name":"Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag)","total_count":1,"children":[]},{"name":"Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag)","total_count":1,"children":[]},{"name":"Step 7b - SVG export (only if --svg flag)","total_count":1,"children":[]},{"name":"Step 7c - GraphML export (only if --graphml flag)","total_count":1,"children":[]},{"name":"Step 7d - MCP server (only if --mcp flag)","total_count":1,"children":[]},{"name":"Step 8 - Token reduction benchmark (only if total_words > 5000)","total_count":1,"children":[]}]},{"name":"extraction-spec.md","total_count":2,"children":[{"name":"extraction-spec.md","total_count":1,"children":[]},{"name":"graphify reference: extraction subagent prompt","total_count":1,"children":[]}]},{"name":"github-and-merge.md","total_count":3,"children":[{"name":"github-and-merge.md","total_count":1,"children":[]},{"name":"graphify reference: GitHub clone and cross-repo merge","total_count":1,"children":[]},{"name":"Step 0 - Clone GitHub repo(s) (only if a GitHub URL was given)","total_count":1,"children":[]}]},{"name":"hooks.md","total_count":4,"children":[{"name":"For git commit hook","total_count":1,"children":[]},{"name":"For native CLAUDE.md integration","total_count":1,"children":[]},{"name":"graphify reference: commit hook and native CLAUDE.md integration","total_count":1,"children":[]},{"name":"hooks.md","total_count":1,"children":[]}]},{"name":"query.md","total_count":6,"children":[{"name":"For /graphify explain","total_count":1,"children":[]},{"name":"For /graphify path","total_count":1,"children":[]},{"name":"graphify reference: query, path, explain","total_count":1,"children":[]},{"name":"query.md","total_count":1,"children":[]},{"name":"Step 0 \u2014 Constrained query expansion (REQUIRED before traversal)","total_count":1,"children":[]},{"name":"Step 1 \u2014 Traversal","total_count":1,"children":[]}]},{"name":"transcribe.md","total_count":3,"children":[{"name":"graphify reference: transcribe video and audio","total_count":1,"children":[]},{"name":"Step 2.5 - Transcribe video / audio files (only if video files detected)","total_count":1,"children":[]},{"name":"transcribe.md","total_count":1,"children":[]}]},{"name":"update.md","total_count":4,"children":[{"name":"For --cluster-only","total_count":1,"children":[]},{"name":"For --update (incremental re-extraction)","total_count":1,"children":[]},{"name":"graphify reference: incremental update and cluster-only","total_count":1,"children":[]},{"name":"update.md","total_count":1,"children":[]}]}]},{"name":"SKILL.md","total_count":27,"children":[{"name":"/graphify","total_count":1,"children":[]},{"name":"For --update and --cluster-only","total_count":1,"children":[]},{"name":"For /graphify add and --watch","total_count":1,"children":[]},{"name":"For /graphify query","total_count":1,"children":[]},{"name":"For the commit hook and native CLAUDE.md integration","total_count":1,"children":[]},{"name":"Honesty Rules","total_count":1,"children":[]},{"name":"Interpreter guard for subcommands","total_count":1,"children":[]},{"name":"Part A - Structural extraction for code files","total_count":1,"children":[]},{"name":"Part B - Semantic extraction (parallel subagents)","total_count":1,"children":[]},{"name":"Part C - Merge AST + semantic into final extraction","total_count":1,"children":[]},{"name":"PowerShell 5.1: Vertical scrolling stops working","total_count":1,"children":[]},{"name":"SKILL.md","total_count":1,"children":[]},{"name":"Step 0 - GitHub repos and multi-path merge (only if a URL or several paths)","total_count":1,"children":[]},{"name":"Step 1 - Ensure graphify is installed","total_count":1,"children":[]},{"name":"Step 2 - Detect files","total_count":1,"children":[]},{"name":"Step 2.5 - Video and audio (only if video files detected)","total_count":1,"children":[]},{"name":"Step 3 - Extract entities and relationships","total_count":1,"children":[]},{"name":"Step 4 - Build graph, cluster, analyze, generate outputs","total_count":1,"children":[]},{"name":"Step 4.5 - Graph health check (read-only integrity gate)","total_count":1,"children":[]},{"name":"Step 5 - Label communities","total_count":1,"children":[]},{"name":"Step 6 - Generate Obsidian vault (opt-in) + HTML","total_count":1,"children":[]},{"name":"Step 9 - Save manifest, update cost tracker, clean up, and report","total_count":1,"children":[]},{"name":"Steps 6b-8 - Wiki, Neo4j, FalkorDB, SVG, GraphML, MCP, benchmark (only on their flags)","total_count":1,"children":[]},{"name":"Troubleshooting","total_count":1,"children":[]},{"name":"Usage","total_count":1,"children":[]},{"name":"What graphify is for","total_count":1,"children":[]},{"name":"What You Must Do When Invoked","total_count":1,"children":[]}]}]}]}]},{"name":".opencode","total_count":2,"children":[{"name":"plugins","total_count":2,"children":[{"name":"graphify.js","total_count":2,"children":[{"name":"GraphifyPlugin()","total_count":1,"children":[]},{"name":"IMPORTANT: keep the reminder string free of backticks and $(...) constructs.","total_count":1,"children":[]}]}]}]},{"name":"ADMIN_DASHBOARD.md","total_count":1,"children":[{"name":"ADMIN_DASHBOARD.md","total_count":1,"children":[]}]},{"name":"AGENTS.md","total_count":2,"children":[{"name":"AGENTS.md","total_count":1,"children":[]},{"name":"graphify","total_count":1,"children":[]}]},{"name":"ANALYTICS_CARD_REDESIGN.md","total_count":22,"children":[{"name":"Added","total_count":1,"children":[]},{"name":"Analytics Card Redesign \u2014 Enterprise SaaS","total_count":1,"children":[]},{"name":"ANALYTICS_CARD_REDESIGN.md","total_count":1,"children":[]},{"name":"Animation & Micro-interactions","total_count":1,"children":[]},{"name":"Card Hover","total_count":1,"children":[]},{"name":"Card Specification","total_count":1,"children":[]},{"name":"Center Content","total_count":1,"children":[]},{"name":"Changes Summary","total_count":1,"children":[]},{"name":"Dark Mode","total_count":1,"children":[]},{"name":"Data Flow","total_count":1,"children":[]},{"name":"Empty State","total_count":1,"children":[]},{"name":"Files Created","total_count":1,"children":[]},{"name":"Files Modified","total_count":1,"children":[]},{"name":"Gradient Colors","total_count":1,"children":[]},{"name":"Icon System","total_count":1,"children":[]},{"name":"Legend Items","total_count":1,"children":[]},{"name":"Light Mode","total_count":1,"children":[]},{"name":"Objective","total_count":1,"children":[]},{"name":"Page Load","total_count":1,"children":[]},{"name":"Quality Targets","total_count":1,"children":[]},{"name":"Removed","total_count":1,"children":[]},{"name":"Segmented Progress Ring Specification","total_count":1,"children":[]}]},{"name":"bugs.md","total_count":27,"children":[{"name":"bugs.md","total_count":1,"children":[]},{"name":"CRIT-001: SVG iconSprite() dumped inside `<style>` tag","total_count":1,"children":[]},{"name":"CRIT-002: Assets path resolution broken \u2014 CSS doesn't load","total_count":1,"children":[]},{"name":"HIGH-001: Hardcoded `/test-platform` asset paths in test.php","total_count":1,"children":[]},{"name":"HIGH-002: Hardcoded asset path in verify-otp.php","total_count":1,"children":[]},{"name":"HIGH-003: \"My Tests\" sidebar link is a dead placeholder","total_count":1,"children":[]},{"name":"HIGH-004: Massive sidebar HTML duplication across 5 student pages","total_count":1,"children":[]},{"name":"INFO-001: 45 defined icons are never used","total_count":1,"children":[]},{"name":"INFO-002: `redirect()` function handles hardcoded paths intentionally","total_count":1,"children":[]},{"name":"INFO-003: No CSRF issues found","total_count":1,"children":[]},{"name":"INFO-004: All include/require paths resolve correctly","total_count":1,"children":[]},{"name":"LOW-001: analytics.php \u2014 Redundant SQL JOIN pattern","total_count":1,"children":[]},{"name":"LOW-002: verify-otp.php \u2014 Missing iconSprite() call","total_count":1,"children":[]},{"name":"LOW-003: Dashboard stat cards use `icon('arrow-right', 14)` as decoration","total_count":1,"children":[]},{"name":"LOW-004: No favicon in any page","total_count":1,"children":[]},{"name":"LOW-005: Timer critical state uses bare `300` and `60` constants","total_count":1,"children":[]},{"name":"MED-001: Missing `.mt-5` utility class","total_count":1,"children":[]},{"name":"MED-002: PHP 8 `match()` expression \u2014 version compatibility","total_count":1,"children":[]},{"name":"MED-003: str_contains() / str_starts_with() \u2014 PHP 8 polyfill needed","total_count":1,"children":[]},{"name":"Severity Legend","total_count":1,"children":[]},{"name":"Summary","total_count":1,"children":[]},{"name":"\u26aa Informational Notes","total_count":1,"children":[]},{"name":"\ud83d\udc1b Bug Tracker \u2014 Student Test Platform","total_count":1,"children":[]},{"name":"\ud83d\udd34 Critical Bugs","total_count":1,"children":[]},{"name":"\ud83d\udd35 Low Bugs","total_count":1,"children":[]},{"name":"\ud83d\udfe0 High Bugs","total_count":1,"children":[]},{"name":"\ud83d\udfe1 Medium Bugs","total_count":1,"children":[]}]},{"name":"CLAUDE.md","total_count":2,"children":[{"name":"CLAUDE.md","total_count":1,"children":[]},{"name":"graphify","total_count":1,"children":[]}]},{"name":"docs","total_count":106,"children":[{"name":"logic.md","total_count":106,"children":[{"name":"1. Project Overview","total_count":1,"children":[]},{"name":"10. Taking a Test (Student View)","total_count":1,"children":[]},{"name":"10.1 Entry Points","total_count":1,"children":[]},{"name":"10.2 Test Interface (`student/test.php`)","total_count":1,"children":[]},{"name":"10.3 Auto-Save","total_count":1,"children":[]},{"name":"10.4 Submit","total_count":1,"children":[]},{"name":"10.5 Result Display","total_count":1,"children":[]},{"name":"11. Grading & Evaluation","total_count":1,"children":[]},{"name":"11.1 Grading Interface (`admin/grading.php`)","total_count":1,"children":[]},{"name":"11.2 Save Grades","total_count":1,"children":[]},{"name":"12. PCI Scoring System","total_count":1,"children":[]},{"name":"12.1 Formula","total_count":1,"children":[]},{"name":"12.2 Generation","total_count":1,"children":[]},{"name":"12.3 Performance Bands (Python API)","total_count":1,"children":[]},{"name":"12.4 Reports (`admin/reports.php`)","total_count":1,"children":[]},{"name":"13. Tab Switch Detection & Timer","total_count":1,"children":[]},{"name":"13.1 Detection","total_count":1,"children":[]},{"name":"13.2 Logging","total_count":1,"children":[]},{"name":"13.3 Admin View","total_count":1,"children":[]},{"name":"13.4 Timer","total_count":1,"children":[]},{"name":"14. CSV Question Import","total_count":1,"children":[]},{"name":"14.1 Format","total_count":1,"children":[]},{"name":"14.2 Import Logic (in `test_builder.php`)","total_count":1,"children":[]},{"name":"14.3 Sample File","total_count":1,"children":[]},{"name":"15. Python Analysis API","total_count":1,"children":[]},{"name":"15.1 Overview","total_count":1,"children":[]},{"name":"15.2 Endpoints","total_count":1,"children":[]},{"name":"15.3 Running","total_count":1,"children":[]},{"name":"15.4 PHP Integration","total_count":1,"children":[]},{"name":"15.5 Configuration","total_count":1,"children":[]},{"name":"16. UI Design System","total_count":1,"children":[]},{"name":"16.1 Fluent 2 \u2014 Design Tokens","total_count":1,"children":[]},{"name":"16.2 Student Theme (`student.css`)","total_count":1,"children":[]},{"name":"16.3 Admin Theme (`admin.css`)","total_count":1,"children":[]},{"name":"17. Email / OTP System","total_count":1,"children":[]},{"name":"17.1 Configuration (`config/mail.php`)","total_count":1,"children":[]},{"name":"17.2 SMTP Sender (`includes/mailer.php`)","total_count":1,"children":[]},{"name":"17.3 Dev Mode","total_count":1,"children":[]},{"name":"17.4 Gmail App Password","total_count":1,"children":[]},{"name":"18. Setup Guide","total_count":1,"children":[]},{"name":"18.1 Prerequisites","total_count":1,"children":[]},{"name":"18.2 Database Setup","total_count":1,"children":[]},{"name":"18.3 Configuration","total_count":1,"children":[]},{"name":"18.4 Running the Server","total_count":1,"children":[]},{"name":"18.5 Seed Data","total_count":1,"children":[]},{"name":"18.6 Python API (Optional)","total_count":1,"children":[]},{"name":"19. Usage Manual","total_count":1,"children":[]},{"name":"19.1 Admin Flow","total_count":1,"children":[]},{"name":"19.2 Student Flow","total_count":1,"children":[]},{"name":"19.3 Guest Flow","total_count":1,"children":[]},{"name":"2. System Architecture","total_count":1,"children":[]},{"name":"20. Configuration Reference","total_count":1,"children":[]},{"name":"20.1 `config/db.php`","total_count":1,"children":[]},{"name":"20.2 `config/mail.php`","total_count":1,"children":[]},{"name":"20.3 Environment Variables (for `DB_ENV = 'production'`)","total_count":1,"children":[]},{"name":"3. Folder Structure","total_count":1,"children":[]},{"name":"4. Database Schema","total_count":1,"children":[]},{"name":"4.1 `admins` \u2014 Platform administrators","total_count":1,"children":[]},{"name":"4.10 `questions` \u2014 Test questions","total_count":1,"children":[]},{"name":"4.11 `submissions` \u2014 Student test attempts","total_count":1,"children":[]},{"name":"4.12 `student_answers` \u2014 Individual answer records","total_count":1,"children":[]},{"name":"4.13 `tab_switch_logs` \u2014 Tab visibility change log","total_count":1,"children":[]},{"name":"4.14 `pci_records` \u2014 Performance Competency Index scores","total_count":1,"children":[]},{"name":"4.2 `colleges` \u2014 Educational institutions","total_count":1,"children":[]},{"name":"4.3 `courses` \u2014 Programs offered (unique per college)","total_count":1,"children":[]},{"name":"4.4 `batches` \u2014 Cohorts within a course","total_count":1,"children":[]},{"name":"4.5 `students` \u2014 Verified students","total_count":1,"children":[]},{"name":"4.6 `unverified_students` \u2014 Pre-OTP-verification registrations","total_count":1,"children":[]},{"name":"4.7 `failed_login_log` \u2014 Audit log for failed auth attempts","total_count":1,"children":[]},{"name":"4.8 `guest_entries` \u2014 Guest links & QR codes","total_count":1,"children":[]},{"name":"4.9 `tests` \u2014 Test definitions","total_count":1,"children":[]},{"name":"5. Router & URL Structure","total_count":1,"children":[]},{"name":"5.1 Dev Server (`php -S localhost:8000 router.php`)","total_count":1,"children":[]},{"name":"5.2 BASE_URL Detection","total_count":1,"children":[]},{"name":"5.3 Asset URLs","total_count":1,"children":[]},{"name":"6. Authentication & User Roles","total_count":1,"children":[]},{"name":"6.1 Roles","total_count":1,"children":[]},{"name":"6.2 Admin Login","total_count":1,"children":[]},{"name":"6.3 Student Login","total_count":1,"children":[]},{"name":"6.4 Guest Token Login","total_count":1,"children":[]},{"name":"6.5 Session & CSRF","total_count":1,"children":[]},{"name":"7. Student Registration & OTP Verification Flow","total_count":1,"children":[]},{"name":"8. Guest Access & QR Code Flow","total_count":1,"children":[]},{"name":"8.1 Generation","total_count":1,"children":[]},{"name":"8.2 QR Code Display","total_count":1,"children":[]},{"name":"8.3 Access Flow","total_count":1,"children":[]},{"name":"9. Test Lifecycle","total_count":1,"children":[]},{"name":"9.1 Status Transitions","total_count":1,"children":[]},{"name":"9.2 Access Control Logic (in `student/test.php`)","total_count":1,"children":[]},{"name":"9.3 Timer Extension","total_count":1,"children":[]},{"name":"Appendix: Key Design Decisions","total_count":1,"children":[]},{"name":"Color Palette","total_count":1,"children":[]},{"name":"Creating & Managing a Test","total_count":1,"children":[]},{"name":"First Time Setup","total_count":1,"children":[]},{"name":"Grading","total_count":1,"children":[]},{"name":"logic.md","total_count":1,"children":[]},{"name":"Managing Students","total_count":1,"children":[]},{"name":"Radius","total_count":1,"children":[]},{"name":"Registration","total_count":1,"children":[]},{"name":"Reports & Analytics","total_count":1,"children":[]},{"name":"Spacing","total_count":1,"children":[]},{"name":"Student Test & Analysis Platform \u2014 Logic Document","total_count":1,"children":[]},{"name":"Table of Contents","total_count":1,"children":[]},{"name":"Taking a Test","total_count":1,"children":[]},{"name":"Test Statuses (Dashboard)","total_count":1,"children":[]},{"name":"Typography","total_count":1,"children":[]}]}]},{"name":"MANUAL.md","total_count":50,"children":[{"name":"1. Overview","total_count":1,"children":[]},{"name":"2. Line Chart \u2014 Premium Progressive Line","total_count":1,"children":[]},{"name":"2.1 Data Generation","total_count":1,"children":[]},{"name":"2.2 SVG Architecture","total_count":1,"children":[]},{"name":"2.3 Smooth Path Generation","total_count":1,"children":[]},{"name":"2.4 Visual Specifications","total_count":1,"children":[]},{"name":"2.5 Y-Axis Labels","total_count":1,"children":[]},{"name":"2.6 X-Axis Labels","total_count":1,"children":[]},{"name":"2.7 Grid Lines","total_count":1,"children":[]},{"name":"2.8 Tooltip (JavaScript)","total_count":1,"children":[]},{"name":"2.9 Crosshair","total_count":1,"children":[]},{"name":"3. Segmented Progress Ring","total_count":1,"children":[]},{"name":"3.1 Architecture","total_count":1,"children":[]},{"name":"3.2 Segment Rendering","total_count":1,"children":[]},{"name":"3.3 Gradient Colour System","total_count":1,"children":[]},{"name":"3.4 Center Content","total_count":1,"children":[]},{"name":"3.5 Legend Layout","total_count":1,"children":[]},{"name":"4. Mobile Responsive Layout","total_count":1,"children":[]},{"name":"4.1 Breakpoint Strategy","total_count":1,"children":[]},{"name":"4.2 Ring Alignment","total_count":1,"children":[]},{"name":"4.3 Card Padding","total_count":1,"children":[]},{"name":"4.4 Ring Sizing","total_count":1,"children":[]},{"name":"4.5 Mobile Layout (Vertical Stack)","total_count":1,"children":[]},{"name":"5. CSS Architecture & Tokens","total_count":1,"children":[]},{"name":"5.1 Design Tokens","total_count":1,"children":[]},{"name":"5.2 Key Selectors","total_count":1,"children":[]},{"name":"5.3 Responsive Overrides","total_count":1,"children":[]},{"name":"6. Animation System","total_count":1,"children":[]},{"name":"6.1 Line Chart Draw Animation","total_count":1,"children":[]},{"name":"6.2 Final Dot Animation","total_count":1,"children":[]},{"name":"6.3 Ring Segment Stagger","total_count":1,"children":[]},{"name":"6.4 Hover Interactions","total_count":1,"children":[]},{"name":"7. Accessibility","total_count":1,"children":[]},{"name":"7.1 Colour Contrast","total_count":1,"children":[]},{"name":"7.2 Focus Indicators","total_count":1,"children":[]},{"name":"7.3 Animation Respect","total_count":1,"children":[]},{"name":"7.4 ARIA Attributes","total_count":1,"children":[]},{"name":"8. Design Inspiration","total_count":1,"children":[]},{"name":"9. Troubleshooting","total_count":1,"children":[]},{"name":"9.1 Chart Not Rendering","total_count":1,"children":[]},{"name":"9.2 Line Chart Not Animating","total_count":1,"children":[]},{"name":"9.3 Responsive Breakpoint Issues","total_count":1,"children":[]},{"name":"9.4 Ring Alignment on Mobile","total_count":1,"children":[]},{"name":"9.5 Test Failures","total_count":1,"children":[]},{"name":"Appendix A: File Reference","total_count":1,"children":[]},{"name":"Appendix B: Design Tokens Reference","total_count":1,"children":[]},{"name":"Design Principles","total_count":1,"children":[]},{"name":"Exam Portal \u2014 Enterprise Chart & Analytics Redesign Manual","total_count":1,"children":[]},{"name":"MANUAL.md","total_count":1,"children":[]},{"name":"Table of Contents","total_count":1,"children":[]}]},{"name":"Non-tech-manual.md","total_count":104,"children":[{"name":"Activity Logs","total_count":1,"children":[]},{"name":"Adding a Single Student","total_count":1,"children":[]},{"name":"All Assessments","total_count":1,"children":[]},{"name":"Batches","total_count":1,"children":[]},{"name":"Bottom of Sidebar","total_count":1,"children":[]},{"name":"Bulk Import Students from CSV","total_count":1,"children":[]},{"name":"Charts Section","total_count":1,"children":[]},{"name":"Coding Grading (Manual)","total_count":1,"children":[]},{"name":"Coding Question Tips","total_count":1,"children":[]},{"name":"Colleges","total_count":1,"children":[]},{"name":"Courses","total_count":1,"children":[]},{"name":"Create Assessment","total_count":1,"children":[]},{"name":"Creating a New Test","total_count":1,"children":[]},{"name":"Dashboard","total_count":1,"children":[]},{"name":"Draft Assessments","total_count":1,"children":[]},{"name":"Explanation Grading (Manual)","total_count":1,"children":[]},{"name":"Explanation Question Tips","total_count":1,"children":[]},{"name":"Failed Logins","total_count":1,"children":[]},{"name":"For Coding Questions:","total_count":1,"children":[]},{"name":"For Explanation Questions:","total_count":1,"children":[]},{"name":"For MCQ Questions:","total_count":1,"children":[]},{"name":"Generating a Guest Link or QR Code","total_count":1,"children":[]},{"name":"Grading","total_count":1,"children":[]},{"name":"Guest Access","total_count":1,"children":[]},{"name":"Help & Documentation","total_count":1,"children":[]},{"name":"How Guest Access Works (Simplified)","total_count":1,"children":[]},{"name":"How Students Use Guest Access","total_count":1,"children":[]},{"name":"How to Create in Excel / Google Sheets","total_count":1,"children":[]},{"name":"How to Upload the CSV File","total_count":1,"children":[]},{"name":"Live Monitor","total_count":1,"children":[]},{"name":"Managing Guest Entries","total_count":1,"children":[]},{"name":"Manual Token Entry (Backup)","total_count":1,"children":[]},{"name":"MCQ Best Practices","total_count":1,"children":[]},{"name":"MCQ Grading (Automatic)","total_count":1,"children":[]},{"name":"Non-tech-manual.md","total_count":1,"children":[]},{"name":"Option 1: Registered Students (Email + Password)","total_count":1,"children":[]},{"name":"Option 2: Guest Access (No Account Required)","total_count":1,"children":[]},{"name":"Pausing or Ending a Test","total_count":1,"children":[]},{"name":"Pending Verifications","total_count":1,"children":[]},{"name":"Question Library","total_count":1,"children":[]},{"name":"Quick Actions (The 6 Shortcut Cards)","total_count":1,"children":[]},{"name":"Recent Activity","total_count":1,"children":[]},{"name":"Reports","total_count":1,"children":[]},{"name":"Settings","total_count":1,"children":[]},{"name":"Statistics Cards (The 4 Big Numbers)","total_count":1,"children":[]},{"name":"Step 1: Adding a College","total_count":1,"children":[]},{"name":"Step 1: Choose the Question Type","total_count":1,"children":[]},{"name":"Step 2: Adding a Course","total_count":1,"children":[]},{"name":"Step 2: Set Marks","total_count":1,"children":[]},{"name":"Step 3: Adding a Batch","total_count":1,"children":[]},{"name":"Step 3: Type Your Question","total_count":1,"children":[]},{"name":"Step 4: Adding Students","total_count":1,"children":[]},{"name":"Step 4: Fill in the Answer Details","total_count":1,"children":[]},{"name":"Step 5: Click **\"Add Question\"**","total_count":1,"children":[]},{"name":"Step 5: Creating a Test (Assessment)","total_count":1,"children":[]},{"name":"Student Dashboard","total_count":1,"children":[]},{"name":"Student Sidebar","total_count":1,"children":[]},{"name":"Students","total_count":1,"children":[]},{"name":"Tab Activity","total_count":1,"children":[]},{"name":"Taking a Test","total_count":1,"children":[]},{"name":"The Exact CSV Format","total_count":1,"children":[]},{"name":"The Grading Dashboard","total_count":1,"children":[]},{"name":"Top Bar (Header)","total_count":1,"children":[]},{"name":"Verifying a New Student","total_count":1,"children":[]},{"name":"Via Link","total_count":1,"children":[]},{"name":"Via QR Code","total_count":1,"children":[]},{"name":"Viewing Test Results","total_count":1,"children":[]},{"name":"What is a CSV file?","total_count":1,"children":[]},{"name":"What Students See After You Add Them","total_count":1,"children":[]},{"name":"What You Get","total_count":1,"children":[]},{"name":"\u2699\ufe0f System","total_count":1,"children":[]},{"name":"\u2705 How Grading Works (For Each Question Type)","total_count":1,"children":[]},{"name":"\u2705 System Status","total_count":1,"children":[]},{"name":"\u2753 FREQUENTLY ASKED QUESTIONS","total_count":1,"children":[]},{"name":"\u2753 Support","total_count":1,"children":[]},{"name":"\ud83c\udf19 Theme Toggle (Dark / Light Mode)","total_count":1,"children":[]},{"name":"\ud83c\udfa8 Assessment Studio","total_count":1,"children":[]},{"name":"\ud83c\udfaf Adding Questions One by One (Manual)","total_count":1,"children":[]},{"name":"\ud83c\udfaf Assessment Distribution (The Coloured Ring)","total_count":1,"children":[]},{"name":"\ud83c\udfaf What Is This?","total_count":1,"children":[]},{"name":"\ud83c\udfdb\ufe0f Institution Management","total_count":1,"children":[]},{"name":"\ud83c\udfdb\ufe0f SETTING UP YOUR INSTITUTION \u2014 Step by Step","total_count":1,"children":[]},{"name":"\ud83d\udc64 How Student Registration & Login Works","total_count":1,"children":[]},{"name":"\ud83d\udc64 Recent Students","total_count":1,"children":[]},{"name":"\ud83d\udc65 Student Management","total_count":1,"children":[]},{"name":"\ud83d\udca1 Tips for Writing Good Questions","total_count":1,"children":[]},{"name":"\ud83d\udcc2 Bulk Upload via CSV File (for MCQ Questions Only)","total_count":1,"children":[]},{"name":"\ud83d\udcc2 LEFT SIDEBAR \u2014 Complete Guide to Every Menu Item","total_count":1,"children":[]},{"name":"\ud83d\udcc4 Sample CSV \u2014 Copy This Template","total_count":1,"children":[]},{"name":"\ud83d\udcc8 Average Performance (The Line Graph)","total_count":1,"children":[]},{"name":"\ud83d\udcca Overview","total_count":1,"children":[]},{"name":"\ud83d\udcca Reports & Analytics","total_count":1,"children":[]},{"name":"\ud83d\udccb Assessment Management","total_count":1,"children":[]},{"name":"\ud83d\udccb Recent Assessments","total_count":1,"children":[]},{"name":"\ud83d\udcd8 Exam Portal \u2014 Simple User Guide","total_count":1,"children":[]},{"name":"\ud83d\udcdd WORKING WITH QUESTIONS \u2014 In Detail","total_count":1,"children":[]},{"name":"\ud83d\udcf1 USING ON MOBILE","total_count":1,"children":[]},{"name":"\ud83d\udd04 Submission Overview (Another Coloured Ring)","total_count":1,"children":[]},{"name":"\ud83d\udd11 Logging In","total_count":1,"children":[]},{"name":"\ud83d\udd17 GUEST LINK & QR CODE \u2014 Giving Test Access Without Login","total_count":1,"children":[]},{"name":"\ud83d\udd34 Live Activity Feed","total_count":1,"children":[]},{"name":"\ud83d\udda5\ufe0f ADMIN DASHBOARD \u2014 What You See First","total_count":1,"children":[]},{"name":"\ud83d\udee0\ufe0f COMMON TASKS \u2014 Step by Step","total_count":1,"children":[]},{"name":"\ud83e\uddd1\u200d\ud83c\udf93 STUDENT EXPERIENCE","total_count":1,"children":[]}]},{"name":"package.json","total_count":17,"children":[{"name":"@playwright/test","total_count":1,"children":[]},{"name":"@playwright/test","total_count":1,"children":[]},{"name":"author","total_count":1,"children":[]},{"name":"description","total_count":1,"children":[]},{"name":"devDependencies","total_count":1,"children":[]},{"name":"directories","total_count":1,"children":[]},{"name":"doc","total_count":1,"children":[]},{"name":"keywords","total_count":1,"children":[]},{"name":"license","total_count":1,"children":[]},{"name":"main","total_count":1,"children":[]},{"name":"name","total_count":1,"children":[]},{"name":"scripts","total_count":1,"children":[]},{"name":"test","total_count":1,"children":[]},{"name":"test:headed","total_count":1,"children":[]},{"name":"test:report","total_count":1,"children":[]},{"name":"type","total_count":1,"children":[]},{"name":"version","total_count":1,"children":[]}]},{"name":"path_bug_report.md","total_count":29,"children":[{"name":"1. Executive Summary","total_count":1,"children":[]},{"name":"2. Problem Analysis","total_count":1,"children":[]},{"name":"2.1 The Duality Problem","total_count":1,"children":[]},{"name":"2.2 Why Type C Failed","total_count":1,"children":[]},{"name":"2.3 Why `redirect()` Calls Work","total_count":1,"children":[]},{"name":"3. Bug Inventory","total_count":1,"children":[]},{"name":"3.1 Confirmed 404 Bugs (3) \u2014 FIXED","total_count":1,"children":[]},{"name":"3.2 Router Safety Net (4) \u2014 ADDED","total_count":1,"children":[]},{"name":"3.3 Previously Fixed URL Bugs (5) \u2014 Already Fixed","total_count":1,"children":[]},{"name":"3.4 Dormant Fragilities (Not Fixed \u2014 Acceptable Risk)","total_count":1,"children":[]},{"name":"4. Router Architecture","total_count":1,"children":[]},{"name":"4.1 Final Router Flow (After Fixes)","total_count":1,"children":[]},{"name":"4.2 Test Matrix","total_count":1,"children":[]},{"name":"5. Fix Details","total_count":1,"children":[]},{"name":"5.1 File: `src/php/includes/admin_header.php` (Line 77)","total_count":1,"children":[]},{"name":"5.2 File: `src/php/public/student/dashboard.php` (Line 38)","total_count":1,"children":[]},{"name":"5.3 File: `src/php/public/admin/students.php` (Line 38)","total_count":1,"children":[]},{"name":"5.4 File: `router.php` (Lines 71-74)","total_count":1,"children":[]},{"name":"6. Verification Results","total_count":1,"children":[]},{"name":"6.1 Path Test Results (13/13 Pass)","total_count":1,"children":[]},{"name":"6.2 Code Cleanliness","total_count":1,"children":[]},{"name":"6.3 No Regression","total_count":1,"children":[]},{"name":"7. Appendix: All Path Types Classified","total_count":1,"children":[]},{"name":"7.1 Path Classification by Environment","total_count":1,"children":[]},{"name":"7.2 All File Paths After Fix","total_count":1,"children":[]},{"name":"Comprehensive Path Bug Report","total_count":1,"children":[]},{"name":"path_bug_report.md","total_count":1,"children":[]},{"name":"Quick Reference: The Rules for URLs","total_count":1,"children":[]},{"name":"Table of Contents","total_count":1,"children":[]}]},{"name":"playwright.config.js","total_count":1,"children":[{"name":"{ defineConfig }","total_count":1,"children":[]}]},{"name":"sql","total_count":1,"children":[{"name":"seed_test_data.php","total_count":1,"children":[]}]},{"name":"src","total_count":130,"children":[{"name":"php","total_count":94,"children":[{"name":"api","total_count":6,"children":[{"name":"delete_college.php","total_count":1,"children":[]},{"name":"get_batches.php","total_count":1,"children":[]},{"name":"get_course_college.php","total_count":1,"children":[]},{"name":"get_courses.php","total_count":1,"children":[]},{"name":"submit_answer.php","total_count":1,"children":[]},{"name":"tab_switch.php","total_count":1,"children":[]}]},{"name":"config","total_count":3,"children":[{"name":"db.php","total_count":2,"children":[{"name":"__registerNotificationHandlers()","total_count":1,"children":[]},{"name":"getDB()","total_count":1,"children":[]}]},{"name":"mail.php","total_count":1,"children":[]}]},{"name":"includes","total_count":50,"children":[{"name":"admin_header.php","total_count":1,"children":[{"name":"isNavActive()","total_count":1,"children":[]}]},{"name":"auth.php","total_count":14,"children":[{"name":"adminLogin()","total_count":1,"children":[]},{"name":"generateStudentOtp()","total_count":1,"children":[]},{"name":"getClientIp()","total_count":1,"children":[]},{"name":"guestLogin()","total_count":1,"children":[]},{"name":"isAdmin()","total_count":1,"children":[]},{"name":"isStudent()","total_count":1,"children":[]},{"name":"logFailedLogin()","total_count":1,"children":[]},{"name":"logout()","total_count":1,"children":[]},{"name":"requireAdmin()","total_count":1,"children":[]},{"name":"requireStudent()","total_count":1,"children":[]},{"name":"resendStudentOtp()","total_count":1,"children":[]},{"name":"studentLogin()","total_count":1,"children":[]},{"name":"studentRegister()","total_count":1,"children":[]},{"name":"verifyStudentOtp()","total_count":1,"children":[]}]},{"name":"helpers.php","total_count":16,"children":[{"name":"flash()","total_count":1,"children":[]},{"name":"flashMessage()","total_count":1,"children":[]},{"name":"formatDateTime()","total_count":1,"children":[]},{"name":"generateToken()","total_count":1,"children":[]},{"name":"getRemainingSeconds()","total_count":1,"children":[]},{"name":"getStudentTests()","total_count":1,"children":[]},{"name":"h()","total_count":1,"children":[]},{"name":"notifyAdmin()","total_count":1,"children":[]},{"name":"parseRequestBody()","total_count":1,"children":[]},{"name":"pythonApiRequest()","total_count":1,"children":[]},{"name":"recalculatePciForSubmission()","total_count":1,"children":[]},{"name":"redirect()","total_count":1,"children":[]},{"name":"renderNotificationItems()","total_count":1,"children":[]},{"name":"str_contains()","total_count":1,"children":[]},{"name":"str_starts_with()","total_count":1,"children":[]},{"name":"timeAgo()","total_count":1,"children":[]}]},{"name":"icons.php","total_count":5,"children":[{"name":"getIconDef()","total_count":1,"children":[]},{"name":"getIconDefinitions()","total_count":1,"children":[]},{"name":"icon()","total_count":1,"children":[]},{"name":"iconSprite()","total_count":1,"children":[]},{"name":"resolveIconColor()","total_count":1,"children":[]}]},{"name":"mailer.php","total_count":8,"children":[{"name":"sendMail()","total_count":1,"children":[]},{"name":"sendNativeMail()","total_count":1,"children":[]},{"name":"sendOtpEmail()","total_count":1,"children":[]},{"name":"sendSmtpMail()","total_count":1,"children":[]},{"name":"smtpFirstLine()","total_count":1,"children":[]},{"name":"smtpIsSuccess()","total_count":1,"children":[]},{"name":"smtpReadResponse()","total_count":1,"children":[]},{"name":"smtpSendAndRead()","total_count":1,"children":[]}]},{"name":"session.php","total_count":5,"children":[{"name":"csrfField()","total_count":1,"children":[]},{"name":"getCsrfToken()","total_count":1,"children":[]},{"name":"requireCsrf()","total_count":1,"children":[]},{"name":"startSession()","total_count":1,"children":[]},{"name":"validateCsrfToken()","total_count":1,"children":[]}]},{"name":"admin_footer.php","total_count":1,"children":[]}]},{"name":"public","total_count":35,"children":[{"name":"admin","total_count":24,"children":[{"name":"college_create.php","total_count":4,"children":[{"name":"academicYearString()","total_count":1,"children":[]},{"name":"computeEndingYear()","total_count":1,"children":[]},{"name":"generateBatchNickName()","total_count":1,"children":[]},{"name":"generateCollegeCode()","total_count":1,"children":[]}]},{"name":"colleges.php","total_count":1,"children":[{"name":"parseStreamsInput()","total_count":1,"children":[]}]},{"name":"dashboard.php","total_count":1,"children":[{"name":"perfSmoothPath()","total_count":1,"children":[]}]},{"name":"activity_logs.php","total_count":1,"children":[]},{"name":"assessment_management.php","total_count":1,"children":[]},{"name":"assessment_studio.php","total_count":1,"children":[]},{"name":"batches.php","total_count":1,"children":[]},{"name":"college_dashboard.php","total_count":1,"children":[]},{"name":"courses.php","total_count":1,"children":[]},{"name":"failed_logins.php","total_count":1,"children":[]},{"name":"grading.php","total_count":1,"children":[]},{"name":"help.php","total_count":1,"children":[]},{"name":"live_monitor.php","total_count":1,"children":[]},{"name":"notifications.php","total_count":1,"children":[]},{"name":"pending_verifications.php","total_count":1,"children":[]},{"name":"question_library.php","total_count":1,"children":[]},{"name":"reports.php","total_count":1,"children":[]},{"name":"settings.php","total_count":1,"children":[]},{"name":"students.php","total_count":1,"children":[]},{"name":"tab_switcher.php","total_count":1,"children":[]},{"name":"test_builder.php","total_count":1,"children":[]}]},{"name":"guest.php","total_count":1,"children":[{"name":"processGuestToken()","total_count":1,"children":[]}]},{"name":"student","total_count":5,"children":[{"name":"analytics.php","total_count":1,"children":[]},{"name":"dashboard.php","total_count":1,"children":[]},{"name":"profile.php","total_count":1,"children":[]},{"name":"results.php","total_count":1,"children":[]},{"name":"test.php","total_count":1,"children":[]}]},{"name":"index.php","total_count":1,"children":[]},{"name":"login.php","total_count":1,"children":[]},{"name":"logout.php","total_count":1,"children":[]},{"name":"signup.php","total_count":1,"children":[]},{"name":"verify-otp.php","total_count":1,"children":[]}]}]},{"name":"python","total_count":36,"children":[{"name":"analysis","total_count":21,"children":[{"name":"charts.py","total_count":11,"children":[{"name":"Build a Chart.js bar chart dataset.","total_count":1,"children":[]},{"name":"Build a Chart.js doughnut chart dataset.","total_count":1,"children":[]},{"name":"Build a Chart.js radar chart for a single student.","total_count":1,"children":[]},{"name":"Build a Chart.js stacked bar chart dataset.","total_count":1,"children":[]},{"name":"Build histogram data for PCI score distribution.","total_count":1,"children":[]},{"name":"build_bar_chart_data()","total_count":1,"children":[]},{"name":"build_doughnut_data()","total_count":1,"children":[]},{"name":"build_histogram_data()","total_count":1,"children":[]},{"name":"build_radar_data()","total_count":1,"children":[]},{"name":"build_stacked_bar_data()","total_count":1,"children":[]},{"name":"Chart data generation utilities for PCI reports. Returns data structures\u2026","total_count":1,"children":[]}]},{"name":"pci.py","total_count":9,"children":[{"name":"Build a histogram distribution from a list of PCI scores. Returns a dict with\u2026","total_count":1,"children":[]},{"name":"Calculate basic statistics for a list of scores.","total_count":1,"children":[]},{"name":"Calculate PCI and category percentages. Args: mcq_score: Marks obtained in MCQ\u2026","total_count":1,"children":[]},{"name":"calculate_pci()","total_count":1,"children":[]},{"name":"Categorize a PCI score into a performance band. Bands: - Excellent: >= 85 -\u2026","total_count":1,"children":[]},{"name":"get_distribution()","total_count":1,"children":[]},{"name":"get_performance_band()","total_count":1,"children":[]},{"name":"get_stats()","total_count":1,"children":[]},{"name":"PCI Calculation Logic. PCI (Performance Competency Index) is a weighted\u2026","total_count":1,"children":[]}]},{"name":"__init__.py","total_count":1,"children":[]}]},{"name":"app.py","total_count":15,"children":[{"name":"api_batch_pci()","total_count":1,"children":[]},{"name":"api_calculate_pci()","total_count":1,"children":[]},{"name":"api_charts_test()","total_count":1,"children":[]},{"name":"api_student_pci()","total_count":1,"children":[]},{"name":"Calculate PCI for a specific submission. Body: { \"submission_id\": int }","total_count":1,"children":[]},{"name":"Fetch per-category scores for a submission.","total_count":1,"children":[]},{"name":"fetch_submission_scores()","total_count":1,"children":[]},{"name":"Fluent 2 Test Platform \u2014 PCI Analysis API\u2026","total_count":1,"children":[]},{"name":"Get a MySQL database connection.","total_count":1,"children":[]},{"name":"Get all PCI scores for a test.","total_count":1,"children":[]},{"name":"Get chart data for a test.","total_count":1,"children":[]},{"name":"Get PCI history for a student.","total_count":1,"children":[]},{"name":"get_db()","total_count":1,"children":[]},{"name":"Health check endpoint.","total_count":1,"children":[]},{"name":"health()","total_count":1,"children":[]}]}]}]},{"name":"test.md","total_count":19,"children":[{"name":"1. Database Connectivity & Schema  (16 tests)","total_count":1,"children":[]},{"name":"10. Fluent 2 Design System  (8 tests)","total_count":1,"children":[]},{"name":"2. Column Validation  (17 tests)","total_count":1,"children":[]},{"name":"3. Admin Dashboard Queries  (6 tests)","total_count":1,"children":[]},{"name":"4. Admin Management Pages  (10 tests)","total_count":1,"children":[]},{"name":"5. Reports & Tab Switcher  (2 tests)","total_count":1,"children":[]},{"name":"6. Student Pages  (4 tests)","total_count":1,"children":[]},{"name":"7. Authentication  (3 tests)","total_count":1,"children":[]},{"name":"8. Application Infrastructure  (10 tests)","total_count":1,"children":[]},{"name":"9. Security  (3 tests)","total_count":1,"children":[]},{"name":"Configuration Verified","total_count":1,"children":[]},{"name":"Database Migration Applied","total_count":1,"children":[]},{"name":"Executive Summary","total_count":1,"children":[]},{"name":"File Inventory","total_count":1,"children":[]},{"name":"Issues Found & Fixed During Testing","total_count":1,"children":[]},{"name":"Report Structure","total_count":1,"children":[]},{"name":"Test Coverage","total_count":1,"children":[]},{"name":"Test Platform \u2014 Comprehensive Test Report","total_count":1,"children":[]},{"name":"test.md","total_count":1,"children":[]}]},{"name":"test_report.md","total_count":44,"children":[{"name":"1. Executive Summary","total_count":1,"children":[]},{"name":"10. Known Issues","total_count":1,"children":[]},{"name":"10.1 Unfixed (Feature Scope)","total_count":1,"children":[]},{"name":"10.2 Non-Issues (Verified Working)","total_count":1,"children":[]},{"name":"11. Coverage Summary","total_count":1,"children":[]},{"name":"11.1 Quality Gates","total_count":1,"children":[]},{"name":"11.2 Coverage Matrix","total_count":1,"children":[]},{"name":"11.3 Test Credentials","total_count":1,"children":[]},{"name":"2. Infrastructure & Environment","total_count":1,"children":[]},{"name":"2.1 Server Configuration","total_count":1,"children":[]},{"name":"2.2 File Inventory (35 files)","total_count":1,"children":[]},{"name":"2.3 Database Schema","total_count":1,"children":[]},{"name":"3. Page-by-Page Audit","total_count":1,"children":[]},{"name":"3.1 Public Pages (Unauthenticated)","total_count":1,"children":[]},{"name":"3.2 Student Pages (Authenticated)","total_count":1,"children":[]},{"name":"3.3 Admin Pages (Authenticated)","total_count":1,"children":[]},{"name":"4. API Endpoint Audit","total_count":1,"children":[]},{"name":"5. Static Assets","total_count":1,"children":[]},{"name":"6. E2E Workflow Tests","total_count":1,"children":[]},{"name":"6.1 Admin \u2192 CRUD Operations","total_count":1,"children":[]},{"name":"6.2 Admin \u2192 Test & Questions","total_count":1,"children":[]},{"name":"6.3 Student \u2192 Registration","total_count":1,"children":[]},{"name":"6.4 Student \u2192 Test-Taking","total_count":1,"children":[]},{"name":"6.5 Data Flow \u2014 Submit Answer","total_count":1,"children":[]},{"name":"6.6 Admin \u2192 Grading","total_count":1,"children":[]},{"name":"6.7 Admin \u2192 PCI Reports","total_count":1,"children":[]},{"name":"7. Bug Fix Log","total_count":1,"children":[]},{"name":"7.1 Critical Bugs (5/5 Fixed)","total_count":1,"children":[]},{"name":"7.2 High Severity (3/3 Fixed)","total_count":1,"children":[]},{"name":"7.3 Low Severity (2/2 Fixed)","total_count":1,"children":[]},{"name":"7.4 Additional Fixes (Not in original bug list)","total_count":1,"children":[]},{"name":"8. Security Audit","total_count":1,"children":[]},{"name":"8.1 Authentication","total_count":1,"children":[]},{"name":"8.2 CSRF Protection","total_count":1,"children":[]},{"name":"8.3 Input Validation","total_count":1,"children":[]},{"name":"8.4 Submission Integrity","total_count":1,"children":[]},{"name":"9. Performance Metrics","total_count":1,"children":[]},{"name":"9.1 Page Load Times","total_count":1,"children":[]},{"name":"9.2 Database Query Count (per page load)","total_count":1,"children":[]},{"name":"Appendix A: Router Configuration","total_count":1,"children":[]},{"name":"Appendix B: First-Time Setup","total_count":1,"children":[]},{"name":"Detailed Test Report \u2014 Student Test & Analysis Platform","total_count":1,"children":[]},{"name":"Table of Contents","total_count":1,"children":[]},{"name":"test_report.md","total_count":1,"children":[]}]},{"name":"tests","total_count":9,"children":[{"name":"analytics-grid.spec.js","total_count":9,"children":[{"name":"CSS_PATH","total_count":1,"children":[]},{"name":"FIXTURE_PATH","total_count":1,"children":[]},{"name":"fs","total_count":1,"children":[]},{"name":"getCssVar()","total_count":1,"children":[]},{"name":"getFirstRowItemCount()","total_count":1,"children":[]},{"name":"getGridColumns()","total_count":1,"children":[]},{"name":"getStyle()","total_count":1,"children":[]},{"name":"path","total_count":1,"children":[]},{"name":"{ test, expect }","total_count":1,"children":[]}]}]},{"name":"UI_SUGGESTIONS.md","total_count":18,"children":[{"name":"1. CURRENT LIMITATION: ADMIN_DASHBOARD.md is a Starter Document","total_count":1,"children":[]},{"name":"10. RECOMMENDED NEXT STEPS","total_count":1,"children":[]},{"name":"2. CURRENT LIMITATION: admin.png Cannot Be Rendered","total_count":1,"children":[]},{"name":"3. ISSUE: Admin Profile onClick Navigates to Logout","total_count":1,"children":[]},{"name":"4. ISSUE: System Health Card Uses alert()","total_count":1,"children":[]},{"name":"5. ISSUE: stat-card-menu Buttons Have No Dropdown Behavior","total_count":1,"children":[]},{"name":"6. ISSUE: Add Student URL Has No Action Parameter","total_count":1,"children":[]},{"name":"7. ISSUE: Edit Buttons in Students Table Use Invalid Anchor Links","total_count":1,"children":[]},{"name":"8. ADDITIONAL OBSERVATIONS","total_count":1,"children":[]},{"name":"8.1 Keyboard Navigation","total_count":1,"children":[]},{"name":"8.2 ARIA Attributes","total_count":1,"children":[]},{"name":"8.3 Performance","total_count":1,"children":[]},{"name":"8.4 Data Freshness","total_count":1,"children":[]},{"name":"9. SUMMARY OF DEFERRED DECISIONS","total_count":1,"children":[]},{"name":"Date: 2026-07-24","total_count":1,"children":[]},{"name":"Specification Gap Analysis & Recommendations","total_count":1,"children":[]},{"name":"Status: REQUIRES REVIEW","total_count":1,"children":[]},{"name":"UI_SUGGESTIONS.md","total_count":1,"children":[]}]},{"name":"_check_auth.php","total_count":1,"children":[]},{"name":"_seed_test.php","total_count":1,"children":[]},{"name":"router.php","total_count":1,"children":[]},{"name":"temp_validate.py","total_count":1,"children":[]}]};
+
+    function transformData(jsonData) {
+        // Helper function to recursively build the children structure
+        function processNode(node, parentL1StageName) {
+            let displayName = node.name;
+            // Append total_count if it exists and is not already in the name
+            if (node.total_count !== undefined) {
+                if (!/\(Total Count: \d+\)$/.test(displayName)) {
+                    displayName += ` (Total Count: ${node.total_count})`;
+                }
+            }
+
+            const newNode = { name: displayName };
+
+            if (parentL1StageName === "Root") {
+                 newNode.originalStageName = node.name;
+            } else {
+                newNode.originalStageName = parentL1StageName;
+            }
+
+            if (node.children && node.children.length > 0) {
+                const stageNameToPass = (parentL1StageName === "Root") ? node.name : parentL1StageName;
+                newNode.children = node.children.map(child => processNode(child, stageNameToPass));
+            }
+
+            return newNode;
+        }
+
+        let rootDisplayName = jsonData.name;
+        if (jsonData.total_count !== undefined && !/\(Total Count: \d+\)$/.test(rootDisplayName)) {
+            rootDisplayName += ` (Total Count: ${jsonData.total_count})`;
+        }
+
+        return {
+            name: rootDisplayName,
+            originalStageName: "Root",
+            children: (jsonData.children || []).map(child => processNode(child, "Root"))
+        };
+    }
+
+    const treeData = transformData(initialJsonData);
+
+    // Auto-populated phaseColors: every depth-1 child of the root gets
+    // a stable colour from a bigger palette so all top-level dirs are
+    // distinguishable.
+    const PALETTE = [
+      ["#3498DB","#2980B9","#AED6F1"], ["#2ECC71","#27AE60","#A9DFBF"],
+      ["#E74C3C","#C0392B","#F5B7B1"], ["#9B59B6","#8E44AD","#D7BDE2"],
+      ["#F39C12","#D68910","#FAD7A0"], ["#1ABC9C","#117864","#A2D9CE"],
+      ["#34495E","#1B2631","#ABB2B9"], ["#E67E22","#BA4A00","#F5CBA7"],
+      ["#16A085","#0E6655","#A2D9CE"], ["#D35400","#A04000","#EDBB99"],
+      ["#7F8C8D","#566573","#D5DBDB"], ["#C0392B","#7B241C","#F5B7B1"],
+      ["#2E86C1","#1B4F72","#A9CCE3"], ["#28B463","#196F3D","#A9DFBF"],
+      ["#AF7AC5","#6C3483","#D2B4DE"],
+    ];
+    const phaseColors = { "Root": { fill: "#4A4A4A", stroke: "#333333", collapsedFill: "#6C757D" },
+                          "Default": { fill: "#BDC3C7", stroke: "#95A5A6", collapsedFill: "#ECF0F1" } };
+    (initialJsonData.children || []).forEach((c, i) => {
+      const pal = PALETTE[i % PALETTE.length];
+      phaseColors[c.name] = { fill: pal[0], stroke: pal[1], collapsedFill: pal[2] };
+    });
+
+    const levelSpecificPalettes = {
+      0: { fill: "#4A4A4A", stroke: "#333333", collapsedFill: "#6C757D" },
+      2: { fill: "#6ab04c", stroke: "#508a38", collapsedFill: "#a3d391" },
+      3: { fill: "#f0932b", stroke: "#d0730f", collapsedFill: "#f6c07e" },
+      4: { fill: "#be2edd", stroke: "#a01cb3", collapsedFill: "#e08bf2" },
+      5: { fill: "#00a8ff", stroke: "#007ac1", collapsedFill: "#74d2ff" },
+      6: { fill: "#e55039", stroke: "#c23620", collapsedFill: "#f09a8d" },
+      default: { fill: "#747d8c", stroke: "#57606f", collapsedFill: "#a4b0be" }
+    };
+
+    const svgElement = d3.select("#tree-svg");
+    const initialSvgWidth = +svgElement.attr("width");
+    const initialSvgHeight = +svgElement.attr("height");
+    const margin = { top: 40, right: 120, bottom: 80, left: 450 };
+    let width = initialSvgWidth - margin.left - margin.right;
+    let height = initialSvgHeight - margin.top - margin.bottom;
+    const duration = 500;
+    let nodeCounter = 0;
+    const g = svgElement.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+    const treemap = d3.tree().nodeSize([40, 0]);
+    let rootNode = d3.hierarchy(treeData, d => d.children);
+    rootNode.x0 = 0;
+    rootNode.y0 = 0;
+
+    if (rootNode.children) {
+      rootNode.children.forEach(d_child => {
+        if (d_child.children) { collapseBranch(d_child); }
+      });
+    }
+    updateTree(rootNode);
+
+    function collapseBranch(d) { if (d.children) { d._children = d.children; d._children.forEach(collapseBranch); d.children = null; } }
+    function expandBranch(d) { if (d._children) { d.children = d._children; d._children = null; } if (d.children) { d.children.forEach(expandBranch); } }
+    window.expandAll = () => { expandBranch(rootNode); updateTree(rootNode); };
+    window.collapseAll = () => { if (rootNode.children) { rootNode.children.forEach(collapseBranch); } updateTree(rootNode); };
+    window.resetView = () => { if (rootNode.children) { rootNode.children.forEach(d_child => { if (d_child.children || d_child._children) { collapseBranch(d_child); } }); } if (rootNode._children && !rootNode.children) { rootNode.children = rootNode._children; rootNode._children = null; } updateTree(rootNode); };
+
+    function updateTree(source) {
+      const treeLayoutData = treemap(rootNode);
+      let nodes = treeLayoutData.descendants();
+      let links = treeLayoutData.descendants().slice(1);
+
+      let minX = 0;
+      let maxX = 0;
+      if (nodes.length > 0) {
+        minX = d3.min(nodes, d => d.x);
+        maxX = d3.max(nodes, d => d.x);
+      }
+
+      let neededHeight = Math.max(initialSvgHeight, maxX - minX + margin.top + margin.bottom + 100);
+      svgElement.transition().duration(duration / 2).attr("height", neededHeight);
+      g.transition().duration(duration / 2).attr("transform", `translate(${margin.left},${margin.top - minX + 40})`);
+
+      nodes.forEach(d => { d.y = d.depth * 400; }); // Adjust horizontal separation if needed
+
+      const node = g.selectAll('g.node').data(nodes, d => d.id || (d.id = ++nodeCounter));
+      const nodeEnter = node.enter().append('g')
+        .attr('class', d => "node" + (d.children || d._children ? " node--internal" : " node--leaf") + (d._children ? " _children" : ""))
+        .attr('transform', d => `translate(${source.y0},${source.x0})`)
+        .on('click', (event, d) => { if (d.children) { d._children = d.children; d.children = null; } else if (d._children) { d.children = d._children; d._children = null; } updateTree(d); })
+        .style('cursor', d => (d.children || d._children) ? 'pointer' : 'default');
+
+      nodeEnter.append('circle').attr('r', 1e-6);
+
+      nodeEnter.append('text')
+        .attr('dy', '.35em')
+        .attr('x', d => d.children || d._children ? -14 : 14)
+        .attr('text-anchor', d => d.children || d._children ? 'end' : 'start')
+        .style("fill-opacity", 1e-6)
+        .call(wrapText, 380);
+
+      const nodeUpdate = nodeEnter.merge(node);
+      nodeUpdate.transition().duration(duration)
+        .attr('transform', d => `translate(${d.y},${d.x})`)
+        .attr('class', d => "node" + (d.children ? " node--internal" : " node--leaf") + (d._children ? " node--internal _children" : ""));
+
+      nodeUpdate.select('circle').attr('r', 8.5)
+        .style('fill', d => {
+            let palette;
+            if (d.depth === 0) {
+                palette = levelSpecificPalettes[0];
+            } else if (d.depth === 1) {
+                palette = phaseColors[d.data.originalStageName] || phaseColors.Default;
+            } else {
+                palette = levelSpecificPalettes[d.depth] || levelSpecificPalettes.default;
+            }
+            if (d._children) return palette.collapsedFill;
+            if (d.children) return palette.fill;
+            return "#fff";
+        })
+        .style('stroke', d => {
+            let palette;
+            if (d.depth === 0) {
+                palette = levelSpecificPalettes[0];
+            } else if (d.depth === 1) {
+                palette = phaseColors[d.data.originalStageName] || phaseColors.Default;
+            } else {
+                palette = levelSpecificPalettes[d.depth] || levelSpecificPalettes.default;
+            }
+            return palette.stroke;
+        });
+      nodeUpdate.select('text').style("fill-opacity", 1).call(wrapText, 380);
+
+      const nodeExit = node.exit().transition().duration(duration).attr('transform', d => `translate(${source.y},${source.x})`).remove();
+      nodeExit.select('circle').attr('r', 1e-6);
+      nodeExit.select('text').style('fill-opacity', 1e-6);
+
+      const link = g.selectAll('path.link').data(links, d => d.id);
+      const linkEnter = link.enter().insert('path', "g").attr('class', 'link').attr('d', d => { const o = { x: source.x0, y: source.y0 }; return diagonal(o, o); });
+
+      linkEnter.merge(link).transition().duration(duration).attr('d', d => diagonal(d, d.parent))
+        .style('stroke', d => {
+            const sourceNode = d.parent;
+            if (!sourceNode) return phaseColors.Default.stroke;
+            const l1AncestorName = sourceNode.data.originalStageName;
+            const colorPalette = phaseColors[l1AncestorName] || phaseColors.Default;
+            return colorPalette.stroke;
+        });
+      link.exit().transition().duration(duration).attr('d', d => { const o = { x: source.x, y: source.y }; return diagonal(o, o); }).remove();
+      nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+    }
+
+    function diagonal(s, d) { return `M ${s.y} ${s.x} C ${(s.y + d.y) / 2} ${s.x}, ${(s.y + d.y) / 2} ${d.x}, ${d.y} ${d.x}`; }
+
+    function wrapText(textElements, maxWidth) {
+        const textPartColors = {
+            name: '#343a40',
+            count: '#0056b3'
+        };
+        const countRegex = /(\s\(Total Count: \d+\))$/;
+
+        textElements.each(function () {
+            const textD3 = d3.select(this);
+            const originalNodeText = textD3.datum().data.name;
+            const x = parseFloat(textD3.attr("x") || 0);
+            const initialDy = textD3.attr("dy");
+            const textAnchor = textD3.attr("text-anchor");
+            const lineHeight = 1.1;
+
+            textD3.text(null);
+
+            let namePart = originalNodeText;
+            let countPartText = "";
+
+            const countMatch = originalNodeText.match(countRegex);
+            if (countMatch && originalNodeText.endsWith(countMatch[0])) {
+                namePart = originalNodeText.substring(0, originalNodeText.length - countMatch[0].length).trim();
+                countPartText = countMatch[0].trim();
+            }
+
+            const tokens = [];
+            namePart.split(/\s+/).filter(Boolean).forEach(word => {
+                tokens.push({ text: word, type: 'name' });
+            });
+            if (countPartText) {
+                tokens.push({ text: countPartText, type: 'count' });
+            }
+
+            if (tokens.length === 0 && originalNodeText) {
+                tokens.push({ text: originalNodeText, type: 'name' });
+            }
+
+            let currentTspan = textD3.append("tspan").attr("x", x).attr("dy", initialDy);
+            if (textAnchor === "end") currentTspan.attr("text-anchor", "end");
+
+            let lineTokens = [];
+
+            for (let i = 0; i < tokens.length; i++) {
+                const tokenObj = tokens[i];
+
+                lineTokens.push(tokenObj);
+                currentTspan.text(lineTokens.map(t => t.text).join(" "));
+
+                if (currentTspan.node().getComputedTextLength() > maxWidth && lineTokens.length > 1) {
+                    lineTokens.pop();
+
+                    currentTspan.text(null);
+                    lineTokens.forEach((prevToken, idx) => {
+                        currentTspan.append("tspan")
+                            .text((idx > 0 ? " " : "") + prevToken.text)
+                            .style("fill", textPartColors[prevToken.type] || textPartColors.name)
+                            .style("font-weight", prevToken.type === 'count' ? "bold" : "normal");
+                    });
+
+                    lineTokens = [tokenObj];
+                    currentTspan = textD3.append("tspan").attr("x", x).attr("dy", lineHeight + "em");
+                    if (textAnchor === "end") currentTspan.attr("text-anchor", "end");
+                }
+            }
+
+            currentTspan.text(null);
+            lineTokens.forEach((token, idx) => {
+                currentTspan.append("tspan")
+                    .text((idx > 0 ? " " : "") + token.text)
+                    .style("fill", textPartColors[token.type] || textPartColors.name)
+                    .style("font-weight", token.type === 'count' ? "bold" : "normal");
+            });
+
+            if (textD3.selectAll("tspan > tspan").empty() && textD3.select("tspan").text().length === 0 && originalNodeText) {
+                let t = textD3.select("tspan");
+                let displayText = originalNodeText;
+                t.text(displayText).style("fill", textPartColors.name);
+                if (t.node() && t.node().getComputedTextLength() > maxWidth && displayText.length > 20) {
+                    let estimatedChars = Math.floor(maxWidth / (t.node().getComputedTextLength()/displayText.length) );
+                    displayText = displayText.substring(0, Math.max(0, estimatedChars - 3)) + "...";
+                    t.text(displayText);
+                }
+            }
+        });
+    }
+  </script>
+</body>
+</html>
