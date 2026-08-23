@@ -176,7 +176,10 @@ $currentPage = 'dashboard';
                                             if ($t['submission_status'] === 'evaluated') {
                                                 $actionBtn = '<a href="test.php?test_id=' . $t['id'] . '" class="btn btn-sm btn-ghost">' . icon('chart', 14) . ' View Result</a>';
                                             } elseif ($t['submission_status'] === 'submitted') {
-                                                $actionBtn = '<span class="badge badge-pending">' . icon('clock', 12) . ' Submitted</span>';
+                                                $isPendingReview = ($t['evaluation_status'] ?? '') === 'pending_manual_review';
+                                                $actionBtn = $isPendingReview
+                                                    ? '<span class="badge badge-pending">' . icon('clock', 12) . ' Under Evaluation</span>'
+                                                    : '<span class="badge badge-pending">' . icon('clock', 12) . ' Submitted</span>';
                                             } elseif ($t['submission_status'] === 'in_progress' && $t['status'] !== 'completed') {
                                                 $actionBtn = '<a href="test.php?test_id=' . $t['id'] . '" class="btn btn-sm btn-primary">' . icon('play', 14) . ' ' . ($t['status'] === 'paused' ? 'Resume (Paused)' : 'Resume') . '</a>';
                                             } elseif ($t['status'] === 'active' && $canStart) {
@@ -220,7 +223,7 @@ $currentPage = 'dashboard';
                                                     : 'Evaluated';
                                             } elseif ($t['submission_status'] === 'submitted') {
                                                 $submissionLabel = 'badge-pending';
-                                                $submissionText = 'Submitted';
+                                                $submissionText = ($t['evaluation_status'] ?? '') === 'pending_manual_review' ? 'Under Evaluation' : 'Submitted';
                                             } elseif ($t['submission_status'] === 'in_progress') {
                                                 $submissionLabel = 'badge-active';
                                                 $submissionText = 'In Progress';
@@ -287,7 +290,10 @@ $currentPage = 'dashboard';
                                     if ($t['submission_status'] === 'evaluated') {
                                         $actionBtn = '<a href="test.php?test_id=' . $t['id'] . '" class="btn btn-sm btn-ghost">' . icon('chart', 14) . ' View Result</a>';
                                     } elseif ($t['submission_status'] === 'submitted') {
-                                        $actionBtn = '<span class="badge badge-pending">' . icon('clock', 12) . ' Submitted</span>';
+                                        $isPendingReview = ($t['evaluation_status'] ?? '') === 'pending_manual_review';
+                                        $actionBtn = $isPendingReview
+                                            ? '<span class="badge badge-pending">' . icon('clock', 12) . ' Under Evaluation</span>'
+                                            : '<span class="badge badge-pending">' . icon('clock', 12) . ' Submitted</span>';
                                     } elseif ($t['submission_status'] === 'in_progress' && $t['status'] !== 'completed') {
                                         $actionBtn = '<a href="test.php?test_id=' . $t['id'] . '" class="btn btn-sm btn-primary">' . icon('play', 14) . ' ' . ($t['status'] === 'paused' ? 'Resume (Paused)' : 'Resume') . '</a>';
                                     } elseif ($t['status'] === 'active' && $canStart) {

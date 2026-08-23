@@ -152,15 +152,24 @@ CREATE TABLE submissions (
     student_id INT NOT NULL,
     test_id INT NOT NULL,
     status ENUM('in_progress','submitted','evaluated') NOT NULL DEFAULT 'in_progress',
+    evaluation_status ENUM('pending_manual_review','evaluated') NOT NULL DEFAULT 'pending_manual_review'
+        COMMENT 'Hybrid grading: pending = awaiting manual review of coding/explanation answers',
     started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     submitted_at DATETIME DEFAULT NULL,
     timer_extended_minutes INT NOT NULL DEFAULT 0,
     total_marks_obtained DECIMAL(10,2) DEFAULT NULL,
     total_marks DECIMAL(10,2) DEFAULT NULL,
+    auto_score DECIMAL(6,2) NOT NULL DEFAULT 0.00 COMMENT 'MCQ points earned automatically at submit time',
+    manual_score DECIMAL(6,2) DEFAULT NULL COMMENT 'Subjective points awarded by an admin',
+    total_score DECIMAL(6,2) DEFAULT NULL COMMENT 'auto_score + manual_score once fully evaluated',
+    evaluated_at DATETIME DEFAULT NULL,
+    evaluator_id INT DEFAULT NULL,
     UNIQUE KEY uk_student_test (student_id, test_id),
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY (test_id) REFERENCES tests(id) ON DELETE CASCADE,
-    INDEX idx_submissions_status (status)
+    CONSTRAINT fk_submissions_evaluator FOREIGN KEY (evaluator_id) REFERENCES admins(id) ON DELETE SET NULL,
+    INDEX idx_submissions_status (status),
+    INDEX idx_submissions_evalstatus (evaluation_status)
 ) ENGINE=InnoDB;
 
 -- ------------------------------------------------------------
@@ -172,7 +181,9 @@ CREATE TABLE student_answers (
     question_id INT NOT NULL,
     answer_json JSON NOT NULL COMMENT 'MCQ: {"selected":"A"} / Coding: {"code":"..."} / Explanation: {"text":"..."}',
     marks_obtained DECIMAL(10,2) DEFAULT NULL,
+    is_auto_graded TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1 = graded by machine (MCQ), 0 = graded by admin',
     evaluated_at DATETIME DEFAULT NULL,
+    evaluation_remarks TEXT NULL COMMENT 'Evaluator feedback for coding/explanation answers',
     submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uk_submission_question (submission_id, question_id),
     FOREIGN KEY (submission_id) REFERENCES submissions(id) ON DELETE CASCADE,

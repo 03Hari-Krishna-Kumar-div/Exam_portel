@@ -111,10 +111,11 @@ if (isStudent()) {
 
 // If already submitted/evaluated, show result (with score if evaluated)
 if (($submission['status'] ?? '') === 'submitted' || ($submission['status'] ?? '') === 'evaluated') {
-    $isEval = ($submission['status'] === 'evaluated');
-    $score = $submission['total_marks_obtained'] ?? null;
+    $evalStatus = $submission['evaluation_status'] ?? (($submission['status'] === 'evaluated') ? 'evaluated' : 'pending_manual_review');
+    $isEval = ($evalStatus === 'evaluated');
+    $score = $submission['total_score'] ?? $submission['total_marks_obtained'] ?? null;
     $total = $submission['total_marks'] ?? null;
-    $pct = ($score !== null && $total > 0) ? round(($score / $total) * 100, 1) : null;
+    $pct = ($isEval && $score !== null && $total > 0) ? round(($score / $total) * 100, 1) : null;
 
     echo '<!DOCTYPE html><html><head><title>Test Result</title><link rel="stylesheet" href="' . ASSETS_URL . '/css/student.css"></head><body>';
     echo '<div class="container" style="max-width:600px;margin:80px auto;text-align:center;">';
@@ -124,6 +125,11 @@ if (($submission['status'] ?? '') === 'submitted' || ($submission['status'] ?? '
         echo '<h1 style="font-size:1.5rem;margin-bottom:8px;">Test Completed</h1>';
         echo '<div style="font-size:2rem;font-weight:700;color:' . $iconColor . ';margin:16px 0;">' . $pct . '%</div>';
         echo '<p class="text-muted">' . h($score) . ' / ' . h($total) . ' marks</p>';
+    } elseif (!$isEval) {
+        echo '<div style="margin-bottom:16px;"><svg width="48" height="48" viewBox="0 0 20 20" fill="#826A00"><path d="M10 2a1 1 0 0 1 .9.55l7 13A1 1 0 0 1 17 17H3a1 1 0 0 1-.9-1.45l7-13A1 1 0 0 1 10 2zm0 5a1 1 0 0 0-1 1v2a1 1 0 1 0 2 0V8a1 1 0 0 0-1-1zm0 7.2a1.1 1.1 0 1 0 0-2.2 1.1 1.1 0 0 0 0 2.2z"/></svg></div>';
+        echo '<h1 style="font-size:1.5rem;margin-bottom:8px;">Result Not Yet Announced</h1>';
+        echo '<span class="badge badge-pending">Under Evaluation</span>';
+        echo '<p class="text-muted" style="margin-top:12px;">Your test was submitted successfully. This assessment includes written/coding answers that are being reviewed — your full result will appear here once the evaluator finishes grading.</p>';
     } else {
         echo '<div style="margin-bottom:16px;"><svg width="48" height="48" viewBox="0 0 20 20" fill="var(--accent)"><path d="M16.7 5.3a1 1 0 0 0-1.4 0L8 12.6 4.7 9.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4z"/></svg></div>';
         echo '<h1 style="font-size:1.5rem;margin-bottom:8px;">Test Submitted</h1>';
@@ -257,6 +263,9 @@ $remaining = max(0, $totalSeconds - $elapsed);
             <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
             <input type="hidden" name="test_id" value="<?= $testId ?>">
             <input type="hidden" name="submission_id" value="<?= h($submission['id']) ?>">
+            <!-- Ask the API to redirect browsers back to the result screen after final submit.
+                 Auto-save (fetch) requests ignore this — they keep getting JSON. -->
+            <input type="hidden" name="redirect" value="1">
 
             <?php foreach ($questions as $index => $q):
                 $qType = $q['type'];

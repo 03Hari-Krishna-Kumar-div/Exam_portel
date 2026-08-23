@@ -273,6 +273,7 @@ function getStudentTests(int $studentId): array {
         SELECT t.*,
                s.id AS submission_id,
                s.status AS submission_status,
+               s.evaluation_status,
                s.started_at,
                s.submitted_at,
                s.timer_extended_minutes,
