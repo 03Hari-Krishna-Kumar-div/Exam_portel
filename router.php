@@ -51,6 +51,16 @@ if (strpos($requestUri, '/assets/') === 0) {
     return true;
 }
 
+// ─── Serve well-known root static files (favicon, robots.txt) ──
+if (preg_match('#^/(favicon\.ico|robots\.txt)$#', $requestUri, $m)) {
+    $filePath = __DIR__ . '/' . $m[1];
+    if (file_exists($filePath)) {
+        header('Content-Type: ' . ($m[1] === 'robots.txt' ? 'text/plain' : 'image/x-icon'));
+        readfile($filePath);
+        return true;
+    }
+}
+
 // ─── Map /api/ and /src/php/api/ to src/php/api/ ────────────
 if (strpos($requestUri, '/api/') === 0 || strpos($requestUri, '/src/php/api/') === 0) {
     $apiDir = __DIR__ . '/src/php';
