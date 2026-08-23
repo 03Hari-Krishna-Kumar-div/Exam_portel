@@ -238,25 +238,36 @@ if ($currentTestId > 0) {
 
 <?php if ($currentTestId > 0 && !empty($pciData) && empty($currentStudentId)): ?>
     <!-- PCI Overview Charts -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-4);">
+    <!-- .charts-grid children carry min-width/min-height:0 (CSS grid blowout guard);
+         each canvas sits in a fixed-height .chart-wrapper so Chart.js can never
+         enter its parent-height resize feedback loop. -->
+    <div class="charts-grid">
         <div class="chart-container">
             <h3>Overall PCI Score Distribution</h3>
-            <canvas id="pciBarChart" height="300"></canvas>
+            <div class="chart-wrapper">
+                <canvas id="pciBarChart"></canvas>
+            </div>
         </div>
         <div class="chart-container">
             <h3>Category Average</h3>
-            <canvas id="pciCategoryChart" height="300"></canvas>
+            <div class="chart-wrapper">
+                <canvas id="pciCategoryChart"></canvas>
+            </div>
         </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-4);">
+    <div class="charts-grid">
         <div class="chart-container">
             <h3>Score Breakdown by Student</h3>
-            <canvas id="pciStackedChart" height="300"></canvas>
+            <div class="chart-wrapper">
+                <canvas id="pciStackedChart"></canvas>
+            </div>
         </div>
         <div class="chart-container">
             <h3>PCI Distribution (Histogram)</h3>
-            <canvas id="pciHistogramChart" height="300"></canvas>
+            <div class="chart-wrapper">
+                <canvas id="pciHistogramChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -320,8 +331,28 @@ if ($currentTestId > 0) {
             explanation: '#8A6D00',
         };
 
+        // ─── Safe mount: destroy any existing instance first ───
+        // Re-renders (tab switches, AJAX refreshes) must never stack
+        // duplicate Chart instances fighting over the same canvas.
+        function mountChart(canvasId, config) {
+            const el = document.getElementById(canvasId);
+            if (!el) return null;
+            const existing = Chart.getChart(el);
+            if (existing) existing.destroy();
+            return new Chart(el, config);
+        }
+
+        // Shared defaults: bounded by .chart-wrapper (fixed 350px box).
+        // maintainAspectRatio:false + resizeDelay stops the aspect-ratio
+        // recalculation loop that caused infinite canvas/page growth.
+        const baseOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            resizeDelay: 200,
+        };
+
         // ─── Bar Chart ────────────────────────────────────
-        new Chart(document.getElementById('pciBarChart'), {
+        window.pciBarChart = mountChart('pciBarChart', {
             type: 'bar',
             data: {
                 labels: labels,
@@ -333,9 +364,7 @@ if ($currentTestId > 0) {
                     borderWidth: 1,
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+            options: { ...baseOptions,
                 plugins: {
                     legend: { display: false },
                 },
@@ -351,7 +380,7 @@ if ($currentTestId > 0) {
         const avgCoding = codingScores.reduce((a, b) => a + b, 0) / codingScores.length || 0;
         const avgExpl = explanationScores.reduce((a, b) => a + b, 0) / explanationScores.length || 0;
 
-        new Chart(document.getElementById('pciCategoryChart'), {
+        window.pciCategoryChart = mountChart('pciCategoryChart', {
             type: 'doughnut',
             data: {
                 labels: ['MCQ (40%)', 'Coding (30%)', 'Explanation (30%)'],
@@ -361,9 +390,7 @@ if ($currentTestId > 0) {
                     borderWidth: 2,
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+            options: { ...baseOptions,
                 plugins: {
                     tooltip: {
                         callbacks: {
@@ -377,7 +404,7 @@ if ($currentTestId > 0) {
         });
 
         // ─── Stacked Bar ──────────────────────────────────
-        new Chart(document.getElementById('pciStackedChart'), {
+        window.pciStackedChart = mountChart('pciStackedChart', {
             type: 'bar',
             data: {
                 labels: labels,
@@ -387,9 +414,7 @@ if ($currentTestId > 0) {
                     { label: 'Explanation', data: explanationScores, backgroundColor: colors.explanation + 'CC' },
                 ]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+            options: { ...baseOptions,
                 scales: {
                     x: { stacked: true, ticks: { maxRotation: 45, font: { size: 10 } } },
                     y: { stacked: true, max: 100, title: { display: true, text: 'Score (%)' } }
@@ -414,7 +439,7 @@ if ($currentTestId > 0) {
             return pciScores.filter(v => v >= bin && v < bins[i + 1]).length;
         });
 
-        new Chart(document.getElementById('pciHistogramChart'), {
+        window.pciHistogramChart = mountChart('pciHistogramChart', {
             type: 'bar',
             data: {
                 labels: bins.slice(0, -1).map((b, i) => b + '-' + bins[i + 1]),
@@ -426,9 +451,7 @@ if ($currentTestId > 0) {
                     borderWidth: 1,
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+            options: { ...baseOptions,
                 plugins: { legend: { display: false } },
                 scales: {
                     y: { beginAtZero: true, title: { display: true, text: 'Number of Students' } },
@@ -471,38 +494,49 @@ if ($currentTestId > 0) {
 
             <div class="chart-container" style="max-width:400px;margin:var(--space-4) auto;">
                 <h3 style="text-align:center;">PCI Breakdown</h3>
-                <canvas id="studentRadarChart" height="300"></canvas>
+                <div class="chart-wrapper" style="height:320px;max-height:320px;">
+                    <canvas id="studentRadarChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
-    new Chart(document.getElementById('studentRadarChart'), {
-        type: 'radar',
-        data: {
-            labels: ['MCQ', 'Coding', 'Explanation'],
-            datasets: [{
-                label: 'Score (%)',
-                data: [<?= (float)$pr['mcq_score'] ?>, <?= (float)$pr['coding_score'] ?>, <?= (float)$pr['explanation_score'] ?>],
-                backgroundColor: 'rgba(0,120,212,0.2)',
-                borderColor: '#0078D4',
-                borderWidth: 2,
-                pointBackgroundColor: '#0078D4',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                r: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: { stepSize: 20 }
+    (function() {
+        const el = document.getElementById('studentRadarChart');
+        if (!el) return;
+        // Destroy-before-create: never stack duplicate instances
+        const existing = Chart.getChart(el);
+        if (existing) existing.destroy();
+
+        window.studentRadarChart = new Chart(el, {
+            type: 'radar',
+            data: {
+                labels: ['MCQ', 'Coding', 'Explanation'],
+                datasets: [{
+                    label: 'Score (%)',
+                    data: [<?= (float)$pr['mcq_score'] ?>, <?= (float)$pr['coding_score'] ?>, <?= (float)$pr['explanation_score'] ?>],
+                    backgroundColor: 'rgba(0,120,212,0.2)',
+                    borderColor: '#0078D4',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#0078D4',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                resizeDelay: 200,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { stepSize: 20 }
+                    }
                 }
             }
-        }
-    });
+        });
+    })();
     </script>
 
 <?php elseif ($currentTestId > 0): ?>
