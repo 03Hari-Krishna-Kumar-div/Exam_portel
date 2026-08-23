@@ -1,16 +1,16 @@
 # Graph Report - TEST  (2026-08-23)
 
 ## Corpus Check
-- 124 files · ~249,585 words
+- 125 files · ~250,255 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 945 nodes · 948 edges · 114 communities (103 shown, 11 thin omitted)
+- 955 nodes · 957 edges · 115 communities (104 shown, 11 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 21 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `dbb5293e`
+- Built from commit: `65c16e8b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -82,6 +82,7 @@
 - evaluation.spec.js
 - live-cycle.spec.js
 - reports-charts.spec.js
+- QA Report — Hybrid Evaluation Lifecycle
 
 ## God Nodes (most connected - your core abstractions)
 1. `Student Test & Analysis Platform — Logic Document` - 23 edges
@@ -91,8 +92,8 @@
 5. `🎯 EXAM PORTAL — COMPLETE FIX REPORT` - 14 edges
 6. `Exam Portal — Enterprise Chart & Analytics Redesign Manual` - 13 edges
 7. `What You Must Do When Invoked` - 12 edges
-8. `Test Coverage` - 11 edges
-9. `/graphify` - 11 edges
+8. `/graphify` - 11 edges
+9. `Test Coverage` - 11 edges
 10. `Analytics Card Redesign — Enterprise SaaS` - 11 edges
 
 ## Surprising Connections (you probably didn't know these)
@@ -110,7 +111,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (114 total, 11 thin omitted)
+## Communities (115 total, 11 thin omitted)
 
 ### Community 0 - "Detailed Test Report — Student Test & Analysis Platform"
 Cohesion: 0.05
@@ -336,8 +337,12 @@ Nodes (4): { execSync }, path, STUDENT, { test, expect }
 Cohesion: 0.40
 Nodes (3): ADMIN, STUDENT, { test, expect }
 
+### Community 114 - "QA Report — Hybrid Evaluation Lifecycle"
+Cohesion: 0.20
+Nodes (9): Evidence, Fix Commits Needed (working tree intentionally uncommitted), How to Re-run, ISSUE-001 — HIGH — FIXED & VERIFIED, ISSUE-002 — LOW — NOTED, NOT FIXED (cosmetic), Issues Found, Notes, QA Report — Hybrid Evaluation Lifecycle (+1 more)
+
 ## Knowledge Gaps
-- **573 isolated node(s):** `{ test, expect }`, `path`, `ADMIN`, `STUDENT`, `CORRECT_KEYS` (+568 more)
+- **580 isolated node(s):** `graphify`, `Usage`, `What graphify is for`, `Step 0 - GitHub repos and multi-path merge (only if a URL or several paths)`, `Step 1 - Ensure graphify is installed` (+575 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -345,15 +350,15 @@ Nodes (3): ADMIN, STUDENT, { test, expect }
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Exam Portal — Enterprise Chart & Analytics Redesign Manual` connect `Exam Portal — Enterprise Chart & Analytics Redesign Manual` to `README.md`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **Why does `🎯 EXAM PORTAL — COMPLETE FIX REPORT` connect `🎯 EXAM PORTAL — COMPLETE FIX REPORT` to `README.md`?**
   _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Why does `Exam Portal — Developer Quick Start Guide` connect `Exam Portal — Developer Quick Start Guide` to `README.md`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Are the 12 inferred relationships involving `getDB()` (e.g. with `adminLogin()` and `generateStudentOtp()`) actually correct?**
   _`getDB()` has 12 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `{ test, expect }`, `path`, `ADMIN` to the rest of the system?**
-  _573 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `graphify`, `Usage`, `What graphify is for` to the rest of the system?**
+  _580 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Detailed Test Report — Student Test & Analysis Platform` be split into smaller, more focused modules?**
   _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._
 - **Should `app.py` be split into smaller, more focused modules?**

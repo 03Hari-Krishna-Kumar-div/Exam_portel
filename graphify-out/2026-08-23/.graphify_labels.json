@@ -108,5 +108,9 @@
   "106": "📘 Exam Portal — Simple User Guide",
   "107": "🛠️ COMMON TASKS — Step by Step",
   "108": "Recent Activity",
-  "109": "qa-run.mjs"
+  "109": "qa-run.mjs",
+  "110": "e2e_live_demo.spec.js",
+  "111": "evaluation.spec.js",
+  "112": "live-cycle.spec.js",
+  "113": "reports-charts.spec.js"
 }

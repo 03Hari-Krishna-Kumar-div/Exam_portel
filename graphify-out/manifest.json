@@ -796,5 +796,17 @@
     "seen": 1787467615.5326931,
     "ast_hash": "e56353fd22a2aa53d88c1c05e1a8d50f",
     "semantic_hash": ""
+  },
+  ".github/workflows/codeql.yml": {
+    "mtime": 1787467614.5538168,
+    "seen": 1787482764.5727255,
+    "ast_hash": "62c727be48345407190ebd0c77981fb4",
+    "semantic_hash": ""
+  },
+  "SECURITY.md": {
+    "mtime": 1787467614.5548162,
+    "seen": 1787482764.5727255,
+    "ast_hash": "3634b1ffff5f5ab021b7db549fef6968",
+    "semantic_hash": ""
   }
 }

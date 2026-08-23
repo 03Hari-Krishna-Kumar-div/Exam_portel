@@ -1,16 +1,16 @@
 # Graph Report - TEST  (2026-08-23)
 
 ## Corpus Check
-- 117 files · ~246,397 words
+- 124 files · ~249,585 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 917 nodes · 923 edges · 110 communities (100 shown, 10 thin omitted)
+- 945 nodes · 948 edges · 114 communities (103 shown, 11 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 21 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5ec04ad6`
+- Built from commit: `dbb5293e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -78,24 +78,28 @@
 - 🛠️ COMMON TASKS — Step by Step
 - Recent Activity
 - qa-run.mjs
+- e2e_live_demo.spec.js
+- evaluation.spec.js
+- live-cycle.spec.js
+- reports-charts.spec.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `Student Test & Analysis Platform — Logic Document` - 23 edges
-2. `4. Database Schema` - 15 edges
-3. `Detailed Test Report — Student Test & Analysis Platform` - 15 edges
+2. `Detailed Test Report — Student Test & Analysis Platform` - 15 edges
+3. `4. Database Schema` - 15 edges
 4. `getDB()` - 14 edges
 5. `🎯 EXAM PORTAL — COMPLETE FIX REPORT` - 14 edges
 6. `Exam Portal — Enterprise Chart & Analytics Redesign Manual` - 13 edges
 7. `What You Must Do When Invoked` - 12 edges
-8. `/graphify` - 11 edges
-9. `Analytics Card Redesign — Enterprise SaaS` - 11 edges
-10. `Test Coverage` - 11 edges
+8. `Test Coverage` - 11 edges
+9. `/graphify` - 11 edges
+10. `Analytics Card Redesign — Enterprise SaaS` - 11 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `getStudentTests()` --calls--> `getDB()`  [INFERRED]
-  src/php/includes/helpers.php → src/php/config/db.php
 - `generateStudentOtp()` --calls--> `sendOtpEmail()`  [INFERRED]
   src/php/includes/auth.php → src/php/includes/mailer.php
+- `getStudentTests()` --calls--> `getDB()`  [INFERRED]
+  src/php/includes/helpers.php → src/php/config/db.php
 - `adminLogin()` --calls--> `getDB()`  [INFERRED]
   src/php/includes/auth.php → src/php/config/db.php
 - `generateStudentOtp()` --calls--> `getDB()`  [INFERRED]
@@ -106,7 +110,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (110 total, 10 thin omitted)
+## Communities (114 total, 11 thin omitted)
 
 ### Community 0 - "Detailed Test Report — Student Test & Analysis Platform"
 Cohesion: 0.05
@@ -320,24 +324,36 @@ Nodes (5): 🛠️ COMMON TASKS — Step by Step, Creating a New Test, Pausing o
 Cohesion: 0.40
 Nodes (5): 🔴 Live Activity Feed, Recent Activity, 📋 Recent Assessments, 👤 Recent Students, ✅ System Status
 
+### Community 110 - "e2e_live_demo.spec.js"
+Cohesion: 0.22
+Nodes (7): ADMIN, CORRECT_KEYS, log(), loginAs(), path, STUDENT, { test, expect }
+
+### Community 111 - "evaluation.spec.js"
+Cohesion: 0.22
+Nodes (4): { execSync }, path, STUDENT, { test, expect }
+
+### Community 112 - "live-cycle.spec.js"
+Cohesion: 0.40
+Nodes (3): ADMIN, STUDENT, { test, expect }
+
 ## Knowledge Gaps
-- **559 isolated node(s):** `$schema`, `.opencode/plugins/graphify.js`, `name`, `version`, `description` (+554 more)
+- **573 isolated node(s):** `{ test, expect }`, `path`, `ADMIN`, `STUDENT`, `CORRECT_KEYS` (+568 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Exam Portal — Enterprise Chart & Analytics Redesign Manual` connect `Exam Portal — Enterprise Chart & Analytics Redesign Manual` to `README.md`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
-- **Why does `🎯 EXAM PORTAL — COMPLETE FIX REPORT` connect `🎯 EXAM PORTAL — COMPLETE FIX REPORT` to `README.md`?**
   _High betweenness centrality (0.025) - this node is a cross-community bridge._
+- **Why does `🎯 EXAM PORTAL — COMPLETE FIX REPORT` connect `🎯 EXAM PORTAL — COMPLETE FIX REPORT` to `README.md`?**
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Why does `Exam Portal — Developer Quick Start Guide` connect `Exam Portal — Developer Quick Start Guide` to `README.md`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Are the 12 inferred relationships involving `getDB()` (e.g. with `adminLogin()` and `generateStudentOtp()`) actually correct?**
   _`getDB()` has 12 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `$schema`, `.opencode/plugins/graphify.js`, `name` to the rest of the system?**
-  _559 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `{ test, expect }`, `path`, `ADMIN` to the rest of the system?**
+  _573 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Detailed Test Report — Student Test & Analysis Platform` be split into smaller, more focused modules?**
   _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._
 - **Should `app.py` be split into smaller, more focused modules?**

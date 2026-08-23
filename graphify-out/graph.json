@@ -3317,6 +3317,126 @@
       "source_location": "L6"
     },
     {
+      "id": "gstack_qa_reports_qa_report_evaluation",
+      "label": "qa-report-evaluation.md",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "qa-report-evaluation.md",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "gstack_qa_reports_qa_report_evaluation_evidence",
+      "label": "Evidence",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "evidence",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L14"
+    },
+    {
+      "id": "gstack_qa_reports_qa_report_evaluation_fix_commits_needed_working_tree_intentionally_uncommitted",
+      "label": "Fix Commits Needed (working tree intentionally uncommitted)",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "fix commits needed (working tree intentionally uncommitted)",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L33"
+    },
+    {
+      "id": "gstack_qa_reports_qa_report_evaluation_how_to_re_run",
+      "label": "How to Re-run",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "how to re-run",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L38"
+    },
+    {
+      "id": "gstack_qa_reports_qa_report_evaluation_issue_001_high_fixed_verified",
+      "label": "ISSUE-001 \u2014 HIGH \u2014 FIXED & VERIFIED",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "issue-001 \u2014 high \u2014 fixed & verified",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L24"
+    },
+    {
+      "id": "gstack_qa_reports_qa_report_evaluation_issue_002_low_noted_not_fixed_cosmetic",
+      "label": "ISSUE-002 \u2014 LOW \u2014 NOTED, NOT FIXED (cosmetic)",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "issue-002 \u2014 low \u2014 noted, not fixed (cosmetic)",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L30"
+    },
+    {
+      "id": "gstack_qa_reports_qa_report_evaluation_issues_found",
+      "label": "Issues Found",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "issues found",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L22"
+    },
+    {
+      "id": "gstack_qa_reports_qa_report_evaluation_notes",
+      "label": "Notes",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "notes",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L45"
+    },
+    {
+      "id": "gstack_qa_reports_qa_report_evaluation_qa_report_hybrid_evaluation_lifecycle",
+      "label": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "qa report \u2014 hybrid evaluation lifecycle",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "gstack_qa_reports_qa_report_evaluation_result_3_3_tests_passing_health_score_97_100",
+      "label": "Result: 3/3 tests passing \u00b7 Health Score 97/100",
+      "_origin": "ast",
+      "community": 114,
+      "community_name": "QA Report \u2014 Hybrid Evaluation Lifecycle",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "result: 3/3 tests passing \u00b7 health score 97/100",
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L6"
+    },
+    {
       "id": "package",
       "label": "package.json",
       "_origin": "ast",
@@ -16215,6 +16335,105 @@
       "weight": 1.0
     },
     {
+      "source": "gstack_qa_reports_qa_report_evaluation",
+      "target": "gstack_qa_reports_qa_report_evaluation_qa_report_hybrid_evaluation_lifecycle",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "gstack_qa_reports_qa_report_evaluation_issues_found",
+      "target": "gstack_qa_reports_qa_report_evaluation_issue_001_high_fixed_verified",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "gstack_qa_reports_qa_report_evaluation_issues_found",
+      "target": "gstack_qa_reports_qa_report_evaluation_issue_002_low_noted_not_fixed_cosmetic",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "gstack_qa_reports_qa_report_evaluation_qa_report_hybrid_evaluation_lifecycle",
+      "target": "gstack_qa_reports_qa_report_evaluation_evidence",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "gstack_qa_reports_qa_report_evaluation_qa_report_hybrid_evaluation_lifecycle",
+      "target": "gstack_qa_reports_qa_report_evaluation_issues_found",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "gstack_qa_reports_qa_report_evaluation_qa_report_hybrid_evaluation_lifecycle",
+      "target": "gstack_qa_reports_qa_report_evaluation_fix_commits_needed_working_tree_intentionally_uncommitted",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "gstack_qa_reports_qa_report_evaluation_qa_report_hybrid_evaluation_lifecycle",
+      "target": "gstack_qa_reports_qa_report_evaluation_how_to_re_run",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "gstack_qa_reports_qa_report_evaluation_qa_report_hybrid_evaluation_lifecycle",
+      "target": "gstack_qa_reports_qa_report_evaluation_notes",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "gstack_qa_reports_qa_report_evaluation_qa_report_hybrid_evaluation_lifecycle",
+      "target": "gstack_qa_reports_qa_report_evaluation_result_3_3_tests_passing_health_score_97_100",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".gstack/qa-reports/qa-report-evaluation.md",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
       "source": "manual",
       "target": "manual_exam_portal_enterprise_chart_analytics_redesign_manual",
       "relation": "contains",
@@ -21737,5 +21956,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "dbb5293e24089835617d6cec560eb25c4ef154d1"
+  "built_at_commit": "65c16e8b319391a05467dbe56f67464425b106be"
 }
